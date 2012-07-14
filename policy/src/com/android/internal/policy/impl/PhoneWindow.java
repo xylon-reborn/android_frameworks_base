@@ -49,6 +49,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.content.ActivityNotFoundException;
 import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
@@ -109,6 +110,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import com.android.internal.statusbar.IStatusBarService;
+import com.android.internal.R;
 
 /**
  * Android-specific Window.
@@ -207,8 +209,6 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
     private AudioManager mAudioManager;
     private KeyguardManager mKeyguardManager;
 
-    private Handler mConfigHandler;
-
     private final class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -220,6 +220,11 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                     .getUriFor(Settings.System.ENABLE_STYLUS_GESTURES), false,
                     this);
             checkGestures();
+        }
+
+        void unobserve() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
         }
 
         @Override
@@ -261,9 +266,6 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         super(context);
         mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
-        mConfigHandler = new Handler();
-        SettingsObserver settingsObserver = new SettingsObserver(mConfigHandler);
-        settingsObserver.observe();
     }
 
     @Override
@@ -1876,9 +1878,12 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         private PopupWindow mActionModePopup;
         private Runnable mShowActionModePopup;
 
+        private SettingsObserver mSettingsObserver;
+
         public DecorView(Context context, int featureId) {
             super(context);
             mFeatureId = featureId;
+            mSettingsObserver = new SettingsObserver(new Handler());
         }
 
         @Override
@@ -2055,133 +2060,103 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
         private void dispatchStylusAction(int gestureAction) {
             final ContentResolver resolver = mContext.getContentResolver();
-            boolean flag = false;
-            //flag=true when action is performed on systemui
-            if ("com.android.systemui".equalsIgnoreCase(mContext
-                    .getPackageName())) {
-                flag = true;
-            }
-            String packageName = null;
+            boolean isSystemUI = mContext.getPackageName().equals("com.android.systemui");
+            String setting = null;
             int dispatchAction = -1;
             switch (gestureAction) {
-            case StylusGestureFilter.SWIPE_LEFT:
-                packageName = Settings.System.getString(resolver,
-                        Settings.System.GESTURES_LEFT_SWIPE);
-                break;
-            case StylusGestureFilter.SWIPE_RIGHT:
-                packageName = Settings.System.getString(resolver,
-                        Settings.System.GESTURES_RIGHT_SWIPE);
-                break;
-            case StylusGestureFilter.SWIPE_UP:
-                packageName = Settings.System.getString(resolver,
-                        Settings.System.GESTURES_UP_SWIPE);
-                break;
-            case StylusGestureFilter.SWIPE_DOWN:
-                packageName = Settings.System.getString(resolver,
-                        Settings.System.GESTURES_DOWN_SWIPE);
-                break;
-            case StylusGestureFilter.TAP_DOUBLE:
-                packageName = Settings.System.getString(resolver,
-                        Settings.System.GESTURES_DOUBLE_TAP);
-                break;
-            case StylusGestureFilter.PRESS_LONG:
-                packageName = Settings.System.getString(resolver,
-                        Settings.System.GESTURES_LONG_PRESS);
-                break;
-            }
-            if (packageName != null) {
-                if (String.valueOf(StylusGestureFilter.KEY_HOME)
-                        .equalsIgnoreCase(packageName)) {
-                    dispatchAction = StylusGestureFilter.KEY_HOME;
-                } else if (String.valueOf(StylusGestureFilter.KEY_BACK)
-                        .equalsIgnoreCase(packageName)) {
-                    dispatchAction = StylusGestureFilter.KEY_BACK;
-                } else if (String.valueOf(StylusGestureFilter.KEY_MENU)
-                        .equalsIgnoreCase(packageName)) {
-                    dispatchAction = StylusGestureFilter.KEY_MENU;
-                } else if (String.valueOf(StylusGestureFilter.KEY_SEARCH)
-                        .equalsIgnoreCase(packageName)) {
-                    dispatchAction = StylusGestureFilter.KEY_SEARCH;
-                } else if (String.valueOf(StylusGestureFilter.KEY_RECENT)
-                        .equalsIgnoreCase(packageName)) {
-                    dispatchAction = StylusGestureFilter.KEY_RECENT;
-                } else if (String.valueOf(StylusGestureFilter.KEY_NO_ACTION)
-                        .equalsIgnoreCase(packageName)) {
+                case StylusGestureFilter.SWIPE_LEFT:
+                    setting = Settings.System.getString(resolver,
+                            Settings.System.GESTURES_LEFT_SWIPE);
+                    break;
+                case StylusGestureFilter.SWIPE_RIGHT:
+                    setting = Settings.System.getString(resolver,
+                            Settings.System.GESTURES_RIGHT_SWIPE);
+                    break;
+                case StylusGestureFilter.SWIPE_UP:
+                    setting = Settings.System.getString(resolver,
+                            Settings.System.GESTURES_UP_SWIPE);
+                    break;
+                case StylusGestureFilter.SWIPE_DOWN:
+                    setting = Settings.System.getString(resolver,
+                            Settings.System.GESTURES_DOWN_SWIPE);
+                    break;
+                case StylusGestureFilter.TAP_DOUBLE:
+                    setting = Settings.System.getString(resolver,
+                            Settings.System.GESTURES_DOUBLE_TAP);
+                    break;
+                case StylusGestureFilter.PRESS_LONG:
+                    setting = Settings.System.getString(resolver,
+                            Settings.System.GESTURES_LONG_PRESS);
+                    break;
+                default:
                     return;
-                } else {
-                    dispatchAction = StylusGestureFilter.KEY_APP;
-                }
-            } else {
-                return;
             }
+
+            try {
+                int value = Integer.valueOf(setting);
+                if (value == StylusGestureFilter.KEY_NO_ACTION) {
+                    return;
+                }
+                dispatchAction = value;
+            } catch (NumberFormatException e) {
+                dispatchAction = StylusGestureFilter.KEY_APP;
+            }
+
             // Dispatching action
             switch (dispatchAction) {
-            case StylusGestureFilter.KEY_HOME:
-                Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-                homeIntent.addCategory(Intent.CATEGORY_HOME);
-                homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(homeIntent);
-                break;
-            case StylusGestureFilter.KEY_BACK:
-                backAction();
-                break;
-            case StylusGestureFilter.KEY_MENU:
-                // Menu action on notificationbar / systemui will be converted
-                // to back action
-                if (flag) {
+                case StylusGestureFilter.KEY_HOME:
+                    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                    homeIntent.addCategory(Intent.CATEGORY_HOME);
+                    homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(homeIntent);
+                    break;
+                case StylusGestureFilter.KEY_BACK:
                     backAction();
                     break;
-                }
-                menuAction();
-                break;
-            case StylusGestureFilter.KEY_SEARCH:
-                // Search action on notificationbar / systemui will be converted
-                // to back action
-                if (flag) {
-                    backAction();
+                case StylusGestureFilter.KEY_MENU:
+                    // Menu action on notificationbar / systemui will be converted
+                    // to back action
+                    if (isSystemUI) {
+                        backAction();
+                        break;
+                    }
+                    menuAction();
                     break;
-                }
-                launchDefaultSearch();
-                break;
-            case StylusGestureFilter.KEY_RECENT:
-                IStatusBarService mStatusBarService = IStatusBarService.Stub
-                        .asInterface(ServiceManager.getService("statusbar"));
-                try {
-                    mStatusBarService.toggleRecentApps();
-                } catch (RemoteException e) {
-                }
-                break;
-            case StylusGestureFilter.KEY_APP:
-                // Launching app on notificationbar / systemui will be preceded
-                // with a back Action
-                if (flag) {
-                    backAction();
-                }
-                String name = getAppName(packageName);
-                if (name == null) {
-                    Toast.makeText(mContext, packageName + " is not installed",
-                            Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Intent LaunchIntent = mContext.getPackageManager()
-                        .getLaunchIntentForPackage(packageName);
-                mContext.startActivity(LaunchIntent);
-                break;
+                case StylusGestureFilter.KEY_SEARCH:
+                    // Search action on notificationbar / systemui will be converted
+                    // to back action
+                    if (isSystemUI) {
+                        backAction();
+                        break;
+                    }
+                    launchDefaultSearch();
+                    break;
+                case StylusGestureFilter.KEY_RECENT:
+                    IStatusBarService mStatusBarService = IStatusBarService.Stub
+                            .asInterface(ServiceManager.getService("statusbar"));
+                    try {
+                        mStatusBarService.toggleRecentApps();
+                    } catch (RemoteException e) {
+                    }
+                    break;
+                case StylusGestureFilter.KEY_APP:
+                    // Launching app on notificationbar / systemui will be preceded
+                    // with a back Action
+                    if (isSystemUI) {
+                        backAction();
+                    }
+                    try {
+                        final PackageManager pm = mContext.getPackageManager();
+                        Intent launchIntent = pm.getLaunchIntentForPackage(setting);
+                        if (launchIntent != null) {
+                            mContext.startActivity(launchIntent);
+                        }
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(mContext, mContext.getString(R.string.stylus_app_not_installed, setting),
+                            Toast.LENGTH_LONG).show();
+                    }
+                    break;
             }
-
-        }
-
-        private String getAppName(String packageName) {
-            final PackageManager pm = mContext.getPackageManager();
-            ApplicationInfo ai;
-            try {
-                ai = pm.getApplicationInfo(packageName, 0);
-            } catch (final NameNotFoundException e) {
-                ai = null;
-            }
-            String applicationName = (String) (ai != null ? pm
-                    .getApplicationLabel(ai) : null);
-            return applicationName;
         }
 
         @Override
@@ -2766,6 +2741,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         protected void onAttachedToWindow() {
             super.onAttachedToWindow();
             
+            mSettingsObserver.observe();
+
             updateWindowResizeState();
             
             final Callback cb = getCallback();
@@ -2789,6 +2766,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         protected void onDetachedFromWindow() {
             super.onDetachedFromWindow();
             
+            mSettingsObserver.unobserve();
+
             final Callback cb = getCallback();
             if (cb != null && mFeatureId < 0) {
                 cb.onDetachedFromWindow();

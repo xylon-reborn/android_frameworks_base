@@ -4267,4 +4267,7 @@
         This allows an app send SMS to trusted applications. Malicious apps could send messages
         continuously, blocking the device notification system and disrupting the user.</string>
 
+    <!-- stylus gestures support -->
+    <string name="stylus_app_not_installed">%s is not installed</string>
+
 </resources>

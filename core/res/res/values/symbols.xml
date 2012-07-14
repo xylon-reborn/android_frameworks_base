@@ -1935,6 +1935,7 @@
   <!-- Lockscreen -->
   <java-symbol type="bool" name="config_disableHomeUnlockSetting" />
   <java-symbol type="id" name="expand_challenge_handle" />
+
   <!-- Lock screen always show battery -->
   <java-symbol type="string" name="lockscreen_discharging" />
 
@@ -1951,9 +1952,6 @@
 
   <!-- Disable hardware keyboard -->
   <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
-
-  <!-- Stylus gestures -->
-  <java-symbol type="bool" name="config_stylusGestures" />
 
   <!-- Panel auto brightness -->
   <java-symbol type="integer" name="config_panelAutoBrightnessValue" />
@@ -1972,5 +1970,9 @@
 
   <!-- Package Manager -->
   <java-symbol type="array" name="config_disabledComponents" />
+
+  <!-- Stylus gestures -->
+  <java-symbol type="bool" name="config_stylusGestures" />
+  <java-symbol type="string" name="stylus_app_not_installed" />
 
 </resources>
