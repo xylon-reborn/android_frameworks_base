@@ -41,7 +41,10 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -189,15 +192,18 @@ class AppWidgetServiceImpl {
     boolean mStateLoaded;
     int mMaxWidgetBitmapMemory;
 
+    private final Handler mSaveStateHandler;
+
     // These are for debugging only -- widgets are going missing in some rare instances
     ArrayList<Provider> mDeletedProviders = new ArrayList<Provider>();
     ArrayList<Host> mDeletedHosts = new ArrayList<Host>();
 
-    AppWidgetServiceImpl(Context context, int userId) {
+    AppWidgetServiceImpl(Context context, int userId, Handler saveStateHandler) {
         mContext = context;
         mPm = AppGlobals.getPackageManager();
         mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         mUserId = userId;
+        mSaveStateHandler = saveStateHandler;
         computeMaximumWidgetBitmapMemory();
     }
 
@@ -245,7 +251,7 @@ class AppWidgetServiceImpl {
                         updateProvidersForPackageLocked(cn.getPackageName(), removedProviders);
                     }
                 }
-                saveStateLocked();
+                saveStateAsync();
             }
         }
     }
@@ -295,7 +301,7 @@ class AppWidgetServiceImpl {
                         providersModified |= addProvidersForPackageLocked(pkgName);
                     }
                 }
-                saveStateLocked();
+                saveStateAsync();
             }
         } else {
             Bundle extras = intent.getExtras();
@@ -306,7 +312,7 @@ class AppWidgetServiceImpl {
                     ensureStateLoadedLocked();
                     for (String pkgName : pkgList) {
                         providersModified |= removeProvidersForPackageLocked(pkgName);
-                        saveStateLocked();
+                        saveStateAsync();
                     }
                 }
             }
@@ -420,7 +426,7 @@ class AppWidgetServiceImpl {
 
     private void ensureStateLoadedLocked() {
         if (!mStateLoaded) {
-            loadAppWidgetList();
+            loadAppWidgetListLocked();
             loadStateLocked();
             mStateLoaded = true;
         }
@@ -441,7 +447,7 @@ class AppWidgetServiceImpl {
             host.instances.add(id);
             mAppWidgetIds.add(id);
 
-            saveStateLocked();
+            saveStateAsync();
             if (DBG) log("Allocating AppWidgetId for " + packageName + " host=" + hostId
                     + " id=" + appWidgetId);
             return appWidgetId;
@@ -454,7 +460,7 @@ class AppWidgetServiceImpl {
             AppWidgetId id = lookupAppWidgetIdLocked(appWidgetId);
             if (id != null) {
                 deleteAppWidgetLocked(id);
-                saveStateLocked();
+                saveStateAsync();
             }
         }
     }
@@ -466,7 +472,7 @@ class AppWidgetServiceImpl {
             Host host = lookupHostLocked(callingUid, hostId);
             if (host != null) {
                 deleteHostLocked(host);
-                saveStateLocked();
+                saveStateAsync();
             }
         }
     }
@@ -485,7 +491,7 @@ class AppWidgetServiceImpl {
                 }
             }
             if (changed) {
-                saveStateLocked();
+                saveStateAsync();
             }
         }
     }
@@ -601,7 +607,7 @@ class AppWidgetServiceImpl {
 
                 // schedule the future updates
                 registerForBroadcastsLocked(p, getAppWidgetIds(p));
-                saveStateLocked();
+                saveStateAsync();
             }
         } finally {
             Binder.restoreCallingIdentity(ident);
@@ -665,8 +671,8 @@ class AppWidgetServiceImpl {
             } else {
                 mPackagesWithBindWidgetPermission.remove(packageName);
             }
+            saveStateAsync();
         }
-        saveStateLocked();
     }
 
     // Binds to a specific RemoteViewsService
@@ -905,6 +911,20 @@ class AppWidgetServiceImpl {
         }
     }
 
+    private void saveStateAsync() {
+        mSaveStateHandler.post(mSaveStateRunnable);
+    }
+
+    private final Runnable mSaveStateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            synchronized (mAppWidgetIds) {
+                ensureStateLoadedLocked();
+                saveStateLocked();
+            }
+        }
+    };
+
     public void updateAppWidgetOptions(int appWidgetId, Bundle options) {
         synchronized (mAppWidgetIds) {
             options = cloneIfLocalBinder(options);
@@ -925,7 +945,7 @@ class AppWidgetServiceImpl {
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id.appWidgetId);
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, id.options);
             mContext.sendBroadcastAsUser(intent, new UserHandle(mUserId));
-            saveStateLocked();
+            saveStateAsync();
         }
     }
 
@@ -1228,7 +1248,7 @@ class AppWidgetServiceImpl {
         }
     }
 
-    void loadAppWidgetList() {
+    void loadAppWidgetListLocked() {
         Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         try {
             List<ResolveInfo> broadcastReceivers = mPm.queryIntentReceivers(intent,
