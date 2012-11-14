@@ -32,7 +32,7 @@ dir_rec_t android_app_lib_dir;
 dir_rec_t android_media_dir;
 dir_rec_array_t android_system_dirs;
 
-int install(const char *pkgname, uid_t uid, gid_t gid)
+int install(const char *pkgname, uid_t uid, gid_t gid, const char *seinfo)
 {
     char pkgdir[PKG_PATH_MAX];
     char libsymlink[PKG_PATH_MAX];
@@ -94,6 +94,15 @@ int install(const char *pkgname, uid_t uid, gid_t gid)
         unlink(pkgdir);
         return -1;
     }
+
+#ifdef HAVE_SELINUX
+    if (selinux_android_setfilecon2(pkgdir, pkgname, seinfo, uid) < 0) {
+        ALOGE("cannot setfilecon dir '%s': %s\n", pkgdir, strerror(errno));
+        unlink(libsymlink);
+        unlink(pkgdir);
+        return -1;
+    }
+#endif
 
     if (chown(pkgdir, uid, gid) < 0) {
         ALOGE("cannot chown dir '%s': %s\n", pkgdir, strerror(errno));
@@ -181,7 +190,7 @@ int delete_user_data(const char *pkgname, uid_t persona)
     return delete_dir_contents(pkgdir, 0, "lib");
 }
 
-int make_user_data(const char *pkgname, uid_t uid, uid_t persona)
+int make_user_data(const char *pkgname, uid_t uid, uid_t persona, const char* seinfo)
 {
     char pkgdir[PKG_PATH_MAX];
     char applibdir[PKG_PATH_MAX];
@@ -241,6 +250,15 @@ int make_user_data(const char *pkgname, uid_t uid, uid_t persona)
         unlink(pkgdir);
         return -1;
     }
+
+#ifdef HAVE_SELINUX
+    if (selinux_android_setfilecon2(pkgdir, pkgname, seinfo, uid) < 0) {
+        ALOGE("cannot setfilecon dir '%s': %s\n", pkgdir, strerror(errno));
+        unlink(libsymlink);
+        unlink(pkgdir);
+        return -errno;
+    }
+#endif
 
     if (chown(pkgdir, uid, uid) < 0) {
         ALOGE("cannot chown dir '%s': %s\n", pkgdir, strerror(errno));
@@ -307,7 +325,7 @@ int clone_persona_data(uid_t src_persona, uid_t target_persona, int copy)
                 uid = (uid_t) s.st_uid % PER_USER_RANGE;
                 /* Create the directory for the target */
                 make_user_data(name, uid + target_persona * PER_USER_RANGE,
-                               target_persona);
+                               target_persona, NULL);
             }
         }
         closedir(d);
