@@ -873,7 +873,7 @@ class AppWidgetServiceImpl {
             ArrayList<AppWidgetProviderInfo> result = new ArrayList<AppWidgetProviderInfo>(N);
             for (int i = 0; i < N; i++) {
                 Provider p = mInstalledProviders.get(i);
-                if (!p.zombie) {
+                if (!p.zombie && (p.info.widgetCategory & categoryFilter) != 0) {
                     result.add(cloneIfLocalBinder(p.info));
                 }
             }
