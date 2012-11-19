@@ -45,11 +45,6 @@ import java.util.TimeZone;
  * Digital clock for the status bar.
  */
 public class Clock extends TextView {
-    protected boolean mAttached;
-    protected Calendar mCalendar;
-    protected String mClockFormatString;
-    protected SimpleDateFormat mClockFormat;
-    private Locale mLocale;
 
     public static final int AM_PM_STYLE_NORMAL  = 0;
     public static final int AM_PM_STYLE_SMALL   = 1;
@@ -74,6 +69,11 @@ public class Clock extends TextView {
     protected int mClockStyle = STYLE_CLOCK_RIGHT;
 
     protected int mClockColor = com.android.internal.R.color.holo_blue_light;
+    private boolean mAttached;
+    private Calendar mCalendar;
+    private String mClockFormatString;
+    private SimpleDateFormat mClockFormat;
+    private Locale mLocale;
 
     private int mAmPmStyle = AM_PM_STYLE_GONE;
     public boolean mShowClock;

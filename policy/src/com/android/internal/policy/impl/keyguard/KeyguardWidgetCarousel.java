@@ -108,12 +108,15 @@ public class KeyguardWidgetCarousel extends KeyguardWidgetPager {
         for (int i = 0; i < count; i++) {
             boolean inVisibleRange = i >= getNextPage() - 1 && i <= getNextPage() + 1;
             KeyguardWidgetFrame child = getWidgetPageAt(i);
-            if (i >= mCurrentPage - 1 && i <= mCurrentPage + 1) {
-                if (Settings.System.getInt(getContext().getContentResolver(),
-                            Settings.System.LOCKSCREEN_HIDE_INITIAL_PAGE_HINTS, 0) == 1) {
-                    child.fadeFrame(this, true, KeyguardWidgetFrame.OUTLINE_ALPHA_MULTIPLIER,
-                            CHILDREN_OUTLINE_FADE_IN_DURATION);
+            if (inVisibleRange) {
+                if (!Settings.System.getBoolean(getContext().getContentResolver(),
+                            Settings.System.LOCKSCREEN_HIDE_INITIAL_PAGE_HINTS, false)) {
+                    child.setBackgroundAlpha(KeyguardWidgetFrame.OUTLINE_ALPHA_MULTIPLIER);
+                    child.setContentAlpha(1f);
                 }
+            } else {
+                child.setBackgroundAlpha(0f);
+                child.setContentAlpha(0f);
             }
         }
     }

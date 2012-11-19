@@ -597,8 +597,7 @@ public class KeyguardWidgetPager extends PagedView implements PagedView.PageSwit
             if (i != mCurrentPage) {
                 if (Settings.System.getInt(mContext.getContentResolver(),
                           Settings.System.LOCKSCREEN_HIDE_INITIAL_PAGE_HINTS, 0) == 1) {
-                    child.fadeFrame(this, true, KeyguardWidgetFrame.OUTLINE_ALPHA_MULTIPLIER,
-                            CHILDREN_OUTLINE_FADE_IN_DURATION);
+                    child.setBackgroundAlpha(KeyguardWidgetFrame.OUTLINE_ALPHA_MULTIPLIER);
                 }
                 child.setContentAlpha(0f);
             } else {
@@ -832,6 +831,24 @@ public class KeyguardWidgetPager extends PagedView implements PagedView.PageSwit
         }
         if (currentPage instanceof KeyguardWidgetFrame) {
             ((KeyguardWidgetFrame)currentPage).onBouncerShowing(true);
+        }
+    }
+
+    void setAddWidgetEnabled(boolean enabled) {
+        if (mAddWidgetView != null && enabled) {
+            addView(mAddWidgetView, 0);
+            // We need to force measure the PagedView so that the calls to update the scroll
+            // position below work
+            measure(mLastWidthMeasureSpec, mLastHeightMeasureSpec);
+            // Bump up the current page to account for the addition of the new page
+            setCurrentPage(mCurrentPage + 1);
+            mAddWidgetView = null;
+        } else if (mAddWidgetView == null && !enabled) {
+            View addWidget = findViewById(com.android.internal.R.id.keyguard_add_widget);
+            if (addWidget != null) {
+                mAddWidgetView = addWidget;
+                removeView(addWidget);
+            }
         }
     }
 

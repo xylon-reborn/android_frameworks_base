@@ -37,19 +37,19 @@ public class NotificationPanelView extends PanelView {
     private static final float STATUS_BAR_SWIPE_VERTICAL_MAX_PERCENTAGE = 0.025f;
     private static final float STATUS_BAR_SWIPE_MOVE_PERCENTAGE = 0.2f;
 
-    private Drawable mHandleBar;
-    private float mHandleBarHeight;
-    private View mHandleView;
-    private int mFingers;
-    private PhoneStatusBar mStatusBar;
-    private boolean mOkToFlip;
-
     private float mGestureStartX;
     private float mGestureStartY;
     private float mFlipOffset;
     private float mSwipeDirection;
     private boolean mTrackingSwipe;
     private boolean mSwipeTriggered;
+
+    Drawable mHandleBar;
+    int mHandleBarHeight;
+    View mHandleView;
+    int mFingers;
+    PhoneStatusBar mStatusBar;
+    boolean mOkToFlip;
 
     public NotificationPanelView(Context context, AttributeSet attrs) {
         super(context, attrs);

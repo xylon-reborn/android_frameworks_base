@@ -151,7 +151,7 @@ class AppWidgetService extends IAppWidgetService.Stub
     public int[] getAppWidgetIdsForHost(int hostId) throws RemoteException {
         return getImplForUser(getCallingOrCurrentUserId()).getAppWidgetIdsForHost(hostId);
     }
-    
+
     @Override
     public void deleteAppWidgetId(int appWidgetId) throws RemoteException {
         getImplForUser(getCallingOrCurrentUserId()).deleteAppWidgetId(appWidgetId);

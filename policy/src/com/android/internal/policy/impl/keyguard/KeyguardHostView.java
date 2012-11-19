@@ -292,16 +292,11 @@ public class KeyguardHostView extends KeyguardViewBase {
         addDefaultWidgets();
 
         addWidgetsFromSettings();
-        mUnlimitedWidgets = Settings.System.getInt(getContext().getContentResolver(),
-                Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, 0) == 1;
-        if (mUnlimitedWidgets) {
-            MAX_WIDGETS = numWidgets() + 1;
-        } else {
-            MAX_WIDGETS = 5;
-        }
-        if (numWidgets() >= MAX_WIDGETS) {
+
+        if (!shouldEnableAddWidget()) {
             mAppWidgetContainer.setAddWidgetEnabled(false);
         }
+
         checkAppWidgetConsistency();
         mSwitchPageRunnable.run();
         // This needs to be called after the pages are all added.
@@ -334,6 +329,13 @@ public class KeyguardHostView extends KeyguardViewBase {
     };
 
     private boolean shouldEnableAddWidget() {
+        mUnlimitedWidgets = Settings.System.getBoolean(getContext().getContentResolver(),
+                                  Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, false);
+        if (mUnlimitedWidgets) {
+            MAX_WIDGETS = numWidgets() + 1;
+        } else {
+            MAX_WIDGETS = 5;
+        }
         return numWidgets() < MAX_WIDGETS && mUserSetupCompleted;
     }
 
@@ -926,7 +928,9 @@ public class KeyguardHostView extends KeyguardViewBase {
         if (mViewStateManager != null) {
             mViewStateManager.showUsabilityHints();
         }
+
         minimizeChallengeIfDesired();
+        requestFocus();
     }
 
     @Override
@@ -1130,7 +1134,7 @@ public class KeyguardHostView extends KeyguardViewBase {
         // We currently disable cameras in safe mode because we support loading 3rd party
         // cameras we can't trust.  TODO: plumb safe mode into camera creation code and only
         // inflate system-provided camera?
-        if (!mSafeModeEnabled && !cameraDisabledByDpm()
+        if (!mSafeModeEnabled && !cameraDisabledByDpm() && mUserSetupCompleted
                 && Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_CAMERA_WIDGET, 0) == 1) {
             View cameraWidget =
