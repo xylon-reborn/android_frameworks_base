@@ -1258,7 +1258,7 @@ public class WebSettingsClassic extends WebSettings {
     @Override
     public synchronized void setAppCachePath(String path) {
         // We test for a valid path and for repeated setting on the native
-        // side, but we can avoid syncing in some simple cases. 
+        // side, but we can avoid syncing in some simple cases.
         if (mAppCachePath == null && path != null && !path.isEmpty()) {
             mAppCachePath = path;
             postSync();
