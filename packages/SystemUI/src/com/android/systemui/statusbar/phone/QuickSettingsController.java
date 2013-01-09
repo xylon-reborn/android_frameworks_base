@@ -178,7 +178,8 @@ public class QuickSettingsController {
         if (Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_BUGREPORT, 1) == 1) tiles += TILE_DELIMITER + TILE_BUGREPORT;
         if (Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_WIFI, 1) == 1) tiles += TILE_DELIMITER + TILE_WIFIDISPLAY;
         if (Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_IME, 1) == 1)  tiles += TILE_DELIMITER + TILE_IME;
-        if (Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_USBTETHER, 1) == 1)  tiles += TILE_DELIMITER + TILE_USBTETHER;
+        if (Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_USBTETHER, 1) == 1
+                && deviceSupportsUsbTether())  tiles += TILE_DELIMITER + TILE_USBTETHER;
     }
 
     private QuickSettingsTile createTile(boolean condition, String tile, String instanceID, LayoutInflater inflater) {
@@ -220,7 +221,7 @@ public class QuickSettingsController {
                 qs = createTile(deviceSupportsBluetooth(), tileName, instanceID, inflater);
             }else if (tileName.equals(TILE_WIFIAP) || tileName.equals(TILE_MOBILENETWORK) || tileName.equals(TILE_NETWORKMODE) || tileName.equals(TILE_MOBILEDATA)) {
                 qs = createTile(deviceSupportsTelephony(), tileName, instanceID, inflater);
-            } else if (tileName.equals(TILE_PROFILE)){
+            } else if (tileName.equals(TILE_PROFILE)) {
                 qs = createTile(systemProfilesEnabled(resolver), tileName, instanceID, inflater);
             } else if (tileName.equals(TILE_USBTETHER)){
                 qs = createTile(deviceSupportsUsbTether(), tileName, instanceID, inflater);
