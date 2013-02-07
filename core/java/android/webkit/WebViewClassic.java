@@ -4504,7 +4504,7 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
     public void onConfigurationChanged(Configuration newConfig) {
         mCachedOverlappingActionModeHeight = -1;
         if (mSelectingText && mOrientation != newConfig.orientation) {
-            selectionDone();
+            clearSelection();
         }
         mOrientation = newConfig.orientation;
         if (mWebViewCore != null && !mBlockWebkitViewMessages) {
