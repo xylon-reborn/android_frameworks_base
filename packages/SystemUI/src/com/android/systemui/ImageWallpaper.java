@@ -661,7 +661,7 @@ public class ImageWallpaper extends WallpaperService {
                 checkEglError();
                 return false;
             }
-    
+
             mEglSurface = mEgl.eglCreateWindowSurface(mEglDisplay, mEglConfig, surfaceHolder, null);
     
             if (mEglSurface == null || mEglSurface == EGL_NO_SURFACE) {
