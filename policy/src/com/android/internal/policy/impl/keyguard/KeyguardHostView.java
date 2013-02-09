@@ -31,6 +31,7 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.UserInfo;
@@ -72,11 +73,12 @@ public class KeyguardHostView extends KeyguardViewBase {
     // Found in KeyguardAppWidgetPickActivity.java
     static final int APPWIDGET_HOST_ID = 0x4B455947;
 
-    private final int MAX_WIDGETS = 9;
-
+    private int MAX_WIDGETS;
+    private boolean mUnlimitedWidgets;
     private AppWidgetHost mAppWidgetHost;
     private AppWidgetManager mAppWidgetManager;
     private KeyguardWidgetPager mAppWidgetContainer;
+    private KeyguardWidgetPager mAppWidgetContainerHidden;
     private KeyguardSecurityViewFlipper mSecurityViewContainer;
     private KeyguardSelectorView mKeyguardSelectorView;
     private KeyguardTransportControlView mTransportControl;
@@ -206,8 +208,17 @@ public class KeyguardHostView extends KeyguardViewBase {
         // Grab instances of and make any necessary changes to the main layouts. Create
         // view state manager and wire up necessary listeners / callbacks.
         View deleteDropTarget = findViewById(R.id.keyguard_widget_pager_delete_target);
-        mAppWidgetContainer = (KeyguardWidgetPager) findViewById(R.id.app_widget_container);
+        if (Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.LOCKSCREEN_USE_WIDGET_CONTAINER_CAROUSEL, 0) == 1) {
+            mAppWidgetContainerHidden = (KeyguardWidgetPager) findViewById(R.id.app_widget_container);
+            mAppWidgetContainer = (KeyguardWidgetPager) findViewById(R.id.app_widget_container_carousel);
+        }
+        else {
+            mAppWidgetContainerHidden = (KeyguardWidgetPager) findViewById(R.id.app_widget_container_carousel);
+            mAppWidgetContainer = (KeyguardWidgetPager) findViewById(R.id.app_widget_container);
+        }
         mAppWidgetContainer.setVisibility(VISIBLE);
+        mAppWidgetContainerHidden.setVisibility(GONE);
         mAppWidgetContainer.setCallbacks(mWidgetCallbacks);
         mAppWidgetContainer.setDeleteDropTarget(deleteDropTarget);
         mAppWidgetContainer.setMinScale(0.5f);
@@ -236,6 +247,13 @@ public class KeyguardHostView extends KeyguardViewBase {
         addDefaultWidgets();
 
         addWidgetsFromSettings();
+        mUnlimitedWidgets = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, 0) == 1;
+        if (mUnlimitedWidgets) {
+            MAX_WIDGETS = numWidgets() + 1;
+        } else {
+            MAX_WIDGETS = 5;
+        }
         if (numWidgets() >= MAX_WIDGETS) {
             setAddWidgetEnabled(false);
         }
@@ -247,9 +265,12 @@ public class KeyguardHostView extends KeyguardViewBase {
         showPrimarySecurityScreen(false);
         updateSecurityViews();
 
-        mExpandChallengeView = (View) findViewById(R.id.expand_challenge_handle);
-        if (mExpandChallengeView != null) {
-            mExpandChallengeView.setOnLongClickListener(mFastUnlockClickListener);
+        if (Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.LOCKSCREEN_LONGPRESS_CHALLENGE, 0) == 1) {
+            mExpandChallengeView = (View) findViewById(R.id.expand_challenge_handle);
+            if (mExpandChallengeView != null) {
+                mExpandChallengeView.setOnLongClickListener(mFastUnlockClickListener);
+            }
         }
 
         minimizeChallengeIfDesired();
@@ -349,6 +370,13 @@ public class KeyguardHostView extends KeyguardViewBase {
 
         @Override
         public void onAddView(View v) {
+            mUnlimitedWidgets = Settings.System.getInt(getContext().getContentResolver(),
+                    Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, 0) == 1;
+            if (mUnlimitedWidgets) {
+                MAX_WIDGETS = numWidgets() + 1;
+            } else {
+                MAX_WIDGETS = 5;
+            }
             if (numWidgets() >= MAX_WIDGETS) {
                 setAddWidgetEnabled(false);
             }
@@ -356,8 +384,15 @@ public class KeyguardHostView extends KeyguardViewBase {
 
         @Override
         public void onRemoveView(View v) {
-            if (numWidgets() < MAX_WIDGETS) {
-                setAddWidgetEnabled(true);
+            mUnlimitedWidgets = Settings.System.getInt(getContext().getContentResolver(),
+                    Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, 0) == 1;
+            if (mUnlimitedWidgets) {
+                MAX_WIDGETS = numWidgets() + 1;
+            } else {
+                MAX_WIDGETS = 5;
+            }
+            if (numWidgets() >= MAX_WIDGETS) {
+                setAddWidgetEnabled(false);
             }
         }
     };
@@ -877,7 +912,6 @@ public class KeyguardHostView extends KeyguardViewBase {
         showPrimarySecurityScreen(false);
     }
 
-
     @Override
     public void wakeWhenReadyTq(int keyCode) {
         if (DEBUG) Log.d(TAG, "onWakeKey");
@@ -918,10 +952,8 @@ public class KeyguardHostView extends KeyguardViewBase {
             return;
         }
 
-        int setting = Settings.System.getIntForUser(getContext().getContentResolver(),
-                Settings.System.LOCKSCREEN_MAXIMIZE_WIDGETS, 0, UserHandle.USER_CURRENT);
-
-        if (setting == 1) {
+        if (Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_MAXIMIZE_WIDGETS, 0, UserHandle.USER_CURRENT) == 1) {
             mSlidingChallengeLayout.showChallenge(false);
         }
     }
@@ -1042,7 +1074,9 @@ public class KeyguardHostView extends KeyguardViewBase {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         inflater.inflate(R.layout.keyguard_transport_control_view, this, true);
 
-        if (!mSafeModeEnabled && !widgetsDisabledByDpm()) {
+        if (!mSafeModeEnabled && !widgetsDisabledByDpm()
+                && Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_ALL_WIDGETS, 1) == 1) {
             View addWidget = inflater.inflate(R.layout.keyguard_add_widget, this, false);
             mAppWidgetContainer.addWidget(addWidget, 0);
             View addWidgetButton = addWidget.findViewById(R.id.keyguard_add_widget_view);
@@ -1059,7 +1093,8 @@ public class KeyguardHostView extends KeyguardViewBase {
         // cameras we can't trust.  TODO: plumb safe mode into camera creation code and only
         // inflate system-provided camera?
         if (!mSafeModeEnabled && !cameraDisabledByDpm()
-                && mContext.getResources().getBoolean(R.bool.kg_enable_camera_default_widget)) {
+                && Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_CAMERA_WIDGET, 0) == 1) {
             View cameraWidget =
                     CameraWidgetFrame.create(mContext, mCameraWidgetCallbacks, mActivityLauncher);
             if (cameraWidget != null) {

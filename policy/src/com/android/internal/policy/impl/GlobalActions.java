@@ -331,6 +331,68 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
+        // next: airplane mode
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_AIRPLANE_ENABLED, 1) == 1) {
+            mItems.add(mAirplaneModeOn);
+        }
+
+        // next: bug report, if enabled
+        if (Settings.Secure.getInt(mContext.getContentResolver(),
+                Settings.Secure.BUGREPORT_IN_POWER_MENU, 0) != 0) {
+            mItems.add(
+                new SinglePressAction(com.android.internal.R.drawable.stat_sys_adb,
+                        R.string.global_action_bug_report) {
+
+                    public void onPress() {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                        builder.setTitle(com.android.internal.R.string.bugreport_title);
+                        builder.setMessage(com.android.internal.R.string.bugreport_message);
+                        builder.setNegativeButton(com.android.internal.R.string.cancel, null);
+                        builder.setPositiveButton(com.android.internal.R.string.report,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Add a little delay before executing, to give the
+                                        // dialog a chance to go away before it takes a
+                                        // screenshot.
+                                        mHandler.postDelayed(new Runnable() {
+                                            @Override public void run() {
+                                                try {
+                                                    ActivityManagerNative.getDefault()
+                                                            .requestBugReport();
+                                                } catch (RemoteException e) {
+                                                }
+                                            }
+                                        }, 500);
+                                    }
+                                });
+                        AlertDialog dialog = builder.create();
+                        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+                        dialog.show();
+                    }
+
+                    public boolean onLongPress() {
+                        return false;
+                    }
+
+                    public boolean showDuringKeyguard() {
+                        return true;
+                    }
+
+                    public boolean showBeforeProvisioning() {
+                        return false;
+                    }
+                });
+        }
+
+        // next: expanded desktop toggle
+        // only shown if enabled, disabled by default
+        if(Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_EXPANDED_DESKTOP_ENABLED, 0) == 1){
+            mItems.add(mExpandDesktopModeOn);
+        }
+
         // next: profile
         // only shown if both system profiles and the menu item is enabled, enabled by default
         if ((Settings.System.getInt(mContext.getContentResolver(),
@@ -373,68 +435,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
                     public boolean showBeforeProvisioning() {
                         return true;
-                    }
-                });
-        }
-
-        // next: expanded desktop toggle
-        // only shown if enabled, disabled by default
-        if(Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_EXPANDED_DESKTOP_ENABLED, 0) == 1){
-            mItems.add(mExpandDesktopModeOn);
-        }
-
-        // next: airplane mode
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_AIRPLANE_ENABLED, 1) == 1) {
-            mItems.add(mAirplaneModeOn);
-        }
-
-        // next: bug report, if enabled
-        if (Settings.Secure.getInt(mContext.getContentResolver(),
-                Settings.Secure.BUGREPORT_IN_POWER_MENU, 0) != 0) {
-            mItems.add(
-                new SinglePressAction(com.android.internal.R.drawable.stat_sys_adb,
-                        R.string.global_action_bug_report) {
-
-                    public void onPress() {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getUiContext());
-                        builder.setTitle(com.android.internal.R.string.bugreport_title);
-                        builder.setMessage(com.android.internal.R.string.bugreport_message);
-                        builder.setNegativeButton(com.android.internal.R.string.cancel, null);
-                        builder.setPositiveButton(com.android.internal.R.string.report,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // Add a little delay before executing, to give the
-                                        // dialog a chance to go away before it takes a
-                                        // screenshot.
-                                        mHandler.postDelayed(new Runnable() {
-                                            @Override public void run() {
-                                                try {
-                                                    ActivityManagerNative.getDefault()
-                                                            .requestBugReport();
-                                                } catch (RemoteException e) {
-                                                }
-                                            }
-                                        }, 500);
-                                    }
-                                });
-                        AlertDialog dialog = builder.create();
-                        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-                        dialog.show();
-                    }
-
-                    public boolean onLongPress() {
-                        return false;
-                    }
-
-                    public boolean showDuringKeyguard() {
-                        return true;
-                    }
-
-                    public boolean showBeforeProvisioning() {
-                        return false;
                     }
                 });
         }
@@ -630,7 +630,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 @Override
                 public void onServiceDisconnected(ComponentName name) {}
             };
-            if (mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE, UserHandle.USER_CURRENT)) {
+            if (mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE)) {
                 mScreenshotConnection = conn;
                 mHandler.postDelayed(mScreenshotTimeout, 10000);
             }

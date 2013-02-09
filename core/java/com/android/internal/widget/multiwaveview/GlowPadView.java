@@ -63,7 +63,6 @@ public class GlowPadView extends View {
     private static final int STATE_SNAP = 4;
     private static final int STATE_FINISH = 5;
 
-    //Lockscreen targets
     /**
      * @hide
      */
@@ -957,6 +956,11 @@ public class GlowPadView extends View {
                         if (angleMatches && (dist2(tx, ty) > snapDistance2)) {
                             activeTarget = i;
                             activeAngle = (float) -angleRad;
+                            break;
+                        } else if (dist2(tx, ty) > snapDistance2 &&
+                            mMagneticTargets && activeTarget == -1) {
+                            activeTarget = 0;
+                            activeAngle = (float) -angleRad;
                         }
                     }
                 }
@@ -976,7 +980,6 @@ public class GlowPadView extends View {
             switchToState(STATE_TRACKING, x, y);
             updateGlowPosition(x, y);
         }
-
         if (mActiveTarget != activeTarget) {
             // Defocus the old target
             if (mActiveTarget != -1) {
@@ -995,7 +998,7 @@ public class GlowPadView extends View {
                     target.setState(TargetDrawable.STATE_FOCUSED);
                     vibrate();
                 }
-                if (mMagneticTargets) {
+                if (mMagneticTargets && activeTarget <= 0) {
                     updateTargetPosition(activeTarget, mWaveCenterX, mWaveCenterY, activeAngle);
                 }
                 if (AccessibilityManager.getInstance(mContext).isEnabled()) {

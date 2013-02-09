@@ -766,6 +766,7 @@ public class WifiStateMachine extends StateMachine {
             sendMessage(obtainMessage(CMD_LOAD_DRIVER, WIFI_STATE_ENABLING, 0));
             sendMessage(CMD_START_SUPPLICANT);
         } else {
+            mWifiConfigStore.setStateFromAutoConnectAllNetworks();
             sendMessage(CMD_STOP_SUPPLICANT);
             /* Argument is the state that is entered upon success */
             sendMessage(obtainMessage(CMD_UNLOAD_DRIVER, WIFI_STATE_DISABLED, 0));
@@ -1075,6 +1076,14 @@ public class WifiStateMachine extends StateMachine {
      * @param persist {@code true} if the setting should be remembered.
      */
     public void setCountryCode(String countryCode, boolean persist) {
+
+        String countryCodeUser = Settings.Global.getString(mContext.getContentResolver(),
+                Settings.Global.WIFI_COUNTRY_CODE_USER);
+        if (countryCodeUser != null && countryCodeUser != countryCode) {
+            persist = true;
+            countryCode = countryCodeUser;
+        }
+
         if (persist) {
             Settings.Global.putString(mContext.getContentResolver(),
                     Settings.Global.WIFI_COUNTRY_CODE,
@@ -2370,7 +2379,7 @@ public class WifiStateMachine extends StateMachine {
             if (!mWifiNative.setSerialNumber(detail)) {
                 loge("Failed to set serial number " + detail);
             }
-            if (!mWifiNative.setConfigMethods("physical_display virtual_push_button keypad")) {
+            if (!mWifiNative.setConfigMethods("physical_display virtual_push_button")) {
                 loge("Failed to set WPS config methods");
             }
             if (!mWifiNative.setDeviceType(mPrimaryDeviceType)) {

@@ -1912,7 +1912,7 @@ public class Resources {
             mAssets.recreateStringBlocks();
         }
     }
- 
+
     /*package*/ Drawable loadDrawable(TypedValue value, int id)
             throws NotFoundException {
 

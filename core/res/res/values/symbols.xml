@@ -587,7 +587,6 @@
   <java-symbol type="string" name="lockscreen_transport_pause_description" />
   <java-symbol type="string" name="lockscreen_transport_play_description" />
   <java-symbol type="string" name="lockscreen_transport_stop_description" />
-  
   <java-symbol type="string" name="low_memory" />
   <java-symbol type="string" name="media_bad_removal" />
   <java-symbol type="string" name="media_checking" />
@@ -1336,6 +1335,7 @@
   <java-symbol type="id" name="keyguard_widget_pager_delete_target" />
   <java-symbol type="id" name="keyguard_bouncer_frame" />
   <java-symbol type="id" name="app_widget_container" />
+  <java-symbol type="id" name="app_widget_container_carousel" />
   <java-symbol type="id" name="view_flipper" />
   <java-symbol type="id" name="emergency_call_button" />
   <java-symbol type="id" name="keyguard_host_view" />
@@ -1356,7 +1356,6 @@
   <java-symbol type="id" name="sliding_layout" />
   <java-symbol type="id" name="keyguard_add_widget" />
   <java-symbol type="id" name="keyguard_add_widget_view" />
-  <java-symbol type="id" name="sliding_layout" />
   <java-symbol type="id" name="multi_pane_challenge" />
   <java-symbol type="id" name="keyguard_user_selector" />
   <java-symbol type="id" name="key_enter" />
@@ -1532,8 +1531,6 @@
   <java-symbol type="array" name="radioAttributes" />
   <java-symbol type="array" name="config_oemUsbModeOverride" />
   <java-symbol type="array" name="config_locationProviderPackageNames" />
-  <java-symbol type="array" name="config_defaultNotificationVibePattern" />
-  <java-symbol type="array" name="config_notificationFallbackVibePattern" />
   <java-symbol type="bool" name="config_animateScreenLights" />
   <java-symbol type="bool" name="config_automatic_brightness_available" />
   <java-symbol type="bool" name="config_sf_limitedAlpha" />
@@ -1693,7 +1690,6 @@
   <java-symbol type="string" name="config_dreamsDefaultComponent" />
   <java-symbol type="string" name="enable_explore_by_touch_warning_title" />
   <java-symbol type="string" name="enable_explore_by_touch_warning_message" />
-  <!-- AOKP symbols for service -->
   <java-symbol type="string" name="notify_turn_wifi_off_title" />
   <java-symbol type="drawable" name="ic_stat_turn_wifi_off" />
 
@@ -1826,22 +1822,22 @@
   <!-- From PinyinIME(!!!) -->
   <java-symbol type="string" name="inputMethod" />
 
-<!-- ===============================================================
-   Resources added in version 10 of CyanogenMod
-   =============================================================== -->
-  <eat-comment />
-
   <!-- Config.xml entries -->
   <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
   <java-symbol type="bool" name="config_hasRotationLockSwitch" />
   <java-symbol type="integer" name="config_backKillTimeout" />
-  <java-symbol type="integer" name="config_wallpaperMaxWidth" />
   <java-symbol type="string" name="config_legacyUmsLunFile" />
   <java-symbol type="bool" name="config_hasRemovableLid" />
   <java-symbol type="bool" name="config_hasDockBattery" />
   <java-symbol type="bool" name="config_noDelayInATwoDP" />
   <java-symbol type="string" name="config_deviceKeyHandlerLib" />
   <java-symbol type="string" name="config_deviceKeyHandlerClass" />
+
+  <!-- Config Power Menu -->
+  <java-symbol type="drawable" name="ic_lock_profile" />
+  <java-symbol type="drawable" name="ic_lock_reboot" />
+  <java-symbol type="drawable" name="ic_lock_screenshot" />
+  <java-symbol type="string" name="config_legacyUmsLunFile" />
 
   <!-- Telephony -->
   <java-symbol type="bool" name="config_smsSamsungCdmaAlternateMessageIDEncoding" />
@@ -1856,14 +1852,14 @@
   <java-symbol type="bool" name="config_multiColorBatteryLed" />
   <java-symbol type="array" name="notification_light_package_mapping" />
 
-  <!-- Power menu -->
+  <!-- Powermenu -->
   <java-symbol type="string" name="global_action_screenshot" />
   <java-symbol type="string" name="global_action_choose_profile" />
   <java-symbol type="string" name="global_action_reboot" />
+  <java-symbol type="string" name="global_actions" />
   <java-symbol type="string" name="global_actions_toggle_expanded_desktop_mode" />
   <java-symbol type="string" name="global_actions_expanded_desktop_mode_off_status" />
   <java-symbol type="string" name="global_actions_expanded_desktop_mode_on_status" />
-  <java-symbol type="string" name="global_actions" />
   <java-symbol type="string" name="reboot_system" />
   <java-symbol type="string" name="reboot_progress" />
   <java-symbol type="array" name="shutdown_reboot_options" />
@@ -1873,11 +1869,16 @@
   <java-symbol type="drawable" name="ic_lock_profile" />
   <java-symbol type="drawable" name="ic_lock_expanded_desktop" />
 
-  <!-- Profiles -->
-  <java-symbol type="xml" name="profile_default" />
+  <java-symbol type="array" name="notification_light_package_mapping" />
+  <java-symbol type="array" name="shutdown_reboot_actions" />
+  <java-symbol type="array" name="shutdown_reboot_options" />
+  <java-symbol type="bool" name="config_multiColorBatteryLed" />
+  <java-symbol type="string" name="reboot_progress" />
+  <java-symbol type="string" name="reboot_system" />
   <java-symbol type="string" name="wildcardProfile" />
+  <java-symbol type="xml" name="profile_default" />
 
-  <!-- Power widget -->
+  <!-- Powerwidget -->
   <java-symbol type="string" name="hour" />
   <java-symbol type="string" name="hours" />
   <java-symbol type="string" name="minute" />
@@ -1901,12 +1902,4 @@
   <!-- Wifi -->
   <java-symbol type="bool" name="config_wifiApStartInterface" />
   <java-symbol type="bool" name="config_wifiApFirmwareReload" />
-
-  <!-- Hide Navbar -->
-  <java-symbol type="layout" name="global_actions_navbar_mode" />
-  <java-symbol type="id" name="navbartoggle" />
-  <java-symbol type="id" name="navbarhome" />
-  <java-symbol type="id" name="navbarback" />
-  <java-symbol type="id" name="navbarmenu" />
-
 </resources>

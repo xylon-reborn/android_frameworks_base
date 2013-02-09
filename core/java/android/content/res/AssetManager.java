@@ -483,7 +483,7 @@ public final class AssetManager {
     /**
      * {@hide}
      * Split a theme package with DRM-protected resources into two files.
-     * 
+     *
      * @param packageFileName Original theme package file name.
      * @param lockedFileName Name of the new "locked" file with DRM resources.
      * @param drmProtectedresources Array of names of DRM-protected assets.

@@ -144,13 +144,9 @@ sp<TextLayoutValue> TextLayoutCache::getValue(const SkPaint* paint,
                     "This indicates that the cache already has an entry with the "
                     "same key but it should not since we checked earlier!"
                     " - start = %d, count = %d, contextCount = %d - Text = '%s'",
-
                     start, count, contextCount, String8(reinterpret_cast<const char16_t*>(key.getText() + start), count).string());
 
-
                     start, count, contextCount, String8(key.getText() + start, count).string());
-
-
             if (mDebugEnabled) {
                 nsecs_t totalTime = systemTime(SYSTEM_TIME_MONOTONIC) - startTime;
                 ALOGD("CACHE MISS: Added entry %p "
@@ -160,10 +156,7 @@ sp<TextLayoutValue> TextLayoutCache::getValue(const SkPaint* paint,
                         value.get(), start, count, contextCount, size, mMaxSize - mSize,
                         value->getElapsedTime() * 0.000001f,
                         (totalTime - value->getElapsedTime()) * 0.000001f,
-
                         String8(reinterpret_cast<const char16_t*>(key.getText() + start), count).string());
-
-
                         String8(key.getText() + start, count).string());
             }
         } else {
@@ -174,10 +167,7 @@ sp<TextLayoutValue> TextLayoutCache::getValue(const SkPaint* paint,
                         " - Compute time %0.6f ms - Text = '%s'",
                         start, count, contextCount, size, mMaxSize - mSize,
                         value->getElapsedTime() * 0.000001f,
-
                         String8(reinterpret_cast<const char16_t*>(key.getText() + start), count).string());
-
-
                         String8(key.getText() + start, count).string());
             }
         }
@@ -198,9 +188,7 @@ sp<TextLayoutValue> TextLayoutCache::getValue(const SkPaint* paint,
                         value->getElapsedTime() * 0.000001f,
                         elapsedTimeThruCacheGet * 0.000001f,
                         deltaPercent,
-
                         String8(reinterpret_cast<const char16_t*>(key.getText() + start), count).string());
-
                         String8(key.getText() + start, count).string());
             }
             if (mCacheHitCount % DEFAULT_DUMP_STATS_CACHE_HIT_INTERVAL == 0) {
@@ -272,7 +260,6 @@ TextLayoutCacheKey::TextLayoutCacheKey(const TextLayoutCacheKey& other) :
         hinting(other.hinting),
         variant(other.variant),
         language(other.language) {
-
 }
 
 int TextLayoutCacheKey::compare(const TextLayoutCacheKey& lhs, const TextLayoutCacheKey& rhs) {
@@ -313,7 +300,6 @@ int TextLayoutCacheKey::compare(const TextLayoutCacheKey& lhs, const TextLayoutC
     if (lhs.language > rhs.language) return +1;
 
     return memcmp(lhs.getText(), rhs.getText(), lhs.contextCount * sizeof(UChar));
-
 }
 
 size_t TextLayoutCacheKey::getSize() const {
