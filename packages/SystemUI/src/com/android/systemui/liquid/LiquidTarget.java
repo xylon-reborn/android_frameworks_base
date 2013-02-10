@@ -1,5 +1,6 @@
 /*
  * Copyright 2011 AOKP by Mike Wilson - Zaphod-Beeblebrox
+ * Copyright 2012 Slimroms Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,39 +18,42 @@
 package com.android.systemui.liquid;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.Intent.ShortcutIconResource;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.net.Uri;
+import android.os.Vibrator;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
-import android.os.Vibrator;
-import android.provider.AlarmClock;
-import android.provider.CalendarContract;
-import android.provider.CalendarContract.Events;
-import android.speech.RecognizerIntent;
+import android.provider.Settings;
+import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Slog;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -58,8 +62,10 @@ import android.widget.Toast;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.systemui.R;
 
+import java.util.List;
+
 /*
- * Helper classes for managing Liquid custom actions
+ * Helper classes for managing custom actions
  */
 
 public class LiquidTarget {
@@ -71,6 +77,7 @@ public class LiquidTarget {
     public final static String ACTION_SCREENSHOT = "**screenshot**";
     public final static String ACTION_MENU = "**menu**";
     public final static String ACTION_POWER = "**power**";
+    public final static String ACTION_LAST_APP = "**lastapp**";
     public final static String ACTION_NOTIFICATIONS = "**notifications**";
     public final static String ACTION_RECENTS = "**recents**";
     public final static String ACTION_IME = "**ime**";
@@ -80,16 +87,8 @@ public class LiquidTarget {
     public final static String ACTION_SILENT = "**ring_silent**";
     public final static String ACTION_VIB = "**ring_vib**";
     public final static String ACTION_SILENT_VIB = "**ring_vib_silent**";
-    public final static String ACTION_EVENT = "**event**";
-    public final static String ACTION_ALARM = "**alarm**";
-    public final static String ACTION_TODAY = "**today**";
-    public final static String ACTION_CLOCKOPTIONS = "**clockoptions**";
-	public final static String ACTION_VOICEASSIST = "**voiceassist**";
-	public final static String ACTION_TORCH = "**torch**";
-	public final static String ACTION_SEARCH = "**search**";
     public final static String ACTION_NULL = "**null**";
 
-    private boolean mRecentButtonLock = false;
     private int mInjectKeyCode;
     private Context mContext;
     private Handler mHandler;
@@ -104,21 +103,6 @@ public class LiquidTarget {
 
     public boolean launchAction (String action){
 
-        if (action.equals(ACTION_RECENTS)) {
-            if (!mRecentButtonLock) {
-                try {
-                    IStatusBarService.Stub.asInterface(
-                            ServiceManager.getService(Context.STATUS_BAR_SERVICE))
-                            .toggleRecentApps();
-                } catch (RemoteException e) {
-                    // nuu
-                }
-                mRecentButtonLock = true;
-                // 250ms animation duration + 150ms start delay of animation + 1 for good luck
-                mHandler.postDelayed(mUnlockRecents, 401);
-            }
-            return true;
-        }
         try {
             ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
         } catch (RemoteException e) {
@@ -126,67 +110,55 @@ public class LiquidTarget {
 
         if (action == null || action.equals(ACTION_NULL)) {
             return false;
-        } else if (action.equals(ACTION_HOME)) {
+        }
+        if (action.equals(ACTION_HOME)) {
             injectKeyDelayed(KeyEvent.KEYCODE_HOME);
             return true;
-        } else if (action.equals(ACTION_BACK)) {
+        }
+        if (action.equals(ACTION_BACK)) {
             injectKeyDelayed(KeyEvent.KEYCODE_BACK);
             return true;
-        } else if (action.equals(ACTION_MENU)) {
+        }
+        if (action.equals(ACTION_MENU)) {
             injectKeyDelayed(KeyEvent.KEYCODE_MENU);
             return true;
-        } else if (action.equals(ACTION_SEARCH)) {
-            injectKeyDelayed(KeyEvent.KEYCODE_SEARCH);
-            return true;
-        } else if (action.equals(ACTION_POWER)) {
+        }
+        if (action.equals(ACTION_POWER)) {
             injectKeyDelayed(KeyEvent.KEYCODE_POWER);
             return true;
-        } else if (action.equals(ACTION_IME)) {
+        }
+        if (action.equals(ACTION_IME)) {
             mContext.sendBroadcast(new Intent("android.settings.SHOW_INPUT_METHOD_PICKER"));
             return true;
-        } else if (action.equals(ACTION_SCREENSHOT)) {
+        }
+        if (action.equals(ACTION_SCREENSHOT)) {
             takeScreenshot();
             return true;
-        } else if (action.equals(ACTION_TODAY)) {
-            long startMillis = System.currentTimeMillis();
-            Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
-            builder.appendPath("time");
-            ContentUris.appendId(builder, startMillis);
-            Intent intent = new Intent(Intent.ACTION_VIEW)
-                      .setData(builder.build());
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
-            return true;
-        } else if (action.equals(ACTION_CLOCKOPTIONS)) {
-            Intent intent = new Intent(Intent.ACTION_QUICK_CLOCK);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
-            return true;
-        } else if (action.equals(ACTION_EVENT)) {
-            Intent intent = new Intent(Intent.ACTION_INSERT)
-                      .setData(Events.CONTENT_URI);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
-            return true;
-        } else if (action.equals(ACTION_VOICEASSIST)) {
-            Intent intent = new Intent(RecognizerIntent.ACTION_WEB_SEARCH);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
-            return true;
-        } else if (action.equals(ACTION_ALARM)) {
-            Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
-            return true;
-        } else if (action.equals(ACTION_ASSIST)) {
+        }
+        if (action.equals(ACTION_ASSIST)) {
             Intent intent = new Intent(Intent.ACTION_ASSIST);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
+            Intent intentNS = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"));
+            try {
+                if (intent != null) {
+                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                     mContext.startActivity(intent);
+                }
+            } catch (ActivityNotFoundException e) {
+                try {
+                    if (intentNS != null) {
+                         intentNS.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                         mContext.startActivity(intentNS);
+                    }
+                } catch (ActivityNotFoundException f) {
+                }
+            }
             return true;
-        } else if (action.equals(ACTION_KILL)) {
+        }
+        if (action.equals(ACTION_KILL)) {
             mHandler.post(mKillTask);
             return true;
-        } else if (action.equals(ACTION_VIB)) {
+        }
+        if (action.equals(ACTION_VIB)) {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if(am != null){
                 if(am.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE) {
@@ -204,7 +176,8 @@ public class LiquidTarget {
                 }
             }
             return true;
-        } else if (action.equals(ACTION_SILENT)) {
+        }
+        if (action.equals(ACTION_SILENT)) {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if(am != null){
                 if(am.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
@@ -218,7 +191,8 @@ public class LiquidTarget {
                 }
             }
             return true;
-        } else if (action.equals(ACTION_SILENT_VIB)) {
+        }
+        if (action.equals(ACTION_SILENT_VIB)) {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if(am != null){
                 if(am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
@@ -238,34 +212,47 @@ public class LiquidTarget {
                 }
             }
             return true;
-        } else if (action.equals(ACTION_NOTIFICATIONS)) {
+        }
+        if (action.equals(ACTION_RECENTS)) {
             try {
                 IStatusBarService.Stub.asInterface(
-                        ServiceManager.getService(Context.STATUS_BAR_SERVICE)).expandNotificationsPanel();
+                        ServiceManager.getService(mContext.STATUS_BAR_SERVICE)).toggleRecentApps();
+            } catch (RemoteException e) {
+                // let it go.
+            }
+            return true;
+        }
+        if (action.equals(ACTION_NOTIFICATIONS)) {
+            try {
+                IStatusBarService.Stub.asInterface(
+                        ServiceManager.getService(mContext.STATUS_BAR_SERVICE)).expandNotificationsPanel();
             } catch (RemoteException e) {
                 // A RemoteException is like a cold
                 // Let's hope we don't catch one!
             }
             return true;
         }
-        // we must have a custom uri
+        if (action.equals(ACTION_LAST_APP)) {
+            toggleLastApp();
+            return true;
+        }
+            // we must have a custom uri
         try {
             Intent intent = Intent.parseUri(action, 0);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mContext.startActivity(intent);
             return true;
-        } catch (URISyntaxException e) {
-                Log.e(TAG, "URISyntaxException: [" + action + "]");
-        } catch (ActivityNotFoundException e){
-                Log.e(TAG, "ActivityNotFound: [" + action + "]");
-        }
+            } catch (URISyntaxException e) {
+                    Log.e(TAG, "URISyntaxException: [" + action + "]");
+            } catch (ActivityNotFoundException e){
+                    Log.e(TAG, "ActivityNotFound: [" + action + "]");
+            }
         return false; // we didn't handle the action!
     }
 
 
-    //not using yet and dont want to take time to get drawables... yes lazy dev.
-    // Yes Steve, You are a lazy Dev.  I need this :)  - Zaphod 12-01-12
-    public Drawable getIconImage(String uri) {
+//not using yet and dont want to take time to get drawables... yes lazy dev.
+  /*  public Drawable getIconImage(String uri) {
 
         if (uri == null)
             return mContext.getResources().getDrawable(R.drawable.ic_sysbar_null);
@@ -285,10 +272,10 @@ public class LiquidTarget {
             return mContext.getResources().getDrawable(R.drawable.ic_sysbar_killtask);
         if (uri.equals(ACTION_POWER))
             return mContext.getResources().getDrawable(R.drawable.ic_sysbar_power);
-        if (uri.equals(ACTION_SEARCH))
-            return mContext.getResources().getDrawable(R.drawable.ic_sysbar_search);
         if (uri.equals(ACTION_NOTIFICATIONS))
             return mContext.getResources().getDrawable(R.drawable.ic_sysbar_notifications);
+        if (uri.equals(ACTION_LAST_APP))
+            return mContext.getResources().getDrawable(R.drawable.ic_sysbar_lastapp);
         try {
             return mContext.getPackageManager().getActivityIcon(Intent.parseUri(uri, 0));
             } catch (NameNotFoundException e) {
@@ -297,7 +284,7 @@ public class LiquidTarget {
                 e.printStackTrace();
             }
         return mContext.getResources().getDrawable(R.drawable.ic_sysbar_null);
-    } 
+    } */
 
     public String getProperSummary(String uri) {
         if (uri.equals(ACTION_HOME))
@@ -316,10 +303,10 @@ public class LiquidTarget {
             return mContext.getResources().getString(R.string.action_kill);
         if (uri.equals(ACTION_POWER))
             return mContext.getResources().getString(R.string.action_power);
-        if (uri.equals(ACTION_SEARCH))
-            return mContext.getResources().getString(R.string.action_search);
         if (uri.equals(ACTION_NOTIFICATIONS))
             return mContext.getResources().getString(R.string.action_notifications);
+        if (uri.equals(ACTION_LAST_APP))
+            return mContext.getResources().getString(R.string.action_lastapp);
         if (uri.equals(ACTION_NULL))
             return mContext.getResources().getString(R.string.action_none);
         try {
@@ -406,13 +393,6 @@ public class LiquidTarget {
         }
     };
 
-    final Runnable mUnlockRecents = new Runnable() {
-        @Override
-        public void run() {
-            mRecentButtonLock = false;
-        }
-    };
-
     final Runnable mScreenshotTimeout = new Runnable() {
         @Override
         public void run() {
@@ -488,6 +468,34 @@ public class LiquidTarget {
                 mScreenshotConnection = conn;
                 H.postDelayed(mScreenshotTimeout, 10000);
             }
+        }
+    }
+
+    private void toggleLastApp() {
+        int lastAppId = 0;
+        int looper = 1;
+        String packageName;
+        final Intent intent = new Intent(Intent.ACTION_MAIN);
+        final ActivityManager am = (ActivityManager) mContext
+                .getSystemService(Activity.ACTIVITY_SERVICE);
+        String defaultHomePackage = "com.android.launcher";
+        intent.addCategory(Intent.CATEGORY_HOME);
+        final ResolveInfo res = mContext.getPackageManager().resolveActivity(intent, 0);
+        if (res.activityInfo != null && !res.activityInfo.packageName.equals("android")) {
+            defaultHomePackage = res.activityInfo.packageName;
+        }
+        List <ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(5);
+        // lets get enough tasks to find something to switch to
+        // Note, we'll only get as many as the system currently has - up to 5
+        while ((lastAppId == 0) && (looper < tasks.size())) {
+            packageName = tasks.get(looper).topActivity.getPackageName();
+            if (!packageName.equals(defaultHomePackage) && !packageName.equals("com.android.systemui")) {
+                lastAppId = tasks.get(looper).id;
+            }
+            looper++;
+        }
+        if (lastAppId != 0) {
+            am.moveTaskToFront(lastAppId, am.MOVE_TASK_NO_USER_ACTION);
         }
     }
 

@@ -219,7 +219,7 @@ public class KeyButtonView extends ImageView {
 
             // also invalidate our immediate parent to help avoid situations where nearby glows
             // interfere
-            ((View)getParent()).invalidate();
+            ((View)getParent().getParent()).invalidate();
         }
     }
 
@@ -346,10 +346,6 @@ public class KeyButtonView extends ImageView {
                     false, this);
             resolver.registerContentObserver(
                     Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_TINT),
-                    false, this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_GLOW_TINT),
                     false, this);
             resolver.registerContentObserver(
@@ -371,7 +367,7 @@ public class KeyButtonView extends ImageView {
                 Settings.System.NAVIGATION_BAR_GLOW_DURATION[0], 10);
         mDurationSpeedOn = Settings.System.getInt(resolver,
                 Settings.System.NAVIGATION_BAR_GLOW_DURATION[1], 100);
-        BUTTON_QUIESCENT_ALPHA = Settings.System.getFloat(resolver, Settings.System.NAVIGATION_BAR_BUTTON_ALPHA, 0.7f);
+        BUTTON_QUIESCENT_ALPHA = (1-(Settings.System.getFloat(resolver, Settings.System.NAVIGATION_BAR_BUTTON_ALPHA, 0.3f)));
 
         setDrawingAlpha(BUTTON_QUIESCENT_ALPHA);
 
@@ -388,17 +384,6 @@ public class KeyButtonView extends ImageView {
             mGlowBG.setColorFilter(mGlowBGColor, PorterDuff.Mode.SRC_ATOP);
         }
 
-        int defaultButtonColor = mContext.getResources().getColor(
-                    com.android.internal.R.color.white);
-        int color = Settings.System.getInt(resolver,
-                Settings.System.NAVIGATION_BAR_TINT, defaultButtonColor);
-        if (color == Integer.MIN_VALUE) {
-            setColorFilter(null);
-        } else {
-            setColorFilter(null);
-            setColorFilter(color);
-        }
-                  
         invalidate();
     }
 }

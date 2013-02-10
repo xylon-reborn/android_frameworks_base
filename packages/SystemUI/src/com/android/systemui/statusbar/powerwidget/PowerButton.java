@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 The CyanogenMod Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.systemui.statusbar.powerwidget;
 
 import android.app.ActivityManagerNative;
@@ -36,6 +52,7 @@ public abstract class PowerButton {
     public static final String BUTTON_BLUETOOTH = "toggleBluetooth";
     public static final String BUTTON_BRIGHTNESS = "toggleBrightness";
     public static final String BUTTON_SOUND = "toggleSound";
+    public static final String BUTTON_NOTIFICATION_SOUND = "toggleNotificationSound";
     public static final String BUTTON_SYNC = "toggleSync";
     public static final String BUTTON_WIFIAP = "toggleWifiAp";
     public static final String BUTTON_SCREENTIMEOUT = "toggleScreenTimeout";
@@ -51,6 +68,8 @@ public abstract class PowerButton {
     public static final String BUTTON_MEDIA_NEXT = "toggleMediaNext";
     public static final String BUTTON_LTE = "toggleLte";
     public static final String BUTTON_WIMAX = "toggleWimax";
+    public static final String BUTTON_REBOOT = "toggleReboot";
+    public static final String BUTTON_FCHARGE = "toggleFCharge";
     public static final String BUTTON_UNKNOWN = "unknown";
     private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
     private static final Mode MASK_MODE = Mode.SCREEN;
@@ -58,6 +77,7 @@ public abstract class PowerButton {
     protected int mIcon;
     protected int mState;
     protected View mView;
+    public Context mContext;
     protected String mType = BUTTON_UNKNOWN;
 
     private ImageView mIconView;
@@ -122,15 +142,23 @@ public abstract class PowerButton {
         return new ArrayList<Uri>();
     }
 
+    public void afterInit(){
+        /* this method is added for custom buttons where we need some inits after instantiation
+           like creating listeners or observes.
+        */
+    }
+
     protected void setupButton(View view) {
         mView = view;
         if (mView != null) {
+            mContext = mView.getContext();
             mView.setTag(mType);
             mView.setOnClickListener(mClickListener);
             mView.setOnLongClickListener(mLongClickListener);
 
             mIconView = (ImageView) mView.findViewById(R.id.power_widget_button_image);
             mVibrator = (Vibrator) mView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+            afterInit();
         } else {
             mIconView = null;
         }
