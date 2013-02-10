@@ -4418,7 +4418,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                 mUiContext = null;
             }
         });
-        
+
         synchronized (this) {
             // Ensure that any processes we had put on hold are now started
             // up.
@@ -12568,7 +12568,7 @@ public final class ActivityManagerService extends ActivityManagerNative
     private void saveThemeResourceLocked(CustomTheme t, boolean isDiff){
         if(isDiff){
             SystemProperties.set(Configuration.THEME_ID_PERSISTENCE_PROPERTY, t.getThemeId());
-            SystemProperties.set(Configuration.THEME_PACKAGE_NAME_PERSISTENCE_PROPERTY, t.getThemePackageName());  
+            SystemProperties.set(Configuration.THEME_PACKAGE_NAME_PERSISTENCE_PROPERTY, t.getThemePackageName());
         }
     }
 

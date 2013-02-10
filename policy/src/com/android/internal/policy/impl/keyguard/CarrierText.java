@@ -16,7 +16,9 @@
 
 package com.android.internal.policy.impl.keyguard;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.TextView;
@@ -74,11 +76,19 @@ public class CarrierText extends TextView {
 
     protected void updateCarrierText(State simState, CharSequence plmn, CharSequence spn) {
         CharSequence text = getCarrierTextForSimState(simState, plmn, spn);
-        if (KeyguardViewManager.USE_UPPER_CASE) {
-            setText(text != null ? text.toString().toUpperCase() : null);
+        String customLabel = Settings.System.getString(getContext().getContentResolver(),
+                Settings.System.CUSTOM_CARRIER_LABEL);
+        if (customLabel == null || customLabel.length() == 0) {
+            if (KeyguardViewManager.USE_UPPER_CASE) {
+                setText(text != null ? text.toString().toUpperCase() : null);
+            } else {
+                setText(text);
+            }
         } else {
-            setText(text);
+            setText(customLabel);
         }
+        setTextColor(Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR, 0xFFFFFFFF));
     }
 
     @Override

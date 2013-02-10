@@ -1,8 +1,22 @@
+/*
+ * Copyright (C) 2012 The CyanogenMod Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.systemui.statusbar.powerwidget;
 
 import com.android.systemui.R;
-
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -22,6 +36,8 @@ public class SoundButton extends PowerButton {
 
     private static final String TAG = "SoundButton";
 
+    private static final int VIBRATE_DURATION = 250; // 0.25s
+
     private static final IntentFilter INTENT_FILTER = new IntentFilter();
     static {
         INTENT_FILTER.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
@@ -40,11 +56,14 @@ public class SoundButton extends PowerButton {
     private final Ringer[] mRingers = new Ringer[] {
             mSilentRinger, mVibrateRinger, mSoundRinger, mSoundVibrateRinger
     };
-    private int mRingersIndex;
+
+    private int mRingersIndex = 2;
+
     private int[] mRingerValues = new int[] {
             0, 1, 2, 3
     };
-    private int mRingerValuesIndex;
+    private int mRingerValuesIndex = 2;
+
     private AudioManager mAudioManager;
 
     public SoundButton() {
@@ -55,14 +74,15 @@ public class SoundButton extends PowerButton {
     protected void setupButton(View view) {
         super.setupButton(view);
         if (mView != null) {
-            Context context = mView.getContext();
-            updateSettings(context.getContentResolver());
+            ensureAudioManager(mContext);
+            updateSettings(mContext.getContentResolver());
+            update(mContext);
         }
     }
 
     @Override
     protected void updateState(Context context) {
-        findCurrentState(context);
+        findCurrentState();
         switch (mRingersIndex) {
             case 0:
                 mIcon = R.drawable.stat_silent;
@@ -99,6 +119,7 @@ public class SoundButton extends PowerButton {
         if (mRingersIndex > mRingers.length - 1) {
             mRingersIndex = 0;
         }
+        ensureAudioManager(mContext);
         Ringer ringer = mRingers[mRingersIndex];
         ringer.execute(context);
     }
@@ -113,8 +134,14 @@ public class SoundButton extends PowerButton {
     }
 
     @Override
+    protected void onReceive(Context context, Intent intent) {
+        update(mContext);
+    }
+
+    @Override
     protected void onChangeUri(ContentResolver cr, Uri uri) {
         updateSettings(cr);
+        updateState(mContext);
     }
 
     @Override
@@ -142,21 +169,20 @@ public class SoundButton extends PowerButton {
         }
     }
 
-    private void findCurrentState(Context context) {
-        ensureAudioManager(context);
-
-            ContentResolver resolver = context.getContentResolver();
-            boolean vibrateWhenRinging = Settings.System.getInt(resolver,
-                    Settings.System.VIBRATE_WHEN_RINGING, 0) == 1;
-            int ringerMode = mAudioManager.getRingerMode();
-            Ringer ringer = new Ringer(ringerMode, vibrateWhenRinging);
-            for (int i = 0; i < mRingers.length; i++) {
-                if (mRingers[i].equals(ringer)) {
-                    mRingersIndex = i;
-                    break;
-                }
+    private void findCurrentState() {
+        ContentResolver resolver = mContext.getContentResolver();
+        boolean vibrateWhenRinging = Settings.System.getInt(resolver,
+                Settings.System.VIBRATE_WHEN_RINGING, 0) == 1;
+        int ringerMode = mAudioManager.getRingerMode();
+        Log.e("RingerModeTile","ringerMode = "+ringerMode+"\r\n");
+        Ringer ringer = new Ringer(ringerMode, vibrateWhenRinging);
+        for (int i = 0; i < mRingers.length; i++) {
+            if (mRingers[i].equals(ringer)) {
+                mRingersIndex = i;
+                break;
             }
         }
+    }
 
     private void ensureAudioManager(Context context) {
         if (mAudioManager == null) {
@@ -168,7 +194,6 @@ public class SoundButton extends PowerButton {
         final boolean mVibrateWhenRinging;
         final int mRingerMode;
 
-
         Ringer( int ringerMode, boolean vibrateWhenRinging) {
             mVibrateWhenRinging = vibrateWhenRinging;
             mRingerMode = ringerMode;
@@ -177,8 +202,8 @@ public class SoundButton extends PowerButton {
         void execute(Context context) {
             // If we are setting a vibrating state, vibrate to indicate it
             if (mVibrateWhenRinging) {
-                Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                vibrator.vibrate(250);
+                Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+                vibrator.vibrate(VIBRATE_DURATION);
             }
 
             // Set the desired state
@@ -196,12 +221,13 @@ public class SoundButton extends PowerButton {
             if (o.getClass() != getClass()) {
                 return false;
             }
+
             Ringer r = (Ringer) o;
-            if ((mRingerMode == AudioManager.RINGER_MODE_SILENT || mRingerMode == AudioManager.RINGER_MODE_VIBRATE)
-                    && (r.mRingerMode == mRingerMode))
-                return true;
-            return r.mVibrateWhenRinging == mVibrateWhenRinging
+            if (r.mRingerMode == AudioManager.RINGER_MODE_SILENT && this.mRingerMode == AudioManager.RINGER_MODE_SILENT) return true;
+            else if (r.mRingerMode == AudioManager.RINGER_MODE_VIBRATE && this.mRingerMode == AudioManager.RINGER_MODE_VIBRATE) return true;
+            else return r.mVibrateWhenRinging == mVibrateWhenRinging
                     && r.mRingerMode == mRingerMode;
         }
     }
+
 }

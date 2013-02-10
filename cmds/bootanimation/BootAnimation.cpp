@@ -293,7 +293,6 @@ status_t BootAnimation::readyToRun() {
         mAndroidAnimation = false;
     }
 
-
 #ifdef PRELOAD_BOOTANIMATION
     // Preload the bootanimation zip on memory, so we don't stutter
     // when showing the animation
@@ -324,7 +323,6 @@ status_t BootAnimation::readyToRun() {
         fclose(fd);
     }
 #endif
-
     return NO_ERROR;
 }
 
@@ -533,7 +531,6 @@ bool BootAnimation::movie()
     for (int i=0 ; i<pcount ; i++) {
         const Animation::Part& part(animation.parts[i]);
         const size_t fcount = part.frames.size();
-
         // can be 1, 0, or not set
         #ifdef NO_TEXTURE_CACHE
         const int noTextureCache = NO_TEXTURE_CACHE;
@@ -541,7 +538,6 @@ bool BootAnimation::movie()
         const int noTextureCache = ((animation.width * animation.height * fcount) >
                                  48 * 1024 * 1024) ? 1 : 0;
         #endif
-
         glBindTexture(GL_TEXTURE_2D, 0);
 
         for (int r=0 ; !part.count || r<part.count ; r++) {
@@ -598,7 +594,6 @@ bool BootAnimation::movie()
                 }
 
                 checkExit();
- 
                 if (noTextureCache)
                     glDeleteTextures(1, &frame.tid);
             }

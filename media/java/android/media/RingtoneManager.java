@@ -468,7 +468,7 @@ public class RingtoneManager {
         if (uri == null) {
             uri = getValidRingtoneUriFromCursorAndClose(context, rm.getThemeRegularRingtones());
         }
-        
+
         if (uri == null) {
             uri = getValidRingtoneUriFromCursorAndClose(context, rm.getThemeNotificationRingtones());
         }
@@ -549,7 +549,7 @@ public class RingtoneManager {
             return null;
         }
     }
- 
+
     private void setFilterColumnsList(int type) {
         List<String> columns = mFilterColumns;
         columns.clear();

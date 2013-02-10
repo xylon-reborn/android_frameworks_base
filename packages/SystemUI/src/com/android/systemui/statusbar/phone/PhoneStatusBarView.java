@@ -16,8 +16,6 @@
 
 package com.android.systemui.statusbar.phone;
 
-import java.util.List;
-
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.app.StatusBarManager;
@@ -33,7 +31,9 @@ import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.database.ContentObserver;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Broadcaster;
 import android.os.Handler;
@@ -46,8 +46,8 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.android.systemui.R;
-import com.android.systemui.statusbar.BackgroundAlphaColorDrawable;
-import com.android.systemui.statusbar.NavigationBarView;
+
+import java.util.List;
 
 public class PhoneStatusBarView extends PanelBar {
     private static final String TAG = "PhoneStatusBarView";
@@ -66,7 +66,9 @@ public class PhoneStatusBarView extends PanelBar {
     PanelView mNotificationPanel, mSettingsPanel;
     private boolean mShouldFade;
 
-    float mAlpha = 1;
+    float mAlpha;
+    int mAlphaMode;
+    int mStatusBarColor;
 
     private Runnable mUpdateInHomeAlpha = new Runnable() {
         @Override
@@ -92,6 +94,8 @@ public class PhoneStatusBarView extends PanelBar {
                 @Override
                 protected void onPostExecute(Boolean inHome) {
                     setBackgroundAlpha(inHome ? mAlpha : 1);
+                    Settings.System.putInt(getContext().getContentResolver(),
+                        Settings.System.IS_HOME, inHome ? 1 : 0);
                 }
             }.execute();
         }
@@ -120,7 +124,13 @@ public class PhoneStatusBarView extends PanelBar {
         mKeyguardManager = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
         SettingsObserver settingsObserver = new SettingsObserver(new Handler());
         settingsObserver.observe();
-        setBackground(new BackgroundAlphaColorDrawable(Color.BLACK));
+        updateSettings();
+        Drawable bg = mContext.getResources().getDrawable(R.drawable.status_bar_background);
+        if(bg instanceof ColorDrawable) {
+            BackgroundAlphaColorDrawable bacd = new BackgroundAlphaColorDrawable(
+                    mStatusBarColor != -1 ? mStatusBarColor : ((ColorDrawable) bg).getColor());
+            setBackground(bacd);
+        }
     }
 
     public void setBar(PhoneStatusBar bar) {
@@ -158,7 +168,7 @@ public class PhoneStatusBarView extends PanelBar {
         mBar.onBarViewDetached();
         mContext.unregisterReceiver(mBroadcastReceiver);
     }
- 
+
     @Override
     public boolean panelsEnabled() {
         return ((mBar.mDisabled & StatusBarManager.DISABLE_EXPAND) == 0);
@@ -312,15 +322,18 @@ public class PhoneStatusBarView extends PanelBar {
         if (bg == null)
             return;
 
-        int a = (int) (alpha * 255);
+        if(bg instanceof BackgroundAlphaColorDrawable) {
+            ((BackgroundAlphaColorDrawable) bg).setBgColor(mStatusBarColor);
+        }
+        int a = Math.round(alpha * 255);
         bg.setAlpha(a);
     }
 
     public void updateBackgroundAlpha() {
-        if(mFadingPanel != null) {
+        if(mFadingPanel != null || (isKeyguardEnabled() && mAlphaMode == 0)) {
             setBackgroundAlpha(1);
-        } else if (isKeyguardEnabled()) {
-            setBackgroundAlpha(mAlpha < NavigationBarView.KEYGUARD_ALPHA ? NavigationBarView.KEYGUARD_ALPHA : mAlpha);
+        } else if (isKeyguardEnabled() || mAlphaMode == 2) {
+            setBackgroundAlpha(mAlpha);
         } else {
             removeCallbacks(mUpdateInHomeAlpha);
             postDelayed(mUpdateInHomeAlpha, 100);
@@ -347,8 +360,11 @@ public class PhoneStatusBarView extends PanelBar {
             ContentResolver resolver = mContext.getContentResolver();
 
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_ALPHA), false, this);
-            updateSettings();
+                    Settings.System.getUriFor(Settings.System.STATUS_BAR_ALPHA), false, this);
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.STATUS_NAV_BAR_ALPHA_MODE), false, this);
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.STATUS_BAR_COLOR), false, this);
         }
 
         @Override
@@ -358,10 +374,15 @@ public class PhoneStatusBarView extends PanelBar {
     }
 
     protected void updateSettings() {
-        ContentResolver resolver = mContext.getContentResolver();
-        mAlpha = Settings.System.getFloat(resolver,
-                Settings.System.NAVIGATION_BAR_ALPHA,
-                new Float(mContext.getResources().getInteger(R.integer.navigation_bar_transparency) / 255));
+        mAlpha = 1.0f - Settings.System.getFloat(mContext.getContentResolver(),
+                       Settings.System.STATUS_BAR_ALPHA,
+                       0.0f);
+        mAlphaMode = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_NAV_BAR_ALPHA_MODE, 1);
+        mStatusBarColor = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_COLOR, -1);
+
+        updateBackgroundAlpha();
 
     }
 

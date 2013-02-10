@@ -49,7 +49,7 @@ ifeq ($(BOARD_HAVE_NEW_QC_GPS),true)
 endif
 
 ifeq ($(BOARD_HAVE_SAMSUNG_GPS),true)
-	LOCAL_CFLAGS += -DSAMSUNG_GPS
+    LOCAL_CFLAGS += -DSAMSUNG_GPS
 endif
 
 ifeq ($(WITH_MALLOC_LEAK_CHECK),true)

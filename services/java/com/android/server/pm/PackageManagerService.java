@@ -455,7 +455,6 @@ public class PackageManagerService extends IPackageManager.Stub {
 
     WindowManager mWindowManager;
     private final WindowManagerPolicy mPolicy; // to set packageName
-
     final private DefaultContainerConnection mDefContainerConn =
             new DefaultContainerConnection();
     class DefaultContainerConnection implements ServiceConnection {
@@ -8241,7 +8240,7 @@ public class PackageManagerService extends IPackageManager.Stub {
 
         boolean removedForAllUsers = false;
         boolean systemUpdate = false;
-        
+
         synchronized (mPackages) {
             PackageParser.Package p = mPackages.get(packageName);
             if (p != null) {
@@ -8252,7 +8251,7 @@ public class PackageManagerService extends IPackageManager.Stub {
                 }
             }
         }
- 
+
         synchronized (mInstallLock) {
             res = deletePackageLI(packageName,
                     (flags & PackageManager.DELETE_ALL_USERS) != 0

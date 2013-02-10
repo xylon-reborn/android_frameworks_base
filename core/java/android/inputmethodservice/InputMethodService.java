@@ -885,7 +885,14 @@ public class InputMethodService extends AbstractInputMethodService {
      * is currently running in fullscreen mode.
      */
     public void updateFullscreenMode() {
-        boolean isFullscreen = mShowInputRequested && onEvaluateFullscreenMode();
+        boolean fullScreenOverride = Settings.System.getInt(getContentResolver(),
+                Settings.System.DISABLE_FULLSCREEN_KEYBOARD, 0) != 0;
+        boolean isFullscreen;
+        if (fullScreenOverride) {
+            isFullscreen = false;
+        } else {
+            isFullscreen = mShowInputRequested && onEvaluateFullscreenMode();
+        }
         boolean changed = mLastShowInputRequested != mShowInputRequested;
         if (mIsFullscreen != isFullscreen || !mFullscreenApplied) {
             changed = true;
@@ -944,13 +951,11 @@ public class InputMethodService extends AbstractInputMethodService {
      */
     public void onConfigureWindow(Window win, boolean isFullscreen,
             boolean isCandidatesOnly) {
-        final int currentHeight = mWindow.getWindow().getAttributes().height;
-        final int newHeight = isFullscreen ? MATCH_PARENT : WRAP_CONTENT;
-        if (mIsInputViewShown && currentHeight != newHeight) {
-            Log.w(TAG, "Window size has been changed. This may cause jankiness of resizing window: "
-                    + currentHeight + " -> " + newHeight);
+        if (isFullscreen) {
+            mWindow.getWindow().setLayout(MATCH_PARENT, MATCH_PARENT);
+        } else {
+            mWindow.getWindow().setLayout(MATCH_PARENT, WRAP_CONTENT);
         }
-        mWindow.getWindow().setLayout(MATCH_PARENT, newHeight);
     }
     
     /**
@@ -1013,11 +1018,10 @@ public class InputMethodService extends AbstractInputMethodService {
     }
     
     void updateExtractFrameVisibility() {
-        final int vis;
+        int vis;
         if (isFullscreenMode()) {
             vis = mExtractViewHidden ? View.INVISIBLE : View.VISIBLE;
-            // "vis" should be applied for the extract frame as well in the fullscreen mode.
-            mExtractFrame.setVisibility(vis);
+            mExtractFrame.setVisibility(View.VISIBLE);
         } else {
             vis = View.VISIBLE;
             mExtractFrame.setVisibility(View.GONE);
