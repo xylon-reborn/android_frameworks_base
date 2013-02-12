@@ -47,8 +47,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * This widget display an analogic clock with two hands for hours and
- * minutes.
+ * Digital clock for the status bar.
  */
 public class Clock extends TextView implements OnClickListener, OnLongClickListener {
     protected boolean mAttached;
@@ -146,6 +145,7 @@ public class Clock extends TextView implements OnClickListener, OnLongClickListe
             filter.addAction(Intent.ACTION_TIME_CHANGED);
             filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
             filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+            filter.addAction(Intent.ACTION_USER_SWITCHED);
 
             getContext().registerReceiver(mIntentReceiver, filter, null, getHandler());
         }
@@ -184,6 +184,12 @@ public class Clock extends TextView implements OnClickListener, OnLongClickListe
                 mCalendar = Calendar.getInstance(TimeZone.getTimeZone(tz));
                 if (mClockFormat != null) {
                     mClockFormat.setTimeZone(mCalendar.getTimeZone());
+                }
+            } else if (action.equals(Intent.ACTION_CONFIGURATION_CHANGED)) {
+                final Locale newLocale = getResources().getConfiguration().locale;
+                if (! newLocale.equals(mLocale)) {
+                    mLocale = newLocale;
+                    mClockFormatString = ""; // force refresh
                 }
             }
             updateClock();
