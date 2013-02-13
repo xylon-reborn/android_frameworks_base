@@ -106,7 +106,11 @@ public class KeyguardHostView extends KeyguardViewBase {
 
     private boolean mSafeModeEnabled;
 
-     /*package*/ interface TransportCallback {
+    private boolean mUserSetupCompleted;
+    // User for whom this host view was created
+    private int mUserId;
+
+    /*package*/ interface TransportCallback {
         void onListenerDetached();
         void onListenerAttached();
         void onPlayStateChanged();
@@ -296,7 +300,7 @@ public class KeyguardHostView extends KeyguardViewBase {
             MAX_WIDGETS = 5;
         }
         if (numWidgets() >= MAX_WIDGETS) {
-            setAddWidgetEnabled(false);
+            mAppWidgetContainer.setAddWidgetEnabled(false);
         }
         checkAppWidgetConsistency();
         mSwitchPageRunnable.run();
@@ -328,6 +332,10 @@ public class KeyguardHostView extends KeyguardViewBase {
             return true;
         }
     };
+
+    private boolean shouldEnableAddWidget() {
+        return numWidgets() < MAX_WIDGETS && mUserSetupCompleted;
+    }
 
     private int getDisabledFeatures(DevicePolicyManager dpm) {
         int disabledFeatures = DevicePolicyManager.KEYGUARD_DISABLE_FEATURES_NONE;
@@ -411,15 +419,8 @@ public class KeyguardHostView extends KeyguardViewBase {
 
         @Override
         public void onAddView(View v) {
-            mUnlimitedWidgets = Settings.System.getInt(getContext().getContentResolver(),
-                    Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, 0) == 1;
-            if (mUnlimitedWidgets) {
-                MAX_WIDGETS = numWidgets() + 1;
-            } else {
-                MAX_WIDGETS = 5;
-            }
-            if (numWidgets() >= MAX_WIDGETS) {
-                setAddWidgetEnabled(false);
+            if (!shouldEnableAddWidget()) {
+                mAppWidgetContainer.setAddWidgetEnabled(false);
             }
         }
 
@@ -435,16 +436,9 @@ public class KeyguardHostView extends KeyguardViewBase {
         }
 
         @Override
-        public void onRemoveView(View v) {
-            mUnlimitedWidgets = Settings.System.getInt(getContext().getContentResolver(),
-                    Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, 0) == 1;
-            if (mUnlimitedWidgets) {
-                MAX_WIDGETS = numWidgets() + 1;
-            } else {
-                MAX_WIDGETS = 5;
-            }
-            if (numWidgets() >= MAX_WIDGETS) {
-                setAddWidgetEnabled(false);
+        public void onRemoveViewAnimationCompleted() {
+            if (shouldEnableAddWidget()) {
+                mAppWidgetContainer.setAddWidgetEnabled(true);
             }
         }
     };

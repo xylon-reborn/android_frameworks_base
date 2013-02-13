@@ -56,7 +56,7 @@ class KeyguardMessageArea extends TextView {
     boolean mShowingBouncer = false;
 
     // last known plugged in state
-    boolean mCharging = false;
+    boolean mPluggedIn = false;
 
     // last known battery level
     int mBatteryLevel = 100;
@@ -230,7 +230,7 @@ class KeyguardMessageArea extends TextView {
         CharSequence string = null;
         if (mShowingBatteryInfo && !mShowingMessage) {
             // Battery status
-            if (mCharging) {
+            if (mPluggedIn) {
                 // Charging, charged or waiting to charge.
                 string = getContext().getString(mBatteryCharged
                         ? com.android.internal.R.string.lockscreen_charged
