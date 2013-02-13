@@ -2824,12 +2824,6 @@ public final class Settings {
          */
         public static final String LOCKSCREEN_CUSTOM_TEXT_COLOR = "lockscreen_custom_text_color";
 
-        /**	
-         * Defines the shortcuts to be shown on lockscreen
-         * @hide
-         */
-        public static final String LOCKSCREEN_SHORTCUTS = "lockscreen_shortcuts";
-
         /**
          * Whether to use keyguard or homescreen widgets
          * @hide
