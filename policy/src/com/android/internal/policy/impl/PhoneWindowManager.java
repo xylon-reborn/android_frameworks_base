@@ -20,6 +20,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
+import android.app.IUiModeManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.app.UiModeManager;
@@ -185,6 +186,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     static final boolean SHOW_STARTING_ANIMATIONS = true;
     static final boolean SHOW_PROCESSES_ON_ALT_MENU = false;
 
+    // Whether to allow dock apps with METADATA_DOCK_HOME to temporarily take over the Home key.
+    // No longer recommended for desk docks; still useful in car docks.
+    static final boolean ENABLE_CAR_DOCK_HOME_CAPTURE = true;
+    static final boolean ENABLE_DESK_DOCK_HOME_CAPTURE = false;
+
     static final int LONG_PRESS_POWER_NOTHING = 0;
     static final int LONG_PRESS_POWER_GLOBAL_ACTIONS = 1;
     static final int LONG_PRESS_POWER_SHUT_OFF = 2;
@@ -211,14 +217,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // Must match values for KEY_HOME_LONG_PRESS_ACTION in:
     // core/java/android/provider/Settings.java
     private static final int KEY_ACTION_NOTHING = 0;
-    private static final int KEY_ACTION_MENU = 1;
-    private static final int KEY_ACTION_APP_SWITCH = 2;
-    private static final int KEY_ACTION_SEARCH = 3;
-    private static final int KEY_ACTION_VOICE_SEARCH = 4;
-    private static final int KEY_ACTION_IN_APP_SEARCH = 5;
-    private static final int KEY_ACTION_LAST_APP = 6;
-    private static final int KEY_ACTION_POWER = 7;
-    private static final int KEY_ACTION_CUSTOM_APP = 8;
+    private static final int KEY_ACTION_HOME = 1;
+    private static final int KEY_ACTION_BACK = 2;
+    private static final int KEY_ACTION_MENU = 3;
+    private static final int KEY_ACTION_APP_SWITCH = 4;
+    private static final int KEY_ACTION_SEARCH = 5;
+    private static final int KEY_ACTION_VOICE_SEARCH = 6;
+    private static final int KEY_ACTION_IN_APP_SEARCH = 7;
+    private static final int KEY_ACTION_POWER = 8;
+    private static final int KEY_ACTION_NOTIFICATIONS = 9;
+    private static final int KEY_ACTION_EXPANDED = 10;
+    private static final int KEY_ACTION_KILL_APP = 11;
+    private static final int KEY_ACTION_LAST_APP = 12;
+    private static final int KEY_ACTION_CUSTOM_APP = 13;
 
     // Masks for checking presence of hardware keys.
     // Must match values in core/res/res/values/config.xml
@@ -334,9 +345,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mSystemBooted;
     boolean mHdmiPlugged;
     boolean mWifiDisplayConnected;
+    int mUiMode;
     int mDockMode = Intent.EXTRA_DOCK_STATE_UNDOCKED;
     int mLidOpenRotation;
-    boolean mHasRemovableLid;
     int mCarDockRotation;
     int mDeskDockRotation;
     int mHdmiRotation;
@@ -363,6 +374,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mPointerLocationMode = 0; // guarded by mLock
     int mDeviceHardwareKeys;
     boolean mHasHomeKey;
+    boolean mHasBackKey;
     boolean mHasMenuKey;
     boolean mHasAssistKey;
     boolean mHasAppSwitchKey;
@@ -484,6 +496,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mDreamingLockscreen;
     boolean mHomePressed;
     boolean mHomeLongPressed;
+    boolean mMenuLongPressed;
+    boolean mBackLongPressed;
     boolean mAppSwitchLongPressed;
     Intent mHomeIntent;
     Intent mCarDockIntent;
@@ -494,11 +508,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     // Used when key is pressed and performing non-default action
     boolean mMenuDoCustomAction;
+    boolean mBackDoCustomAction;
 
     // Tracks user-customisable behavior for certain key events
+    private String mPressOnHomeBehavior;
     private String mLongPressOnHomeBehavior;
     private String mPressOnMenuBehavior;
     private String mLongPressOnMenuBehavior;
+    private String mPressOnBackBehavior;
+    private String mLongPressOnBackBehavior;
     private String mPressOnAssistBehavior;
     private String mLongPressOnAssistBehavior;
     private String mPressOnAppSwitchBehavior;
@@ -647,7 +665,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_CAN_MOVE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.KEY_HOME_ACTION), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.KEY_HOME_LONG_PRESS_ACTION), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.KEY_BACK_ACTION), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.KEY_BACK_LONG_PRESS_ACTION), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.KEY_MENU_ACTION), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -957,6 +981,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             switch (behavior) {
                 case KEY_ACTION_NOTHING:
                     break;
+                case KEY_ACTION_HOME:
+                    launchHomeFromHotKey();
+                    break;
+                case KEY_ACTION_BACK:
+                    triggerVirtualKeypress(KeyEvent.KEYCODE_BACK);
+                    break;
                 case KEY_ACTION_MENU:
                     triggerVirtualKeypress(KeyEvent.KEYCODE_MENU);
                     break;
@@ -983,12 +1013,48 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 case KEY_ACTION_IN_APP_SEARCH:
                     triggerVirtualKeypress(KeyEvent.KEYCODE_SEARCH);
                     break;
+                case KEY_ACTION_KILL_APP:
+                    mHandler.postDelayed(mBackLongPress, mBackKillTimeout - 500);
+                    break;
                 case KEY_ACTION_LAST_APP:
                     toggleLastApp();
                     break;
                 case KEY_ACTION_POWER:
                     PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
                     pm.goToSleep(SystemClock.uptimeMillis());
+                    break;
+                case KEY_ACTION_NOTIFICATIONS:
+                    try {
+                        IStatusBarService statusbar = getStatusBarService();
+                        if (statusbar != null) {
+                            statusbar.toggleNotificationShade();
+                        }
+                    } catch (RemoteException e) {
+                        Slog.e(TAG, "RemoteException when toggling notification shade", e);
+                        mStatusBarService = null;
+                    }
+                    break;
+                case KEY_ACTION_EXPANDED:
+                    boolean expandDesktopModeOn = Settings.System.getInt(
+                            mContext.getContentResolver(),
+                            Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1;
+                    int expandedMode = Settings.System.getInt(mContext.getContentResolver(),
+                            Settings.System.EXPANDED_DESKTOP_MODE, 0);
+                    if (!expandDesktopModeOn && expandedMode == 0) {
+                        // Expanded desktop is going to turn on, default to 2 since
+                        // EXPANDED_DESKTOP_MODE has not been set
+                        Settings.System.putInt(mContext.getContentResolver(),
+                            Settings.System.EXPANDED_DESKTOP_MODE, 2);
+                        Runnable expandedDesktopToast = new Runnable() {
+                            public void run() {
+                                Toast.makeText(mContext, R.string.expanded_mode_default_set, Toast.LENGTH_LONG).show();
+                            }
+                        };
+                        mHandler.post(expandedDesktopToast);
+                    }
+                    Settings.System.putInt(
+                            mContext.getContentResolver(),
+                            Settings.System.EXPANDED_DESKTOP_STATE, expandDesktopModeOn ? 0 : 1);
                     break;
                 default:
                     break;
@@ -1100,6 +1166,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mSettingsObserver.observe();
         mShortcutManager = new ShortcutManager(context, mHandler);
         mShortcutManager.observe();
+        mUiMode = context.getResources().getInteger(
+                com.android.internal.R.integer.config_defaultUiModeType);
         mHomeIntent =  new Intent(Intent.ACTION_MAIN, null);
         mHomeIntent.addCategory(Intent.CATEGORY_HOME);
         mHomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -1133,13 +1201,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 com.android.internal.R.integer.config_lidNavigationAccessibility);
         mLidControlsSleep = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_lidControlsSleep);
-        mHasRemovableLid = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_hasRemovableLid);
         mBackKillTimeout = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_backKillTimeout);
         mDeviceHardwareKeys = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_deviceHardwareKeys);
         mHasHomeKey = ((mDeviceHardwareKeys & KEY_MASK_HOME) != 0);
+        mHasBackKey = ((mDeviceHardwareKeys & KEY_MASK_BACK) != 0);
         mHasMenuKey = ((mDeviceHardwareKeys & KEY_MASK_MENU) != 0);
         mHasAssistKey = ((mDeviceHardwareKeys & KEY_MASK_ASSIST) != 0);
         mHasAppSwitchKey = ((mDeviceHardwareKeys & KEY_MASK_APP_SWITCH) != 0);
@@ -1346,7 +1413,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     public String getDefString(ContentResolver resolver, String key, int def) {
-        String value = Settings.System.getString(resolver, key);
+        String value = Settings.System.getStringForUser(resolver, key, UserHandle.USER_CURRENT);
         if (value == null)
             value = Integer.toString(def);
         return value;
@@ -1391,11 +1458,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
             if (!keyRebindingEnabled) {
                 if (mHasHomeKey) {
+                    mPressOnHomeBehavior = getStr(KEY_ACTION_HOME);
                     if (mHasAppSwitchKey) {
                         mLongPressOnHomeBehavior = getStr(KEY_ACTION_NOTHING);
                     } else {
                         mLongPressOnHomeBehavior = getStr(KEY_ACTION_APP_SWITCH);
                     }
+                }
+                if (mHasBackKey) {
+                    mPressOnBackBehavior = getStr(KEY_ACTION_BACK);
+                    mLongPressOnBackBehavior = getStr(KEY_ACTION_NOTHING);
                 }
                 if (mHasMenuKey) {
                     mPressOnMenuBehavior = getStr(KEY_ACTION_MENU);
@@ -1415,6 +1487,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
             } else {
                 if (mHasHomeKey) {
+                    mPressOnHomeBehavior = getDefString(resolver,
+                            Settings.System.KEY_HOME_ACTION, KEY_ACTION_HOME);
                     if (mHasAppSwitchKey) {
                         mLongPressOnHomeBehavior = getDefString(resolver,
                                 Settings.System.KEY_HOME_LONG_PRESS_ACTION, KEY_ACTION_NOTHING);
@@ -1422,6 +1496,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         mLongPressOnHomeBehavior = getDefString(resolver,
                                 Settings.System.KEY_HOME_LONG_PRESS_ACTION, KEY_ACTION_APP_SWITCH);
                     }
+                }
+                if (mHasBackKey) {
+                    mPressOnBackBehavior = getDefString(resolver,
+                            Settings.System.KEY_BACK_ACTION, KEY_ACTION_BACK);
+                    mLongPressOnBackBehavior = getDefString(resolver,
+                            Settings.System.KEY_BACK_LONG_PRESS_ACTION, KEY_ACTION_NOTHING);
                 }
                 if (mHasMenuKey) {
                     mPressOnMenuBehavior = getDefString(resolver,
@@ -2270,10 +2350,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
         }
 
-        if (keyCode == KeyEvent.KEYCODE_BACK && !down) {
-            mHandler.removeCallbacks(mBackLongPress);
-        }
-
         // First we always handle the home key here, so applications
         // can never break it, although if keyguard is on, we do let
         // it handle it, because that gives us the correct 5 second
@@ -2287,7 +2363,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mHomeLongPressed = false;
                 mHomePressed = false;
                 if (!homeWasLongPressed) {
-                    if (mRecentAppsPreloaded) {
+                    if (mRecentAppsPreloaded &&
+                            (!mPressOnHomeBehavior.equals(getStr(KEY_ACTION_APP_SWITCH)) &&
+                            !mLongPressOnHomeBehavior.equals(getStr(KEY_ACTION_APP_SWITCH)))) {
                         cancelPreloadRecentApps();
                     }
                     mHomePressed = false;
@@ -2307,7 +2385,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                     Log.i(TAG, "Ignoring HOME; there's a ringing incoming call.");
                                 }
                             } else {
-                                launchHomeFromHotKey();
+                                if (event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD) {
+                                    // VIRTUAL_KEYBOARD is given to triggerVirtualKeypress and NavBar KEYCODES
+                                    // Home is never triggered from a triggerVirtualKeypress so this must be from the NavBar..
+                                    launchHomeFromHotKey();
+                                } else {
+                                    performKeyAction(mPressOnHomeBehavior);
+                                }
                             }
                         } catch (RemoteException ex) {
                             Log.w(TAG, "RemoteException from getPhoneInterface()", ex);
@@ -2338,11 +2422,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
             }
             if (down) {
-                if (!mRecentAppsPreloaded && mLongPressOnHomeBehavior.equals(getStr(KEY_ACTION_APP_SWITCH))) {
+                if (!mRecentAppsPreloaded && (mPressOnHomeBehavior.equals(getStr(KEY_ACTION_APP_SWITCH)) ||
+                        mLongPressOnHomeBehavior.equals(getStr(KEY_ACTION_APP_SWITCH)))) {
                     preloadRecentApps();
                 }
                 if (repeatCount == 0) {
                     mHomePressed = true;
+                    mHomeLongPressed = false;
                 } else if (longPress) {
                     if (!keyguardOn && !mLongPressOnHomeBehavior.equals(getStr(KEY_ACTION_NOTHING))) {
                         performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
@@ -2363,6 +2449,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     preloadRecentApps();
                 }
                 if (repeatCount == 0) {
+                    mMenuLongPressed = false;
                     if (mEnableShiftMenuBugReports && (metaState & chordBug) == chordBug) {
                         Intent intent = new Intent(Intent.ACTION_BUG_REPORT);
                         mContext.sendOrderedBroadcast(intent, null);
@@ -2392,24 +2479,34 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             !mLongPressOnMenuBehavior.equals(getStr(KEY_ACTION_APP_SWITCH))) {
                         cancelPreloadRecentApps();
                     }
-                    if (!keyguardOn && !mLongPressOnMenuBehavior.equals(getStr(KEY_ACTION_NOTHING))) {
+                    if (!keyguardOn && !mLongPressOnMenuBehavior.equals(getStr(KEY_ACTION_NOTHING)) &&
+                            !mIsVirtualKeypress && event.getDeviceId() != KeyCharacterMap.VIRTUAL_KEYBOARD) {
                         performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
                         performKeyAction(mLongPressOnMenuBehavior);
                         // Do not perform action when key is released
                         mMenuDoCustomAction = false;
-                        return -1;
+                        mMenuLongPressed = true;
                     }
+                }
+                if (mMenuLongPressed) {
+                    return -1;
                 }
             } else {
                 if (mRecentAppsPreloaded && !mPressOnMenuBehavior.equals(getStr(KEY_ACTION_APP_SWITCH)) &&
                         !mLongPressOnMenuBehavior.equals(getStr(KEY_ACTION_APP_SWITCH))) {
                     cancelPreloadRecentApps();
                 }
-                if (mMenuDoCustomAction) {
-                    mMenuDoCustomAction = false;
-                    if (!canceled && !keyguardOn) {
-                        performKeyAction(mPressOnMenuBehavior);
-                        return -1;
+                if (mMenuLongPressed) {
+                    // Long press finished, eat the up
+                    mMenuLongPressed = false;
+                    return -1;
+                } else {
+                    if (mMenuDoCustomAction) {
+                        mMenuDoCustomAction = false;
+                        if (!canceled && !keyguardOn) {
+                            performKeyAction(mPressOnMenuBehavior);
+                            return -1;
+                        }
                     }
                 }
             }
@@ -2495,10 +2592,50 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             return -1;
         } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (Settings.Secure.getInt(mContext.getContentResolver(),
-                    Settings.Secure.KILL_APP_LONGPRESS_BACK, 0) == 1) {
-                if (down && repeatCount == 0) {
-                    mHandler.postDelayed(mBackLongPress, mBackKillTimeout);
+            if (down) {
+                if (!mRecentAppsPreloaded && (mPressOnBackBehavior.equals(getStr(KEY_ACTION_APP_SWITCH)) ||
+                        mLongPressOnBackBehavior.equals(getStr(KEY_ACTION_APP_SWITCH)))) {
+                    preloadRecentApps();
+                }
+                if (repeatCount == 0) {
+                    mBackLongPressed = false;
+                    if (!mPressOnBackBehavior.equals(getStr(KEY_ACTION_BACK)) &&
+                            !mIsVirtualKeypress && event.getDeviceId() != KeyCharacterMap.VIRTUAL_KEYBOARD) {
+                        mBackDoCustomAction = true;
+                        return -1;
+                    }
+                } else if (longPress) {
+                    if (mRecentAppsPreloaded &&
+                            !mLongPressOnBackBehavior.equals(getStr(KEY_ACTION_APP_SWITCH))) {
+                        cancelPreloadRecentApps();
+                    }
+                    if (!keyguardOn && !mLongPressOnBackBehavior.equals(getStr(KEY_ACTION_NOTHING))) {
+                        performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
+                        performKeyAction(mLongPressOnBackBehavior);
+                        // Do not perform action when key is released
+                        mBackDoCustomAction = false;
+                        mBackLongPressed = true;
+                    }
+                }
+                if (mBackLongPressed) {
+                    return -1;
+                }
+            } else {
+                if (mRecentAppsPreloaded && !mPressOnBackBehavior.equals(getStr(KEY_ACTION_APP_SWITCH)) &&
+                        !mLongPressOnBackBehavior.equals(getStr(KEY_ACTION_APP_SWITCH))) {
+                    cancelPreloadRecentApps();
+                }
+                if (mBackLongPressed) {
+                    mBackLongPressed = false;
+                    return -1;
+                } else {
+                    if (mBackDoCustomAction) {
+                        mBackDoCustomAction = false;
+                        if (!canceled && !keyguardOn) {
+                            performKeyAction(mPressOnBackBehavior);
+                            return -1;
+                        }
+                    }
                 }
             }
         }
@@ -3223,7 +3360,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         final boolean hasNavBar = (isDefaultDisplay && mHasNavigationBar
                 && mNavigationBar != null && mNavigationBar.isVisibleLw());
+
         final int adjust = sim & SOFT_INPUT_MASK_ADJUST;
+
         if (!isDefaultDisplay) {
             if (attached != null) {
                 // If this window is attached to another, our display
@@ -4345,6 +4484,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (Intent.ACTION_DOCK_EVENT.equals(intent.getAction())) {
                 mDockMode = intent.getIntExtra(Intent.EXTRA_DOCK_STATE,
                         Intent.EXTRA_DOCK_STATE_UNDOCKED);
+            } else {
+                try {
+                    IUiModeManager uiModeService = IUiModeManager.Stub.asInterface(
+                            ServiceManager.getService(Context.UI_MODE_SERVICE));
+                    mUiMode = uiModeService.getCurrentModeType();
+                } catch (RemoteException e) {
+                }
             }
             updateRotation(true);
             updateOrientationListenerLp();
@@ -4596,11 +4742,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
 
             final int preferredRotation;
-            if ((mLidState == LID_OPEN && mLidOpenRotation >= 0)
-                    && !(mHasRemovableLid
-                            && mDockMode == Intent.EXTRA_DOCK_STATE_UNDOCKED)) {
-                // Ignore sensor when lid switch is open and rotation is forced
-                // and a removable lid was not undocked.
+            if (mLidState == LID_OPEN && mLidOpenRotation >= 0) {
+                // Ignore sensor when lid switch is open and rotation is forced.
                 preferredRotation = mLidOpenRotation;
             } else if (mDockMode == Intent.EXTRA_DOCK_STATE_CAR
                     && (mCarDockEnablesAccelerometer || mCarDockRotation >= 0)) {
@@ -4841,25 +4984,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     ProgressDialog mBootMsgDialog = null;
 
-    /**
-     * name of package currently being dex optimized
-     * as shown through this.showBootMessage(msg, always);
-     */
-    static String currentPackageName;
-    public void setPackageName(String pkgName) {
-        if (pkgName == null) {
-            pkgName = "stop.looking.at.me.swan";
-        }
-        this.currentPackageName = pkgName;
-    }
-
-    // debugging 'Android is upgrading...' ProgressDialog
-    final boolean DEBUG_BOOTMSG = false;
-
-    // this method is called to create, if needed, and update boot ProgressDialog
-    // see @link frameworks/base/services/java/com/android/server/pm/
-    //              PackageManagerService.performBootDexOpt()
-
     /** {@inheritDoc} */
     public void showBootMessage(final CharSequence msg, final boolean always) {
         if (mHeadless) return;
@@ -4905,21 +5029,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     mBootMsgDialog.show();
                 }
                 mBootMsgDialog.setMessage(msg);
-                if (DEBUG_BOOTMSG) Log.d(TAG, "********** showBootMessage(" + msg +", " + always + ") updated ***********");
-                if (currentPackageName != null) {
-                    mBootMsgDialog.setTitle(msg);
-                    mBootMsgDialog.setMessage(currentPackageName);
-                    if (DEBUG_BOOTMSG) Log.d(TAG, "setTitle: " + msg + " setMessage: " + currentPackageName);
-                } else {
-                    if (DEBUG_BOOTMSG) Log.d(TAG, "failed; CURRENT_PACKAGE_NAME == null");
-                }
-                if (msg.equals(mContext.getResources().getString(R.string.android_upgrading_starting_apps))) {
-                    if (DEBUG_BOOTMSG) Log.d(TAG, "starting apps so we use normal layout");
-                    mBootMsgDialog.setTitle(R.string.android_upgrading_title);
-                    mBootMsgDialog.setMessage(mContext.getResources().getString(R.string.android_upgrading_starting_apps));
-                } else {
-                    if (DEBUG_BOOTMSG) Log.d(TAG, "not starting apps");
-                }
             }
         });
     }
@@ -5041,8 +5150,63 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+    /**
+     * Return an Intent to launch the currently active dock app as home.  Returns
+     * null if the standard home should be launched, which is the case if any of the following is
+     * true:
+     * <ul>
+     *  <li>The device is not in either car mode or desk mode
+     *  <li>The device is in car mode but ENABLE_CAR_DOCK_HOME_CAPTURE is false
+     *  <li>The device is in desk mode but ENABLE_DESK_DOCK_HOME_CAPTURE is false
+     *  <li>The device is in car mode but there's no CAR_DOCK app with METADATA_DOCK_HOME
+     *  <li>The device is in desk mode but there's no DESK_DOCK app with METADATA_DOCK_HOME
+     * </ul>
+     * @return
+     */
+    Intent createHomeDockIntent() {
+        Intent intent = null;
+
+        // What home does is based on the mode, not the dock state.  That
+        // is, when in car mode you should be taken to car home regardless
+        // of whether we are actually in a car dock.
+        if (mUiMode == Configuration.UI_MODE_TYPE_CAR) {
+            if (ENABLE_CAR_DOCK_HOME_CAPTURE) {
+                intent = mCarDockIntent;
+            }
+        } else if (mUiMode == Configuration.UI_MODE_TYPE_DESK) {
+            if (ENABLE_DESK_DOCK_HOME_CAPTURE) {
+                intent = mDeskDockIntent;
+            }
+        }
+
+        if (intent == null) {
+            return null;
+        }
+
+        ActivityInfo ai = intent.resolveActivityInfo(
+                mContext.getPackageManager(), PackageManager.GET_META_DATA);
+        if (ai == null) {
+            return null;
+        }
+
+        if (ai.metaData != null && ai.metaData.getBoolean(Intent.METADATA_DOCK_HOME)) {
+            intent = new Intent(intent);
+            intent.setClassName(ai.packageName, ai.name);
+            return intent;
+        }
+
+        return null;
+    }
+
     void startDockOrHome() {
-        // We don't have dock home anymore. Home is home. If you lived here, you'd be home by now.
+        Intent dock = createHomeDockIntent();
+        if (dock != null) {
+            try {
+                mContext.startActivity(dock);
+                return;
+            } catch (ActivityNotFoundException e) {
+            }
+        }
         mContext.startActivityAsUser(mHomeIntent, UserHandle.CURRENT);
     }
     
@@ -5069,6 +5233,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 } else {
                     ActivityManagerNative.getDefault().stopAppSwitches();
                     sendCloseSystemWindows();
+                    Intent dock = createHomeDockIntent();
+                    if (dock != null) {
+                        int result = ActivityManagerNative.getDefault()
+                                .startActivityAsUser(null, dock,
+                                        dock.resolveTypeIfNeeded(mContext.getContentResolver()),
+                                        null, null, 0,
+                                        ActivityManager.START_FLAG_ONLY_IF_NEEDED,
+                                        null, null, null, UserHandle.USER_CURRENT);
+                        if (result == ActivityManager.START_RETURN_INTENT_TO_CALLER) {
+                            return false;
+                        }
+                    }
                 }
                 int result = ActivityManagerNative.getDefault()
                         .startActivityAsUser(null, mHomeIntent,
@@ -5279,7 +5455,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             pw.print(prefix); pw.print("mLastFocusNeedsMenu=");
                     pw.println(mLastFocusNeedsMenu);
         }
-        pw.print(prefix); pw.print("mDockMode="); pw.print(mDockMode);
+        pw.print(prefix); pw.print("mUiMode="); pw.print(mUiMode);
+                pw.print(" mDockMode="); pw.print(mDockMode);
                 pw.print(" mCarDockRotation="); pw.print(mCarDockRotation);
                 pw.print(" mDeskDockRotation="); pw.println(mDeskDockRotation);
         pw.print(prefix); pw.print("mUserRotationMode="); pw.print(mUserRotationMode);

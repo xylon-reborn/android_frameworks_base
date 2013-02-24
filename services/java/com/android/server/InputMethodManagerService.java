@@ -1623,8 +1623,14 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
             mCurMethodId = null;
             unbindCurrentMethodLocked(true, false);
         }
-        mShowOngoingImeSwitcherForPhones = Settings.System.getInt(mContext.getContentResolver(),
-               Settings.System.STATUS_BAR_IME_SWITCHER, 1) == 1;
+        // code to disable the CM Phone IME switcher with config_show_cmIMESwitcher set = false
+        try {
+            mShowOngoingImeSwitcherForPhones = Settings.System.getInt(mContext.getContentResolver(),
+            Settings.System.STATUS_BAR_IME_SWITCHER) == 1;
+        } catch (SettingNotFoundException e) {
+            mShowOngoingImeSwitcherForPhones = mRes.getBoolean(
+            com.android.internal.R.bool.config_show_cmIMESwitcher);
+        }
     }
 
     /* package */ void setInputMethodLocked(String id, int subtypeId) {
@@ -2522,8 +2528,10 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
                 map.put(id, p);
 
                 // Valid system default IMEs and IMEs that have English subtypes are enabled
-                // by default
-                if ((isValidSystemDefaultIme(p, mContext) || isSystemImeThatHasEnglishSubtype(p))) {
+                // by default, unless there's a hard keyboard and the system IME was explicitly
+                // disabled
+                if ((isValidSystemDefaultIme(p, mContext) || isSystemImeThatHasEnglishSubtype(p))
+                        && (!haveHardKeyboard || disabledSysImes.indexOf(id) < 0)) {
                     setInputMethodEnabledLocked(id, true);
                 }
 

@@ -1700,8 +1700,6 @@
   <java-symbol type="string" name="config_dreamsDefaultComponent" />
   <java-symbol type="string" name="enable_explore_by_touch_warning_title" />
   <java-symbol type="string" name="enable_explore_by_touch_warning_message" />
-  <java-symbol type="string" name="notify_turn_wifi_off_title" />
-  <java-symbol type="drawable" name="ic_stat_turn_wifi_off" />
 
   <java-symbol type="layout" name="resolver_grid" />
   <java-symbol type="id" name="resolver_grid" />
@@ -1833,12 +1831,9 @@
   <java-symbol type="string" name="inputMethod" />
 
   <!-- Config.xml entries -->
-  <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
-  <java-symbol type="bool" name="config_hasRotationLockSwitch" />
   <java-symbol type="integer" name="config_backKillTimeout" />
-  <java-symbol type="string" name="config_legacyUmsLunFile" />
-  <java-symbol type="bool" name="config_hasRemovableLid" />
-  <java-symbol type="bool" name="config_hasDockBattery" />
+  <java-symbol type="bool" name="config_hasRotationLockSwitch" />
+  <java-symbol type="bool" name="config_show_cmIMESwitcher"/>
   <java-symbol type="bool" name="config_noDelayInATwoDP" />
   <java-symbol type="string" name="config_deviceKeyHandlerLib" />
   <java-symbol type="string" name="config_deviceKeyHandlerClass" />
@@ -1857,11 +1852,6 @@
   <!-- Hardware Key ReMapping -->
   <java-symbol type="integer" name="config_deviceHardwareKeys" />
 
-  <!-- Notification and battery light -->
-  <java-symbol type="bool" name="config_intrusiveBatteryLed" />
-  <java-symbol type="bool" name="config_multiColorBatteryLed" />
-  <java-symbol type="array" name="notification_light_package_mapping" />
-
   <!-- Powermenu -->
   <java-symbol type="string" name="global_action_screenshot" />
   <java-symbol type="string" name="global_action_choose_profile" />
@@ -1870,13 +1860,6 @@
   <java-symbol type="string" name="global_actions_toggle_expanded_desktop_mode" />
   <java-symbol type="string" name="global_actions_expanded_desktop_mode_off_status" />
   <java-symbol type="string" name="global_actions_expanded_desktop_mode_on_status" />
-  <java-symbol type="string" name="reboot_system" />
-  <java-symbol type="string" name="reboot_progress" />
-  <java-symbol type="array" name="shutdown_reboot_options" />
-  <java-symbol type="array" name="shutdown_reboot_actions" />
-  <java-symbol type="drawable" name="ic_lock_screenshot" />
-  <java-symbol type="drawable" name="ic_lock_reboot" />
-  <java-symbol type="drawable" name="ic_lock_profile" />
   <java-symbol type="drawable" name="ic_lock_expanded_desktop" />
 
   <java-symbol type="array" name="notification_light_package_mapping" />
@@ -1899,6 +1882,9 @@
   <!-- Developer settings - Kill app back press -->
   <java-symbol type="string" name="app_killed_message" />
 
+  <!-- Expanded desktop default set -->
+  <java-symbol type="string" name="expanded_mode_default_set" />
+
   <!-- Lockscreen -->
   <java-symbol type="bool" name="config_disableHomeUnlockSetting" />
   <java-symbol type="id" name="expand_challenge_handle" />
@@ -1911,6 +1897,8 @@
 
   <!-- Wifi -->
   <java-symbol type="bool" name="config_wifiApStartInterface" />
+
+  <!-- Wifi -->
   <java-symbol type="bool" name="config_wifiApFirmwareReload" />
 
   <!-- Disable hardware keyboard -->

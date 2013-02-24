@@ -109,6 +109,7 @@ public class KeyguardViewManager {
         mViewManager = viewManager;
         mViewMediatorCallback = callback;
         mLockPatternUtils = lockPatternUtils;
+
         SettingsObserver observer = new SettingsObserver(new Handler());
         observer.observe();
     }
@@ -164,19 +165,12 @@ public class KeyguardViewManager {
         @Override
         protected void onConfigurationChanged(Configuration newConfig) {
             super.onConfigurationChanged(newConfig);
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (KeyguardViewManager.this) {
-                        if (mKeyguardHost.getVisibility() == View.VISIBLE) {
-                            // only propagate configuration messages if we're currently showing
-                            maybeCreateKeyguardLocked(shouldEnableScreenRotation(), true, null);
-                        } else {
-                            if (DEBUG) Log.v(TAG, "onConfigurationChanged: view not visible");
-                        }
-                    }
-                }
-            });
+            if (mKeyguardHost.getVisibility() == View.VISIBLE) {
+                // only propagate configuration messages if we're currently showing
+                maybeCreateKeyguardLocked(shouldEnableScreenRotation(), true, null);
+            } else {
+                if (DEBUG) Log.v(TAG, "onConfigurationChanged: view not visible");
+            }
         }
 
         @Override
@@ -406,6 +400,7 @@ public class KeyguardViewManager {
         mKeyguardView = (KeyguardHostView) view.findViewById(R.id.keyguard_host_view);
         mKeyguardView.setLockPatternUtils(mLockPatternUtils);
         mKeyguardView.setViewMediatorCallback(mViewMediatorCallback);
+
         setBackground(mContext, mKeyguardView);
 
         // HACK
@@ -649,6 +644,7 @@ public class KeyguardViewManager {
     /**
      * observe transparency settings for wallpaper
      */
+
     class SettingsObserver extends ContentObserver {
             SettingsObserver(Handler handler) {
               super(handler);
@@ -666,4 +662,5 @@ public class KeyguardViewManager {
                 mKeyguardHost = null;
             }
     }
+
 }

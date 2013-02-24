@@ -447,7 +447,6 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
     private boolean mDockAudioMediaEnabled = true;
 
     private int mDockState = Intent.EXTRA_DOCK_STATE_UNDOCKED;
-
     ///////////////////////////////////////////////////////////////////////////
     // Construction
     ///////////////////////////////////////////////////////////////////////////
@@ -3406,13 +3405,6 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                                 mBluetoothA2dpEnabled ?
                                         AudioSystem.FORCE_NONE : AudioSystem.FORCE_NO_BT_A2DP);
                     }
-
-                    synchronized (mSettingsLock) {
-                        AudioSystem.setForceUse(AudioSystem.FOR_DOCK,
-                                mDockAudioMediaEnabled ?
-                                        AudioSystem.FORCE_ANALOG_DOCK : AudioSystem.FORCE_NONE);
-                    }
-
                     // indicate the end of reconfiguration phase to audio HAL
                     AudioSystem.setParameters("restarting=false");
                     break;
@@ -3859,7 +3851,13 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                         config = AudioSystem.FORCE_BT_CAR_DOCK;
                         break;
                     case Intent.EXTRA_DOCK_STATE_LE_DESK:
-                        config = AudioSystem.FORCE_ANALOG_DOCK;
+                        synchronized (mSettingsLock) {
+                            if (mDockAudioMediaEnabled) {
+                                config = AudioSystem.FORCE_ANALOG_DOCK;
+                            } else {
+                                config = AudioSystem.FORCE_NONE;
+                            }
+                        }
                         break;
                     case Intent.EXTRA_DOCK_STATE_HE_DESK:
                         config = AudioSystem.FORCE_DIGITAL_DOCK;
@@ -3882,7 +3880,6 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                 BluetoothDevice btDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
                 onSetA2dpConnectionState(btDevice, state);
-
             } else if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
                 state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
                                            BluetoothProfile.STATE_DISCONNECTED);

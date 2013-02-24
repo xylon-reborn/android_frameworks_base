@@ -286,7 +286,7 @@ public final class Settings {
      */
     @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
     public static final String ACTION_NOTIFICATION_SHORTCUTS_SETTINGS =
-            "android.settings.slim.notificationshortcuts.NOTIFICATION_SHORTCUTS";
+            "android.settings.notificationshortcuts.NOTIFICATION_SHORTCUTS";
 
     /**
      * Activity Action: Show settings to allow configuration of locale.
@@ -915,6 +915,8 @@ public final class Settings {
             MOVED_TO_SECURE.add(Secure.LOCK_PATTERN_ENABLED);
             MOVED_TO_SECURE.add(Secure.LOCK_PATTERN_VISIBLE);
             MOVED_TO_SECURE.add(Secure.LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED);
+            MOVED_TO_SECURE.add(Secure.LOCK_BEFORE_UNLOCK);
+            MOVED_TO_SECURE.add(Secure.LOCKSCREEN_UNSECURE_USED);
             MOVED_TO_SECURE.add(Secure.LOGGING_ID);
             MOVED_TO_SECURE.add(Secure.PARENTAL_CONTROL_ENABLED);
             MOVED_TO_SECURE.add(Secure.PARENTAL_CONTROL_LAST_UPDATE);
@@ -1132,32 +1134,6 @@ public final class Settings {
         }
 
         /**
-         * @hide
-         * Convenience function for retrieving a single system settings value
-         * as a boolean.  Note that internally setting values are always
-         * stored as strings; this function converts the string to a boolean
-         * for you. It will only return true if the stored value is "1"
-         *
-         * @param cr The ContentResolver to access.
-         * @param name The name of the setting to retrieve.
-         * @param def Value to return if the setting is not defined.
-         *
-         * @return The setting's current value, or 'def' if it is not defined
-         * or not a valid integer.
-         */
-        public static boolean getBoolean(ContentResolver cr, String name, boolean def) {
-            String v = getString(cr, name);
-            try {
-                if(v != null)
-                    return "1".equals(v);
-                else
-                    return def;
-            } catch (NumberFormatException e) {
-                return def;
-            }
-        }
-
-        /**
          * Convenience function for updating a single settings value as an
          * integer. This will either create a new entry in the table if the
          * given name does not exist, or modify the value of the existing row
@@ -1178,24 +1154,6 @@ public final class Settings {
         public static boolean putIntForUser(ContentResolver cr, String name, int value,
                 int userHandle) {
             return putStringForUser(cr, name, Integer.toString(value), userHandle);
-        }
-
-        /**
-         * @hide
-         * Convenience function for updating a single settings value as a
-         * boolean. This will either create a new entry in the table if the
-         * given name does not exist, or modify the value of the existing row
-         * with that name.  Note that internally setting values are always
-         * stored as strings, so this function converts the given value to a
-         * string (1 or 0) before storing it.
-         *
-         * @param cr The ContentResolver to access.
-         * @param name The name of the setting to modify.
-         * @param value The new value for the setting.
-         * @return true if the value was set, false on database errors
-         */
-        public static boolean putBoolean(ContentResolver cr, String name, boolean value) {
-            return putString(cr, name, value ? "1" : "0");
         }
 
         /**
@@ -1796,6 +1754,13 @@ public final class Settings {
         public static final String AUTO_BRIGHTNESS_BACKLIGHT = "auto_brightness_backlight";
 
         /**
+         * Touch Key Light Duration
+         *
+         * @hide
+         */
+        public static final String TOUCHKEY_LIGHT_DUR = "touchkey_light_dir";
+
+        /**
          * Whether to enable the electron beam animation when turning screen on
          *
          * @hide */
@@ -1842,13 +1807,19 @@ public final class Settings {
         public static final int VOLUME_OVERLAY_NONE = 3;
 
         /**
-	 * Volume Adjust Sounds Enable, This is the noise made when using volume hard buttons	
-	 * Defaults to 1 - sounds enabled
-	 * @hide
-	 */
-	public static final String VOLUME_ADJUST_SOUNDS_ENABLED = 	"volume_adjust_sounds_enabled";
+         * Ability to enable/disable Daul pane prefs.
+         * @hide
+         */
+        public static final String DUAL_PANE_PREFS = "dual_pane_prefs";
 
-	/**
+        /**
+         * Volume Adjust Sounds Enable, This is the noise made when using volume hard buttons
+         * Defaults to 1 - sounds enabled
+         * @hide
+         */
+        public static final String VOLUME_ADJUST_SOUNDS_ENABLED = "volume_adjust_sounds_enabled";
+
+        /**
          * Determines which streams are affected by ringer mode changes. The
          * stream type's bit should be set to 1 if it should be muted when going
          * into an inaudible ringer mode.
@@ -2601,14 +2572,31 @@ public final class Settings {
         public static final String HARDWARE_KEY_REBINDING = "hardware_key_rebinding";
 
         /**
+         * Action to perform when the home key pressed. (Default is 1)
+         * @hide
+         */
+        public static final String KEY_HOME_ACTION = "key_home_action";
+
+        /**
          * Action to perform when the home key is long-pressed. (Default is 2)
          * @hide
          */
         public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
 
         /**
+         * Action to perform when the back key is pressed. (Default is 2)
+         * @hide
+         */
+        public static final String KEY_BACK_ACTION = "key_back_action";
+
+        /**
+         * Action to perform when the back key is long-pressed. (Default is 8)
+         * @hide
+         */
+        public static final String KEY_BACK_LONG_PRESS_ACTION = "key_back_long_press_action";
+
+        /**
          * Action to perform when the menu key is pressed. (Default is 1)
-         * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
          * @hide
          */
         public static final String KEY_MENU_ACTION = "key_menu_action";
@@ -2616,35 +2604,30 @@ public final class Settings {
         /**
          * Action to perform when the menu key is long-pressed.
          * (Default is 0 on devices with a search key, 3 on devices without)
-         * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
          * @hide
          */
         public static final String KEY_MENU_LONG_PRESS_ACTION = "key_menu_long_press_action";
 
         /**
          * Action to perform when the assistant (search) key is pressed. (Default is 3)
-         * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
          * @hide
          */
         public static final String KEY_ASSIST_ACTION = "key_assist_action";
 
         /**
          * Action to perform when the assistant (search) key is long-pressed. (Default is 4)
-         * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
          * @hide
          */
         public static final String KEY_ASSIST_LONG_PRESS_ACTION = "key_assist_long_press_action";
 
         /**
          * Action to perform when the app switch key is pressed. (Default is 2)
-         * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
          * @hide
          */
         public static final String KEY_APP_SWITCH_ACTION = "key_app_switch_action";
 
         /**
          * Action to perform when the app switch key is long-pressed. (Default is 0)
-         * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
          * @hide
          */
         public static final String KEY_APP_SWITCH_LONG_PRESS_ACTION = "key_app_switch_long_press_action";
@@ -2684,12 +2667,6 @@ public final class Settings {
         public static final String DISABLE_FULLSCREEN_KEYBOARD = "disable_fullscreen_keyboard";
 
         /**
-         * User interface mode. This is used to change UI mode forcing dual pane mode
-         * @hide
-         */
-        public static final String FORCE_DUAL_PANE = "force_dual_pane";
-
-        /**
          * Sets the portrait background of notification drawer
          * @hide
          */
@@ -2718,6 +2695,12 @@ public final class Settings {
          * @hide
          */
         public static final String CUSTOM_CARRIER_LABEL = "custom_carrier_label";
+
+        /**
+         * Show Wifi network name in notification shade
+         * @hide
+         */
+        public static final String NOTIFICATION_SHOW_WIFI_SSID = "notification_show_wifi_ssid";
 
         /**
          * Whether which Ram Usage Bar mode is used on recent switcher
@@ -2874,12 +2857,6 @@ public final class Settings {
         public static final String LOCKSCREEN_USE_WIDGET_CONTAINER_CAROUSEL = "lockscreen_use_widget_container_carousel";
 
         /**
-         * Stores used unsecure lockscreen for normal mode and unlock before unlock when merged
-         * @hide
-         */
-        public static final String LOCKSCREEN_UNSECURE_USED = "lockscreen_unsecure_used";
-
-        /**
          * Whether the lockscreen vibrate should be enabled.
          * @hide
          */
@@ -2913,13 +2890,13 @@ public final class Settings {
          * How many ms to delay before enabling the "slide to unlock" screen
          * @hide
          */
-        public static final String SCREEN_LOCK_SLIDE_SCREENOFF_DELAY = "screen_lock_slide_screenoff_delay";
+        public static final String SCREEN_LOCK_SLIDE_TIMEOUT_DELAY = "screen_lock_slide_timeout_delay";
 
         /**
          * How many ms to delay before enabling the "slide to unlock" screen
          * @hide
          */
-        public static final String SCREEN_LOCK_SLIDE_TIMEOUT_DELAY = "screen_lock_slide_timeout_delay";
+        public static final String SCREEN_LOCK_SLIDE_SCREENOFF_DELAY = "screen_lock_slide_screenoff_delay";
 
         /**
          * Whether to use the custom quick unlock screen control
@@ -3445,7 +3422,6 @@ public final class Settings {
 
         /**
          * Sets transparency mode of status and navigation bar
-         * 0 = only home, 1 = keyguard and home (default), 2 = always
          * @hide
          */
         public static final String STATUS_NAV_BAR_ALPHA_MODE = "status_nav_bar_alpha_mode";
@@ -3501,12 +3477,6 @@ public final class Settings {
          * @hide
          */
         public static final String FCHARGE_ENABLED = "fcharge_enabled";
-
-        /**
-         * Whether or not to launch default music player when headset is connected
-         * @hide
-         */
-        public static final String HEADSET_CONNECT_PLAYER = "headset_connect_player";
 
         /**
          * Whether to unlock the screen with the home key.  The value is boolean (1 or 0).
@@ -3626,12 +3596,6 @@ public final class Settings {
         public static final String QUIET_HOURS_DIM = "quiet_hours_dim";
 
         /**
-         * Touch Key Light Duration
-         * @hide
-         */
-        public static final String TOUCHKEY_LIGHT_DUR = "touchkey_light_dir";
-
-        /**
          * Volume keys control cursor in text fields
          * @hide
          */
@@ -3654,6 +3618,18 @@ public final class Settings {
          * @hide
          */
         public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
+
+        /**
+         * How long to wait between playing notification sounds from a package
+         * @hide
+         */
+        public static final String MUTE_ANNOYING_NOTIFICATIONS_THRESHOLD = "mute_annoying_notifications_threshold";
+
+        /**
+         * Control the level of haptic feedback globally by adjusting vibration multiplier
+         * @hide
+         */
+	public static final String VIBRATION_MULTIPLIER = "vibration_multiplier";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -4702,6 +4678,13 @@ public final class Settings {
             "lock_before_unlock";
 
         /**
+         * Stores used unsecure lockscreen for normal mode and unlock before unlock
+         * @hide
+         */
+        public static final String LOCKSCREEN_UNSECURE_USED =
+            "lockscreen_unsecure_used";
+
+        /**
          * Determines the width and height of the LockPatternView widget
          * @hide
          */
@@ -5512,8 +5495,6 @@ public final class Settings {
          * @hide
          */
         public static final String KILL_APP_LONGPRESS_BACK = "kill_app_longpress_back";
-
-	public static final String VIBRATION_MULTIPLIER = "vibration_multiplier";
 
         /**
          * This are the settings to be backed up.

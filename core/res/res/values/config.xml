@@ -1049,6 +1049,9 @@
     <!-- Workaround for devices with broken keyboards -->
     <bool name="config_forceDisableHardwareKeyboard">false</bool>
 
+    <!-- Setting to false will disable CM's IME switcher implementation for tablets -->
+    <bool name="config_show_cmIMESwitcher">true</bool>
+
     <!-- Disable the home key unlock setting -->
     <bool name="config_disableHomeUnlockSetting">true</bool>
 
@@ -1067,18 +1070,10 @@
          config to 7. -->
     <integer name="config_deviceHardwareKeys">15</integer>
 
-    <!-- Asus dock compatibility disabled by default -->
-    <bool name="config_hasDockBattery">false</bool>
-
     <!-- LUN file to be used by legacy USB manager.
          The existence of this file will be used to determine in the
          legacy USB manager should be started. -->
     <string name="config_legacyUmsLunFile">/sys/devices/platform/usb_mass_storage/lun0/file</string>
-
-    <!-- If a dock provides a lid switch, that lid can be removed. This
-         setting is used to determine, whether lidOpenRotation has to be
-         applied. -->
-    <bool name="config_hasRemovableLid">false</bool>
 
     <!-- Boolean to enable Stylus gestures -->
     <bool name="config_stylusGestures">false</bool>

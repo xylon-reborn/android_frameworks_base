@@ -31,7 +31,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
-import android.os.UserHandle;
 import android.util.Log;
 import android.view.View;
 
@@ -215,7 +214,7 @@ public class FaceUnlock implements BiometricSensorUnlock, Handler.Callback {
                 handleServiceDisconnected();
                 break;
             case MSG_UNLOCK:
-                handleUnlock(msg.arg1);
+                handleUnlock();
                 break;
             case MSG_CANCEL:
                 handleCancel();
@@ -298,18 +297,11 @@ public class FaceUnlock implements BiometricSensorUnlock, Handler.Callback {
     /**
      * Stops the Face Unlock service and tells the device to grant access to the user.
      */
-    void handleUnlock(int authenticatedUserId) {
+    void handleUnlock() {
         if (DEBUG) Log.d(TAG, "handleUnlock()");
         stop();
-        int currentUserId = mLockPatternUtils.getCurrentUser();
-        if (authenticatedUserId == currentUserId) {
-            if (DEBUG) Log.d(TAG, "Unlocking for user " + authenticatedUserId);
-            mKeyguardScreenCallback.reportSuccessfulUnlockAttempt();
-            mKeyguardScreenCallback.dismiss(true);
-        } else {
-            Log.d(TAG, "Ignoring unlock for authenticated user (" + authenticatedUserId +
-                    ") because the current user is " + currentUserId);
-        }
+        mKeyguardScreenCallback.reportSuccessfulUnlockAttempt();
+        mKeyguardScreenCallback.dismiss(true);
     }
 
     /**
@@ -428,8 +420,7 @@ public class FaceUnlock implements BiometricSensorUnlock, Handler.Callback {
          */
         public void unlock() {
             if (DEBUG) Log.d(TAG, "unlock()");
-            Message message = mHandler.obtainMessage(MSG_UNLOCK, UserHandle.getCallingUserId(), -1);
-            mHandler.sendMessage(message);
+            mHandler.sendEmptyMessage(MSG_UNLOCK);
         }
 
         /**

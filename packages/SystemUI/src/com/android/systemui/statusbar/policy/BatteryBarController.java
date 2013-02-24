@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Slimroms & CyanogenMod
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.systemui.statusbar.policy;
 
 import android.content.BroadcastReceiver;
@@ -36,22 +52,24 @@ public class BatteryBarController extends LinearLayout {
     private int mBatteryLevel = 0;
     private boolean mBatteryCharging = false;
 
+    private SettingsObserver mSettingsObserver;
+
     boolean isAttached = false;
     boolean isVertical = false;
 
     class SettingsObserver extends ContentObserver {
-
         public SettingsObserver(Handler handler) {
             super(handler);
         }
 
-        void observer() {
+        void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.STATUSBAR_BATTERY_BAR), false, this);
+                    Settings.System.getUriFor(Settings.System.STATUSBAR_BATTERY_BAR),
+                    false, this);
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.STATUSBAR_BATTERY_BAR_STYLE), false,
-                    this);
+                    Settings.System.getUriFor(Settings.System.STATUSBAR_BATTERY_BAR_STYLE),
+                    false, this);
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.STATUSBAR_BATTERY_BAR_THICKNESS),
                     false, this);
@@ -83,8 +101,8 @@ public class BatteryBarController extends LinearLayout {
             filter.addAction(Intent.ACTION_BATTERY_CHANGED);
             getContext().registerReceiver(mIntentReceiver, filter);
 
-            SettingsObserver observer = new SettingsObserver(new Handler());
-            observer.observer();
+            mSettingsObserver = new SettingsObserver(new Handler());
+            mSettingsObserver.observe();
             updateSettings();
         }
     }
@@ -107,6 +125,8 @@ public class BatteryBarController extends LinearLayout {
         if (isAttached) {
             isAttached = false;
             removeBars();
+            getContext().unregisterReceiver(mIntentReceiver);
+            getContext().getContentResolver().unregisterContentObserver(mSettingsObserver);
         }
         super.onDetachedFromWindow();
     }
@@ -121,31 +141,26 @@ public class BatteryBarController extends LinearLayout {
                     updateSettings();
                 }
             }, 500);
-
         }
     }
 
     public void addBars() {
-        // set heights
+        // Set heights
         DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
         float dp = (float) Settings.System.getInt(getContext().getContentResolver(),
                 Settings.System.STATUSBAR_BATTERY_BAR_THICKNESS, 1);
         int pixels = (int) ((metrics.density * dp) + 0.5);
-
         ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) getLayoutParams();
 
-        if (isVertical)
+        if (isVertical) {
             params.width = pixels;
-        else
+        } else {
             params.height = pixels;
-        setLayoutParams(params);
+        }
 
-        if (isVertical)
-            params.width = pixels;
-        else
-            params.height = pixels;
         setLayoutParams(params);
         mBatteryLevel = Prefs.getLastBatteryLevel(getContext());
+
         if (mStyle == STYLE_REGULAR) {
             addView(new BatteryBar(mContext, mBatteryCharging, mBatteryLevel, isVertical),
                     new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
@@ -155,19 +170,18 @@ public class BatteryBarController extends LinearLayout {
             BatteryBar bar2 = new BatteryBar(mContext, mBatteryCharging, mBatteryLevel, isVertical);
 
             if (isVertical) {
-                bar2.setRotation(180);
+                bar2.setRotationY(180f);
                 addView(bar2, (new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT, 1)));
                 addView(bar1, (new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT, 1)));
             } else {
-                bar1.setRotation(180);
+                bar1.setRotationY(180f);
                 addView(bar1, (new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT, 1)));
                 addView(bar2, (new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT, 1)));
             }
-
         }
     }
 

@@ -972,4 +972,5 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             reader.close();
         }
     }
+
 }

@@ -30,7 +30,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.os.Handler;
 import android.text.SpannableStringBuilder;
@@ -50,14 +49,11 @@ public class NotificationBuilderTest extends Activity
     private final static String TAG = "NotificationTestList";
 
     NotificationManager mNM;
-    Handler mHandler;
-    int mStartDelay;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        mHandler = new Handler();
         setContentView(R.layout.notification_builder_test);
         if (icicle == null) {
             setDefaults();
@@ -104,13 +100,8 @@ public class NotificationBuilderTest extends Activity
         setChecked(R.id.large_icon_none);
         setChecked(R.id.sound_none);
         setChecked(R.id.vibrate_none);
-        setChecked(R.id.pri_default);
         setChecked(R.id.lights_red);
         setChecked(R.id.lights_off);
-        setChecked(R.id.delay_none);
-//        setChecked(R.id.default_vibrate);
-//        setChecked(R.id.default_sound);
-//        setChecked(R.id.default_lights);
     }
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
@@ -192,13 +183,9 @@ public class NotificationBuilderTest extends Activity
         }
     };
 
-    private void sendNotification(final int id) {
+    private void sendNotification(int id) {
         final Notification n = buildNotification(id);
-        mHandler.postDelayed(new Runnable() {
-            public void run() {
-                mNM.notify(id, n);
-            }
-        }, mStartDelay);
+        mNM.notify(id, n);
     }
 
     private static CharSequence subst(CharSequence in, char ch, CharSequence sub) {
@@ -336,26 +323,23 @@ public class NotificationBuilderTest extends Activity
         // vibrate
         switch (getRadioChecked(R.id.group_vibrate)) {
             case R.id.vibrate_none:
-                b.setVibrate(null);
-                break;
-            case R.id.vibrate_zero:
-                b.setVibrate(new long[] { 0 });
                 break;
             case R.id.vibrate_short:
-                b.setVibrate(new long[] { 0, 100 });
+                b.setVibrate(new long[] { 0, 200 });
+                break;
+            case R.id.vibrate_medium:
+                b.setVibrate(new long[] { 0, 500 });
                 break;
             case R.id.vibrate_long:
                 b.setVibrate(new long[] { 0, 1000 });
                 break;
             case R.id.vibrate_pattern:
-                b.setVibrate(new long[] { 0, 50,  200, 50,  200, 50,  500,
-                                             500, 200, 500, 200, 500, 500,
-                                             50,  200, 50,  200, 50        });
+                b.setVibrate(new long[] { 0, 250, 250, 250, 250, 250, 250, 250 });
                 break;
         }
 
         // lights
-        final int color = getRadioHex(R.id.group_lights_color, 0xff0000);
+        final int color = getRadioInt(R.id.group_lights_color, 0xff0000);
         int onMs;
         int offMs;
         switch (getRadioChecked(R.id.group_lights_blink)) {
@@ -381,35 +365,6 @@ public class NotificationBuilderTest extends Activity
             b.setLights(color, onMs, offMs);
         }
 
-        // priority
-        switch (getRadioChecked(R.id.group_priority)) {
-            case R.id.pri_min:
-                b.setPriority(Notification.PRIORITY_MIN);
-                break;
-            case R.id.pri_low:
-                b.setPriority(Notification.PRIORITY_LOW);
-                break;
-            case R.id.pri_default:
-                b.setPriority(Notification.PRIORITY_DEFAULT);
-                break;
-            case R.id.pri_high:
-                b.setPriority(Notification.PRIORITY_HIGH);
-                break;
-            case R.id.pri_max:
-                b.setPriority(Notification.PRIORITY_MAX);
-                break;
-        }
-
-        // start delay
-        switch (getRadioChecked(R.id.group_delay)) {
-            case R.id.delay_none:
-                mStartDelay = 0;
-                break;
-            case R.id.delay_5:
-                mStartDelay = 5000;
-                break;
-        }
-
         // flags
         b.setOngoing(getChecked(R.id.flag_ongoing));
         b.setOnlyAlertOnce(getChecked(R.id.flag_once));
@@ -428,7 +383,7 @@ public class NotificationBuilderTest extends Activity
         }
         b.setDefaults(defaults);
 
-        return b.build();
+        return b.getNotification();
     }
 
     private void setChecked(int id) {
@@ -441,35 +396,19 @@ public class NotificationBuilderTest extends Activity
         return g.getCheckedRadioButtonId();
     }
 
-    private String getRadioTag(int id) {
+    private CharSequence getRadioTag(int id) {
         final RadioGroup g = (RadioGroup)findViewById(id);
         final View v = findViewById(g.getCheckedRadioButtonId());
-        return (String) v.getTag();
+        return (CharSequence) v.getTag();
     }
 
     private int getRadioInt(int id, int def) {
-        String str = getRadioTag(id);
+        CharSequence str = getRadioTag(id);
         if (TextUtils.isEmpty(str)) {
             return def;
         } else {
             try {
                 return Integer.parseInt(str.toString());
-            } catch (NumberFormatException ex) {
-                return def;
-            }
-        }
-    }
-
-    private int getRadioHex(int id, int def) {
-        String str = getRadioTag(id);
-        if (TextUtils.isEmpty(str)) {
-            return def;
-        } else {
-            if (str.startsWith("0x")) {
-                str = str.substring(2);
-            }
-            try {
-                return Integer.parseInt(str.toString(), 16);
             } catch (NumberFormatException ex) {
                 return def;
             }

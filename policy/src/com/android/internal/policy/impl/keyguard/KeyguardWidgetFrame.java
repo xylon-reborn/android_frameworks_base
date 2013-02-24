@@ -525,5 +525,4 @@ public class KeyguardWidgetFrame extends FrameLayout {
     public Handler getWorkerHandler() {
         return mWorkerHandler;
     }
-
 }

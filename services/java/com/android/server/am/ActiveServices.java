@@ -1090,8 +1090,11 @@ public class ActiveServices {
 
         boolean created = false;
         try {
-            EventLogTags.writeAmCreateService(
-                    r.userId, System.identityHashCode(r), r.shortName, r.app.pid);
+            mAm.mStringBuilder.setLength(0);
+            r.intent.getIntent().toShortString(mAm.mStringBuilder, true, false, true, false);
+            EventLog.writeEvent(EventLogTags.AM_CREATE_SERVICE,
+                    r.userId, System.identityHashCode(r), r.shortName,
+                    mAm.mStringBuilder.toString(), r.app.pid);
             synchronized (r.stats.getBatteryStats()) {
                 r.stats.startLaunchedLocked();
             }
@@ -1239,8 +1242,9 @@ public class ActiveServices {
         }
 
         if (DEBUG_SERVICE) Slog.v(TAG, "Bringing down " + r + " " + r.intent);
-        EventLogTags.writeAmDestroyService(
-                r.userId, System.identityHashCode(r), (r.app != null) ? r.app.pid : -1);
+        EventLog.writeEvent(EventLogTags.AM_DESTROY_SERVICE,
+                r.userId, System.identityHashCode(r), r.shortName,
+                (r.app != null) ? r.app.pid : -1);
 
         mServiceMap.removeServiceByName(r.name, r.userId);
         mServiceMap.removeServiceByIntent(r.intent, r.userId);

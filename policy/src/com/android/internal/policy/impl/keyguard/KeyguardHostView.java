@@ -263,7 +263,7 @@ public class KeyguardHostView extends KeyguardViewBase {
             mAppWidgetContainer = (KeyguardWidgetPager) findViewById(R.id.app_widget_container);
         }
         mAppWidgetContainer.setVisibility(VISIBLE);
-        mAppWidgetContainerHidden.setVisibility(GONE);
+        removeView(mAppWidgetContainerHidden);
         mAppWidgetContainer.setCallbacks(mWidgetCallbacks);
         mAppWidgetContainer.setDeleteDropTarget(deleteDropTarget);
         mAppWidgetContainer.setMinScale(0.5f);
@@ -292,13 +292,12 @@ public class KeyguardHostView extends KeyguardViewBase {
         addDefaultWidgets();
 
         addWidgetsFromSettings();
-
         if (!shouldEnableAddWidget()) {
             mAppWidgetContainer.setAddWidgetEnabled(false);
         }
-
         checkAppWidgetConsistency();
         mSwitchPageRunnable.run();
+
         // This needs to be called after the pages are all added.
         mViewStateManager.showUsabilityHints();
 
@@ -329,8 +328,8 @@ public class KeyguardHostView extends KeyguardViewBase {
     };
 
     private boolean shouldEnableAddWidget() {
-        mUnlimitedWidgets = Settings.System.getBoolean(getContext().getContentResolver(),
-                                  Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, false);
+        mUnlimitedWidgets = Settings.System.getInt(getContext().getContentResolver(),
+                                  Settings.System.LOCKSCREEN_UNLIMITED_WIDGETS, 0) == 1;
         if (mUnlimitedWidgets) {
             MAX_WIDGETS = numWidgets() + 1;
         } else {
@@ -509,7 +508,6 @@ public class KeyguardHostView extends KeyguardViewBase {
         public void setOnDismissAction(OnDismissAction action) {
             KeyguardHostView.this.setOnDismissAction(action);
         }
-
     };
 
     private void showDialog(String title, String message) {
@@ -629,15 +627,26 @@ public class KeyguardHostView extends KeyguardViewBase {
      * @param turningOff true if the device is being turned off
      */
     void showPrimarySecurityScreen(boolean turningOff) {
-        SecurityMode securityMode = mSecurityModel.getSecurityMode();
-        if (DEBUG) Log.v(TAG, "showPrimarySecurityScreen(turningOff=" + turningOff + ")");
-        if (!turningOff &&
-                KeyguardUpdateMonitor.getInstance(mContext).isAlternateUnlockEnabled()) {
-            // If we're not turning off, then allow biometric alternate.
-            // We'll reload it when the device comes back on.
-            securityMode = mSecurityModel.getAlternateFor(securityMode);
+        final boolean lockBeforeUnlock = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                Settings.Secure.LOCK_BEFORE_UNLOCK, 0, UserHandle.USER_CURRENT) == 1;
+        final boolean isSimOrAccount = mCurrentSecuritySelection == SecurityMode.SimPin
+                || mCurrentSecuritySelection == SecurityMode.SimPuk
+                || mCurrentSecuritySelection == SecurityMode.Account
+                || mCurrentSecuritySelection == SecurityMode.Invalid;
+
+        if (lockBeforeUnlock && !isSimOrAccount) {
+            showSecurityScreen(SecurityMode.None);
+        } else {
+            SecurityMode securityMode = mSecurityModel.getSecurityMode();
+            if (DEBUG) Log.v(TAG, "showPrimarySecurityScreen(turningOff=" + turningOff + ")");
+            if (!turningOff &&
+                    KeyguardUpdateMonitor.getInstance(mContext).isAlternateUnlockEnabled()) {
+                // If we're not turning off, then allow biometric alternate.
+                // We'll reload it when the device comes back on.
+                securityMode = mSecurityModel.getAlternateFor(securityMode);
+            }
+            showSecurityScreen(securityMode);
         }
-        showSecurityScreen(securityMode);
     }
 
     /**

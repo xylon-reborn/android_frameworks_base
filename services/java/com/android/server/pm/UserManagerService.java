@@ -16,7 +16,8 @@
 
 package com.android.server.pm;
 
-import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
+import com.android.internal.util.ArrayUtils;
+import com.android.internal.util.FastXmlSerializer;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -25,6 +26,7 @@ import android.app.IStopUserCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
@@ -32,7 +34,6 @@ import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.FileUtils;
-import android.os.Handler;
 import android.os.IUserManager;
 import android.os.Process;
 import android.os.RemoteException;
@@ -41,16 +42,8 @@ import android.os.UserManager;
 import android.util.AtomicFile;
 import android.util.Slog;
 import android.util.SparseArray;
-import android.util.SparseBooleanArray;
 import android.util.TimeUtils;
 import android.util.Xml;
-
-import com.android.internal.util.ArrayUtils;
-import com.android.internal.util.FastXmlSerializer;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlSerializer;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -61,7 +54,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
 
 public class UserManagerService extends IUserManager.Stub {
 
@@ -88,7 +86,7 @@ public class UserManagerService extends IUserManager.Stub {
 
     private static final int MIN_USER_ID = 10;
 
-    private static final int USER_VERSION = 2;
+    private static final int USER_VERSION = 1;
 
     private static final long EPOCH_PLUS_30_YEARS = 30L * 365 * 24 * 60 * 60 * 1000L; // ms
 
@@ -97,24 +95,19 @@ public class UserManagerService extends IUserManager.Stub {
     private final Object mInstallLock;
     private final Object mPackagesLock;
 
-    private final Handler mHandler;
-
     private final File mUsersDir;
     private final File mUserListFile;
     private final File mBaseUserPath;
 
-    private final SparseArray<UserInfo> mUsers = new SparseArray<UserInfo>();
-
-    /**
-     * Set of user IDs being actively removed. Removed IDs linger in this set
-     * for several seconds to work around a VFS caching issue.
-     */
-    // @GuardedBy("mPackagesLock")
-    private final SparseBooleanArray mRemovingUserIds = new SparseBooleanArray();
+    private SparseArray<UserInfo> mUsers = new SparseArray<UserInfo>();
+    private HashSet<Integer> mRemovingUserIds = new HashSet<Integer>();
 
     private int[] mUserIds;
     private boolean mGuestEnabled;
     private int mNextSerialNumber;
+    // This resets on a reboot. Otherwise it keeps incrementing so that user ids are
+    // not reused in quick succession
+    private int mNextUserId = MIN_USER_ID;
     private int mUserVersion = 0;
 
     private static UserManagerService sInstance;
@@ -154,7 +147,6 @@ public class UserManagerService extends IUserManager.Stub {
         mPm = pm;
         mInstallLock = installLock;
         mPackagesLock = packagesLock;
-        mHandler = new Handler();
         synchronized (mInstallLock) {
             synchronized (mPackagesLock) {
                 mUsersDir = new File(dataDir, USER_INFO_DIR);
@@ -198,7 +190,7 @@ public class UserManagerService extends IUserManager.Stub {
                 if (ui.partial) {
                     continue;
                 }
-                if (!excludeDying || !mRemovingUserIds.get(ui.id)) {
+                if (!excludeDying || !mRemovingUserIds.contains(ui.id)) {
                     users.add(ui);
                 }
             }
@@ -220,7 +212,7 @@ public class UserManagerService extends IUserManager.Stub {
     private UserInfo getUserInfoLocked(int userId) {
         UserInfo ui = mUsers.get(userId);
         // If it is partial and not in the process of being removed, return as unknown user.
-        if (ui != null && ui.partial && !mRemovingUserIds.get(userId)) {
+        if (ui != null && ui.partial && !mRemovingUserIds.contains(userId)) {
             Slog.w(LOG_TAG, "getUserInfo: unknown user #" + userId);
             return null;
         }
@@ -484,7 +476,8 @@ public class UserManagerService extends IUserManager.Stub {
     }
 
     /**
-     * Upgrade steps between versions, either for fixing bugs or changing the data format.
+     * This fixes an incorrect initialization of user name for the owner.
+     * TODO: Remove in the next release.
      */
     private void upgradeIfNecessary() {
         int userVersion = mUserVersion;
@@ -498,16 +491,6 @@ public class UserManagerService extends IUserManager.Stub {
             userVersion = 1;
         }
 
-        if (userVersion < 2) {
-            // Owner should be marked as initialized
-            UserInfo user = mUsers.get(UserHandle.USER_OWNER);
-            if ((user.flags & UserInfo.FLAG_INITIALIZED) == 0) {
-                user.flags |= UserInfo.FLAG_INITIALIZED;
-                writeUserLocked(user);
-            }
-            userVersion = 2;
-        }
-
         if (userVersion < USER_VERSION) {
             Slog.w(LOG_TAG, "User version " + mUserVersion + " didn't upgrade as expected to "
                     + USER_VERSION);
@@ -519,7 +502,7 @@ public class UserManagerService extends IUserManager.Stub {
 
     private void fallbackToSingleUserLocked() {
         // Create the primary user
-        UserInfo primary = new UserInfo(0,
+        UserInfo primary = new UserInfo(0, 
                 mContext.getResources().getString(com.android.internal.R.string.owner_name), null,
                 UserInfo.FLAG_ADMIN | UserInfo.FLAG_PRIMARY | UserInfo.FLAG_INITIALIZED);
         mUsers.put(0, primary);
@@ -766,7 +749,7 @@ public class UserManagerService extends IUserManager.Stub {
             if (userHandle == 0 || user == null) {
                 return false;
             }
-            mRemovingUserIds.put(userHandle, true);
+            mRemovingUserIds.add(userHandle);
             // Set this to a partially created user, so that the user will be purged
             // on next startup, in case the runtime stops now before stopping and
             // removing the user completely.
@@ -830,25 +813,13 @@ public class UserManagerService extends IUserManager.Stub {
         }
     }
 
-    private void removeUserStateLocked(final int userHandle) {
+    private void removeUserStateLocked(int userHandle) {
         // Cleanup package manager settings
         mPm.cleanUpUserLILPw(userHandle);
 
         // Remove this user from the list
         mUsers.remove(userHandle);
-
-        // Have user ID linger for several seconds to let external storage VFS
-        // cache entries expire. This must be greater than the 'entry_valid'
-        // timeout used by the FUSE daemon.
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (mPackagesLock) {
-                    mRemovingUserIds.delete(userHandle);
-                }
-            }
-        }, MINUTE_IN_MILLIS);
-
+        mRemovingUserIds.remove(userHandle);
         // Remove user file
         AtomicFile userFile = new AtomicFile(new File(mUsersDir, userHandle + ".xml"));
         userFile.delete();
@@ -935,13 +906,14 @@ public class UserManagerService extends IUserManager.Stub {
      */
     private int getNextAvailableIdLocked() {
         synchronized (mPackagesLock) {
-            int i = MIN_USER_ID;
+            int i = mNextUserId;
             while (i < Integer.MAX_VALUE) {
-                if (mUsers.indexOfKey(i) < 0 && !mRemovingUserIds.get(i)) {
+                if (mUsers.indexOfKey(i) < 0 && !mRemovingUserIds.contains(i)) {
                     break;
                 }
                 i++;
             }
+            mNextUserId = i + 1;
             return i;
         }
     }
@@ -966,7 +938,7 @@ public class UserManagerService extends IUserManager.Stub {
                 UserInfo user = mUsers.valueAt(i);
                 if (user == null) continue;
                 pw.print("  "); pw.print(user); pw.print(" serialNo="); pw.print(user.serialNumber);
-                if (mRemovingUserIds.get(mUsers.keyAt(i))) pw.print(" <removing> ");
+                if (mRemovingUserIds.contains(mUsers.keyAt(i))) pw.print(" <removing> ");
                 if (user.partial) pw.print(" <partial>");
                 pw.println();
                 pw.print("    Created: ");

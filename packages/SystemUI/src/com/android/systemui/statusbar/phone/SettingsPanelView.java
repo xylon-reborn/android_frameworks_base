@@ -114,4 +114,5 @@ public class SettingsPanelView extends PanelView {
         mHandleBar.draw(canvas);
         canvas.translate(0, -off);
     }
+
 }

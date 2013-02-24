@@ -121,6 +121,7 @@ public abstract class KeyguardActivityLauncher {
 
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         pickIntent.putExtra(AppWidgetManager.EXTRA_CUSTOM_SORT, false);
+
         pickIntent.putExtra(AppWidgetManager.EXTRA_CATEGORY_FILTER,
                 AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD);
 

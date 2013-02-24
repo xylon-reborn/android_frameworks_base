@@ -3869,6 +3869,9 @@
     <!-- Long-press back kill application -->
     <string name="app_killed_message">Application killed</string>
 
+    <!-- Notification for Expanded desktop default -->
+    <string name="expanded_mode_default_set">Expanded desktop set to hide statusbar only. Configure in Powermenu settings</string>
+
     <!-- Title for a button to choose the currently selected activity
          as the default in the activity resolver. [CHAR LIMIT=25] -->
     <string name="activity_resolver_use_always">Always</string>
@@ -4079,7 +4082,4 @@
     <!-- Hardware Rotation lock string -->
     <string name="toast_rotation_unlocked">Display rotation unlocked</string>
     <string name="toast_rotation_locked">Display rotation locked</string>
-
-    <!-- In WiFi notification -->
-    <string name="notify_turn_wifi_off_title">Turn Wi-Fi off</string>
 </resources>

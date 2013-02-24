@@ -148,9 +148,7 @@ public class SearchPanelView extends FrameLayout implements
         mResources = mContext.getResources();
 
         mContentResolver = mContext.getContentResolver();
-
         mLiquidTarget = new LiquidTarget(context);
-
         mSettingsObserver = new SettingsObserver(new Handler());
     }
 

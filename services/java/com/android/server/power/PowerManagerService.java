@@ -150,6 +150,7 @@ public final class PowerManagerService extends IPowerManager.Stub
     private static final int SCREEN_DIM_DURATION = 7 * 1000;
     private static final int BUTTON_ON_DURATION = 5 * 1000;
 
+
     // The maximum screen dim time expressed as a ratio relative to the screen
     // off timeout.  If the screen off timeout is very short then we want the
     // dim timeout to also be quite short so that most of the time is spent on.

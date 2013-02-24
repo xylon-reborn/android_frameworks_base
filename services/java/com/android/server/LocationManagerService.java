@@ -506,7 +506,7 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
                 }
             } else {
                 Intent statusChanged = new Intent();
-                statusChanged.putExtras(new Bundle(extras));
+                statusChanged.putExtras(extras);
                 statusChanged.putExtra(LocationManager.KEY_STATUS_CHANGED, status);
                 try {
                     synchronized (this) {
@@ -541,7 +541,7 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
                 }
             } else {
                 Intent locationChanged = new Intent();
-                locationChanged.putExtra(LocationManager.KEY_LOCATION_CHANGED, new Location(location));
+                locationChanged.putExtra(LocationManager.KEY_LOCATION_CHANGED, location);
                 try {
                     synchronized (this) {
                         // synchronize to ensure incrementPendingBroadcastsLocked()

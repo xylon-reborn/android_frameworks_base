@@ -1010,7 +1010,7 @@ public class NetworkController extends BroadcastReceiver {
         int N;
         final boolean emergencyOnly = isEmergencyOnly();
         final String customLabel = Settings.System.getString(mContext.getContentResolver(),
-            Settings.System.CUSTOM_CARRIER_LABEL);
+                Settings.System.CUSTOM_CARRIER_LABEL);
 
         if (!mHasMobileDataFeature) {
             mDataSignalIconId = mPhoneSignalIconId = 0;
@@ -1166,10 +1166,13 @@ public class NetworkController extends BroadcastReceiver {
             }
         }
 
-        if (customLabel != null && customLabel.length() > 0) {
+        if (customLabel != null && customLabel.trim().length() > 0) {
             combinedLabel = customLabel;
             mobileLabel = customLabel;
-            wifiLabel = customLabel;
+            if (Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.NOTIFICATION_SHOW_WIFI_SSID, 0) == 0) {
+                wifiLabel = customLabel;
+            }
         }
 
         if (DEBUG) {
@@ -1512,3 +1515,4 @@ public class NetworkController extends BroadcastReceiver {
     }
 
 }
+

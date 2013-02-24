@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
- 
 package com.android.server.power;
 
 import android.app.ActivityManagerNative;
@@ -60,11 +59,11 @@ public final class ShutdownThread extends Thread {
 
     // length of vibration before shutting down
     private static final int SHUTDOWN_VIBRATE_MS = 500;
-    
+
     // state tracking
     private static Object sIsStartedGuard = new Object();
     private static boolean sIsStarted = false;
-    
+
     private static boolean mReboot;
     private static boolean mRebootSafeMode;
     private static String mRebootReason;
@@ -87,10 +86,10 @@ public final class ShutdownThread extends Thread {
     private Handler mHandler;
 
     private static AlertDialog sConfirmDialog;
-    
+
     private ShutdownThread() {
     }
- 
+
     /**
      * Request a clean shutdown, waiting for subsystems to clean up their
      * state etc.  Must be called from a Looper thread in which its UI

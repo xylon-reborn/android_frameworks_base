@@ -295,7 +295,6 @@ public class Editor {
         mErrorWasChanged = true;
 
         if (mError == null) {
-            setErrorIcon(null);
             if (mErrorPopup != null) {
                 if (mErrorPopup.isShowing()) {
                     mErrorPopup.dismiss();
@@ -304,24 +303,21 @@ public class Editor {
                 mErrorPopup = null;
             }
 
-        } else {
+            setErrorIcon(null);
+        } else if (mTextView.isFocused()) {
+            showError();
             setErrorIcon(icon);
-            if (mTextView.isFocused()) {
-                showError();
-            }
         }
     }
 
     private void setErrorIcon(Drawable icon) {
-        Drawables dr = mTextView.mDrawables;
-        if (dr == null) {
-            mTextView.mDrawables = dr = new Drawables();
+        final Drawables dr = mTextView.mDrawables;
+        if (dr != null) {
+            mTextView.setCompoundDrawables(dr.mDrawableLeft, dr.mDrawableTop, icon,
+                    dr.mDrawableBottom);
+        } else {
+            mTextView.setCompoundDrawables(null, null, icon, null);
         }
-        dr.setErrorDrawable(icon, mTextView);
-
-        mTextView.resetResolvedDrawables();
-        mTextView.invalidate();
-        mTextView.requestLayout();
     }
 
     private void hideError() {
@@ -329,13 +325,15 @@ public class Editor {
             if (mErrorPopup.isShowing()) {
                 mErrorPopup.dismiss();
             }
+
+            setErrorIcon(null);
         }
 
         mShowErrorAfterAttach = false;
     }
 
     /**
-     * Returns the X offset to make the pointy top of the error point
+     * Returns the Y offset to make the pointy top of the error point
      * at the middle of the error icon.
      */
     private int getErrorX() {
@@ -346,23 +344,8 @@ public class Editor {
         final float scale = mTextView.getResources().getDisplayMetrics().density;
 
         final Drawables dr = mTextView.mDrawables;
-
-        final int layoutDirection = mTextView.getLayoutDirection();
-        int errorX;
-        int offset;
-        switch (layoutDirection) {
-            default:
-            case View.LAYOUT_DIRECTION_LTR:
-                offset = - (dr != null ? dr.mDrawableSizeRight : 0) / 2 + (int) (25 * scale + 0.5f);
-                errorX = mTextView.getWidth() - mErrorPopup.getWidth() -
-                        mTextView.getPaddingRight() + offset;
-                break;
-            case View.LAYOUT_DIRECTION_RTL:
-                offset = (dr != null ? dr.mDrawableSizeLeft : 0) / 2 - (int) (25 * scale + 0.5f);
-                errorX = mTextView.getPaddingLeft() + offset;
-                break;
-        }
-        return errorX;
+        return mTextView.getWidth() - mErrorPopup.getWidth() - mTextView.getPaddingRight() -
+                (dr != null ? dr.mDrawableSizeRight : 0) / 2 + (int) (25 * scale + 0.5f);
     }
 
     /**
@@ -379,27 +362,16 @@ public class Editor {
                 mTextView.getCompoundPaddingBottom() - compoundPaddingTop;
 
         final Drawables dr = mTextView.mDrawables;
-
-        final int layoutDirection = mTextView.getLayoutDirection();
-        int height;
-        switch (layoutDirection) {
-            default:
-            case View.LAYOUT_DIRECTION_LTR:
-                height = (dr != null ? dr.mDrawableHeightRight : 0);
-                break;
-            case View.LAYOUT_DIRECTION_RTL:
-                height = (dr != null ? dr.mDrawableHeightLeft : 0);
-                break;
-        }
-
-        int icontop = compoundPaddingTop + (vspace - height) / 2;
+        int icontop = compoundPaddingTop +
+                (vspace - (dr != null ? dr.mDrawableHeightRight : 0)) / 2;
 
         /*
          * The "2" is the distance between the point and the top edge
          * of the background.
          */
         final float scale = mTextView.getResources().getDisplayMetrics().density;
-        return icontop + height - mTextView.getHeight() - (int) (2 * scale + 0.5f);
+        return icontop + (dr != null ? dr.mDrawableHeightRight : 0) - mTextView.getHeight() -
+                (int) (2 * scale + 0.5f);
     }
 
     void createInputContentTypeIfNeeded() {
@@ -1303,7 +1275,6 @@ public class Editor {
             int[] blockEndLines = dynamicLayout.getBlockEndLines();
             int[] blockIndices = dynamicLayout.getBlockIndices();
             final int numberOfBlocks = dynamicLayout.getNumberOfBlocks();
-            final int indexFirstChangedBlock = dynamicLayout.getIndexFirstChangedBlock();
 
             int endOfPreviousBlock = -1;
             int searchStartIndex = 0;
@@ -1328,8 +1299,7 @@ public class Editor {
                     if (blockIsInvalid) blockDisplayList.invalidate();
                 }
 
-                final boolean blockDisplayListIsInvalid = !blockDisplayList.isValid();
-                if (i >= indexFirstChangedBlock || blockDisplayListIsInvalid) {
+                if (!blockDisplayList.isValid()) {
                     final int blockBeginLine = endOfPreviousBlock + 1;
                     final int top = layout.getLineTop(blockBeginLine);
                     final int bottom = layout.getLineBottom(blockEndLine);
@@ -1346,29 +1316,24 @@ public class Editor {
                         right = (int) (max + 0.5f);
                     }
 
-                    // Rebuild display list if it is invalid
-                    if (blockDisplayListIsInvalid) {
-                        final HardwareCanvas hardwareCanvas = blockDisplayList.start();
-                        try {
-                            // Tighten the bounds of the viewport to the actual text size
-                            hardwareCanvas.setViewport(right - left, bottom - top);
-                            // The dirty rect should always be null for a display list
-                            hardwareCanvas.onPreDraw(null);
-                            // drawText is always relative to TextView's origin, this translation brings
-                            // this range of text back to the top left corner of the viewport
-                            hardwareCanvas.translate(-left, -top);
-                            layout.drawText(hardwareCanvas, blockBeginLine, blockEndLine);
-                            // No need to untranslate, previous context is popped after drawDisplayList
-                        } finally {
-                            hardwareCanvas.onPostDraw();
-                            blockDisplayList.end();
-                            // Same as drawDisplayList below, handled by our TextView's parent
-                            blockDisplayList.setClipChildren(false);
-                        }
+                    final HardwareCanvas hardwareCanvas = blockDisplayList.start();
+                    try {
+                        // Tighten the bounds of the viewport to the actual text size
+                        hardwareCanvas.setViewport(right - left, bottom - top);
+                        // The dirty rect should always be null for a display list
+                        hardwareCanvas.onPreDraw(null);
+                        // drawText is always relative to TextView's origin, this translation brings
+                        // this range of text back to the top left corner of the viewport
+                        hardwareCanvas.translate(-left, -top);
+                        layout.drawText(hardwareCanvas, blockBeginLine, blockEndLine);
+                        // No need to untranslate, previous context is popped after drawDisplayList
+                    } finally {
+                        hardwareCanvas.onPostDraw();
+                        blockDisplayList.end();
+                        blockDisplayList.setLeftTopRightBottom(left, top, right, bottom);
+                        // Same as drawDisplayList below, handled by our TextView's parent
+                        blockDisplayList.setClipChildren(false);
                     }
-                    // Valid disply list whose index is >= indexFirstChangedBlock
-                    // only needs to update its drawing location.
-                    blockDisplayList.setLeftTopRightBottom(left, top, right, bottom);
                 }
 
                 ((HardwareCanvas) canvas).drawDisplayList(blockDisplayList, null,
@@ -1376,7 +1341,6 @@ public class Editor {
 
                 endOfPreviousBlock = blockEndLine;
             }
-            dynamicLayout.setIndexFirstChangedBlock(numberOfBlocks);
         } else {
             // Boring layout is used for empty and hint text
             layout.drawText(canvas, firstLine, lastLine);
@@ -2704,23 +2668,14 @@ public class Editor {
             TypedArray styledAttributes = mTextView.getContext().obtainStyledAttributes(
                     com.android.internal.R.styleable.SelectionModeDrawables);
 
-            boolean allowText = mTextView.getContext().getResources().getBoolean(
-                    com.android.internal.R.bool.config_allowActionMenuItemTextWithIcon);
-
             mode.setTitle(mTextView.getContext().getString(
                     com.android.internal.R.string.textSelectionCABTitle));
             mode.setSubtitle(null);
             mode.setTitleOptionalHint(true);
 
-            int selectAllIconId = 0; // No icon by default
-            if (!allowText) {
-                // Provide an icon, text will not be displayed on smaller screens.
-                selectAllIconId = styledAttributes.getResourceId(
-                        R.styleable.SelectionModeDrawables_actionModeSelectAllDrawable, 0);
-            }
-
             menu.add(0, TextView.ID_SELECT_ALL, 0, com.android.internal.R.string.selectAll).
-                    setIcon(selectAllIconId).
+                    setIcon(styledAttributes.getResourceId(
+                            R.styleable.SelectionModeDrawables_actionModeSelectAllDrawable, 0)).
                     setAlphabeticShortcut('a').
                     setShowAsAction(
                             MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
