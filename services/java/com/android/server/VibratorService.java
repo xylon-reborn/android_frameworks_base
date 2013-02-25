@@ -170,12 +170,11 @@ public class VibratorService extends IVibratorService.Stub
 
         updateInputDeviceVibrators();
     }
-void updateVibrationMultiplier()
-{
+    void updateVibrationMultiplier() {
         vibrationMultiplier = Settings.System.getFloat(
                             mContext.getContentResolver(),
                             Settings.System.VIBRATION_MULTIPLIER, 1);
-}
+    }
     public boolean hasVibrator() {
         return doVibratorExists();
     }
