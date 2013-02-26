@@ -63,7 +63,6 @@ public class PlatLogoActivity extends Activity {
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.CENTER_HORIZONTAL;
         lp.bottomMargin = (int) (-4*metrics.density);
-
         mIsLiquid = SystemProperties.get("ro.liquid.version") != null;
 
         TextView tv = new TextView(this);
@@ -79,7 +78,7 @@ public class PlatLogoActivity extends Activity {
         tv.setTextSize(size);
         tv.setTextColor(0xFFFFFFFF);
         tv.setShadowLayer(4*metrics.density, 0, 2*metrics.density, 0x66000000);
-        tv.setText("JELLY BEAN");
+        tv.setText(mIsLiquid ? "Android " + Build.VERSION.RELEASE : "JELLY BEAN");
         view.addView(tv, lp);
 
         return view;

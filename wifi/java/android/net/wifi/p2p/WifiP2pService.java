@@ -387,7 +387,7 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
          * not get latest updates about the device without being in discovery state.
          *
          * From the framework perspective, the device is still there since we are connecting or
-         * connected to it. so we keep these devices in a separate list, so that they are removed
+         * connected to it. so we keep these devices in a seperate list, so that they are removed
          * when connection is cancelled or lost
          */
         private final WifiP2pDeviceList mPeersLostDuringConnection = new WifiP2pDeviceList();

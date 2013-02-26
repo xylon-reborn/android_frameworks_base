@@ -492,6 +492,10 @@
     <string name="permdesc_asec_rename" msgid="1794757588472127675">"Lehetővé teszi az alkalmazás számára, hogy átnevezze a belső tárhelyet."</string>
     <string name="permlab_vibrate" msgid="7696427026057705834">"rezgés szabályozása"</string>
     <string name="permdesc_vibrate" msgid="6284989245902300945">"Lehetővé teszi az alkalmazás számára a rezgés vezérlését."</string>
+    <string name="permlab_fm_radio_receiver">FM rádióvevő vezérlése</string>
+    <string name="permdesc_fm_radio_receiver">Lehetővé teszi az alkalmazás számára az FM rádióvevő vezérlését.</string>
+    <string name="permlab_fm_radio_transmitter">FM rádióadó vezérlése</string>
+    <string name="permdesc_fm_radio_transmitter">Lehetővé teszi az alkalmazás számára az FM rádióadó vezérlését.</string>
     <string name="permlab_flashlight" msgid="2155920810121984215">"vaku vezérlése"</string>
     <string name="permdesc_flashlight" msgid="6522284794568368310">"Lehetővé teszi az alkalmazás számára a vaku vezérlését."</string>
     <string name="permlab_manageUsb" msgid="1113453430645402723">"USB-eszközök preferenciáinak és engedélyeinek kezelése"</string>
@@ -1084,7 +1088,7 @@
     <string name="smv_process" msgid="5120397012047462446">"<xliff:g id="PROCESS">%1$s</xliff:g> folyamat megsértette az általa kényszerített Szigorú üzemmód irányelvet."</string>
     <string name="android_upgrading_title" msgid="1584192285441405746">"Android frissítése folyamatban..."</string>
     <string name="android_upgrading_apk" msgid="7904042682111526169">"Alkalmazás optimalizálása: <xliff:g id="NUMBER_0">%1$d</xliff:g>/<xliff:g id="NUMBER_1">%2$d</xliff:g>."</string>
-    <string name="android_upgrading_starting_apps" msgid="451464516346926713">"Kezdő alkalmazások."</string>
+    <string name="android_upgrading_starting_apps" msgid="451464516346926713">"Alkalmazások indítása."</string>
     <string name="android_upgrading_complete" msgid="1405954754112999229">"Rendszerindítás befejezése."</string>
     <string name="heavy_weight_notification" msgid="9087063985776626166">"<xliff:g id="APP">%1$s</xliff:g> fut"</string>
     <string name="heavy_weight_notification_detail" msgid="1721681741617898865">"Érintse meg az alkalmazásra váltáshoz"</string>
@@ -1369,6 +1373,7 @@
     <string name="action_menu_overflow_description" msgid="2295659037509008453">"További lehetőségek"</string>
     <string name="storage_internal" msgid="4891916833657929263">"Belső tárhely"</string>
     <string name="storage_sd_card" msgid="3282948861378286745">"SD-kártya"</string>
+    <string name="storage_sd_dock_card">Dokkoló SD-kártyája</string>
     <string name="storage_usb" msgid="3017954059538517278">"USB-tár"</string>
     <string name="extract_edit_menu_button" msgid="8940478730496610137">"Szerkesztés"</string>
     <string name="data_usage_warning_title" msgid="1955638862122232342">"Adathasználati figyelmeztetés"</string>

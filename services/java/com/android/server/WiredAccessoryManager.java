@@ -80,6 +80,7 @@ final class WiredAccessoryManager implements WiredAccessoryCallbacks {
     private int mSwitchValues;
 
     private boolean dockAudioEnabled = false;
+
     private final WiredAccessoryObserver mObserver;
     private final InputManagerService mInputManager;
 

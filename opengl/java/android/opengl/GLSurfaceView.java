@@ -169,6 +169,7 @@ public class GLSurfaceView extends SurfaceView implements SurfaceHolder.Callback
     private final static boolean LOG_RENDERER = false;
     private final static boolean LOG_RENDERER_DRAW_FRAME = false;
     private final static boolean LOG_EGL = false;
+
     private final static boolean RGB565 = SystemProperties.getBoolean("ro.opengles.surface.rgb565", false);
     /**
      * The renderer only renders

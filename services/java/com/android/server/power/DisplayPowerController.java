@@ -227,7 +227,7 @@ final class DisplayPowerController {
     // a stylish electron beam animation instead.
     private boolean mElectronBeamFadesConfig;
 
-    // Slim settings - override config for ElectronBeam
+    // Override config for ElectronBeam
     private boolean mElectronBeamOffEnabled;
     private int mElectronBeamMode;
 

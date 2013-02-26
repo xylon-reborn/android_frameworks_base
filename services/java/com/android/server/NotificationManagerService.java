@@ -315,7 +315,6 @@ public class NotificationManagerService extends INotificationManager.Stub
         writeBlockDb();
     }
 
-
     private static String idDebugString(Context baseContext, String packageName, int id) {
         Context c = null;
 
@@ -1789,4 +1788,3 @@ public class NotificationManagerService extends INotificationManager.Stub
         }
     }
 }
-

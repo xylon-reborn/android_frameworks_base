@@ -388,8 +388,8 @@ public class Notification implements Parcelable
      * Priority is an indication of how much of the user's valuable attention should be consumed by
      * this notification. Low-priority notifications may be hidden from the user in certain
      * situations, while the user might be interrupted for a higher-priority notification. The
-     * system will make a determination about how to interpret notification priority as described in 
-     * MUMBLE MUMBLE.
+     * system will make a determination about how to interpret this priority when presenting
+     * the notification.
      */
     public int priority;
 

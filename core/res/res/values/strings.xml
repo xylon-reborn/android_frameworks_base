@@ -3770,9 +3770,6 @@
     <!-- Storage description for the SD card. [CHAR LIMIT=NONE] -->
     <string name="storage_sd_card">SD card</string>
 
-    <!-- Storage description for the SD card on the dock. [CHAR LIMIT=NONE] -->
-    <string name="storage_sd_dock_card">Dock SD card</string>
-
     <!-- Storage description for USB storage. [CHAR LIMIT=NONE] -->
     <string name="storage_usb">USB storage</string>
 
@@ -3870,7 +3867,7 @@
     <string name="app_killed_message">Application killed</string>
 
     <!-- Notification for Expanded desktop default -->
-    <string name="expanded_mode_default_set">Expanded desktop set to hide statusbar only. Configure in Powermenu settings</string>
+    <string name="expanded_mode_default_set">Expanded desktop set to hide statusbar only. Configure in powermenu settings</string>
 
     <!-- Title for a button to choose the currently selected activity
          as the default in the activity resolver. [CHAR LIMIT=25] -->

@@ -39,7 +39,6 @@ import com.android.internal.R;
 public class KeyguardShortcuts extends LinearLayout {
 
     private static final int INNER_PADDING = 20;
-
     private KeyguardSecurityCallback mCallback;
     private PackageManager mPackageManager;
     private Context mContext;
@@ -165,5 +164,4 @@ public class KeyguardShortcuts extends LinearLayout {
                 screenSize == Configuration.SCREENLAYOUT_SIZE_XLARGE;
         return isScreenLarge;
     }
-
 }
