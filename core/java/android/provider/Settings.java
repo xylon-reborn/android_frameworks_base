@@ -3601,7 +3601,13 @@ public final class Settings {
          */
         public static final String VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
 
-       /**
+         /**
+          * Swap volume buttons when the screen is rotated by 90 or 180 degrees
+	  * @hide
+          */
+         public static final String SWAP_VOLUME_KEYS_BY_ROTATE = "swap_volume_keys_by_rotate";
+
+        /**
          * Boolean value whether to link ringtone and notification volumes
          * @hide
          */
