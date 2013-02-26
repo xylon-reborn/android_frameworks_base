@@ -2936,11 +2936,15 @@ public final class Settings {
         public static final String NAVIGATION_BAR_SHOW_NOW = "navigation_bar_show_now";
 
         /**
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_CAN_MOVE = "navigation_bar_can_move";
+
+        /**
          * Electronic beam animation mode
          * 0 = always horizontal, 1 = always vertical, 2 = dependent on orientation
          * @hide
          */
-        public static final String NAVIGATION_BAR_CAN_MOVE = "navigation_bar_can_move";
         public static final String SYSTEM_POWER_CRT_MODE = "system_power_crt_mode";
 
         /**
