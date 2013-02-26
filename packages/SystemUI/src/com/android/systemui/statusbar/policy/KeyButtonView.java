@@ -387,5 +387,3 @@ public class KeyButtonView extends ImageView {
         invalidate();
     }
 }
-
-

@@ -245,7 +245,6 @@ public class PhoneStatusBarView extends PanelBar {
     @Override
     public void onAllPanelsCollapsed() {
         super.onAllPanelsCollapsed();
-        Slog.v(TAG, "onAllPanelsCollapsed");
         // give animations time to settle
         mBar.makeExpandedInvisibleSoon();
         mFadingPanel = null;
@@ -255,7 +254,6 @@ public class PhoneStatusBarView extends PanelBar {
     @Override
     public void onPanelFullyOpened(PanelView openPanel) {
         super.onPanelFullyOpened(openPanel);
-        Slog.v(TAG, "onPanelFullyOpened: " + openPanel);
         if (openPanel != mLastFullyOpenedPanel) {
             openPanel.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
@@ -405,9 +403,6 @@ public class PhoneStatusBarView extends PanelBar {
                 Settings.System.STATUS_NAV_BAR_ALPHA_MODE, 1);
         mStatusBarColor = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.STATUS_BAR_COLOR, -2);
-
         updateBackgroundAlpha();
-
     }
-
 }

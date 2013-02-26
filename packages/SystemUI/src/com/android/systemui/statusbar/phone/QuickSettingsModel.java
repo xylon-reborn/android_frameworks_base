@@ -49,7 +49,6 @@ import com.android.systemui.statusbar.policy.LocationController.LocationGpsState
 import com.android.systemui.statusbar.policy.NetworkController.NetworkSignalChangedCallback;
 
 
-
 class QuickSettingsModel implements BluetoothStateChangeCallback,
         NetworkSignalChangedCallback,
         BatteryStateChangeCallback,
@@ -417,10 +416,12 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
         mRSSICallback = cb;
         mRSSICallback.refreshView(mRSSITile, mRSSIState);
     }
+
     boolean deviceSupportsTelephony() {
         PackageManager pm = mContext.getPackageManager();
         return pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
     }
+
     // NetworkSignalChanged callback
     @Override
     public void onMobileDataSignalChanged(

@@ -62,7 +62,7 @@ public class AutoRotateTile extends QuickSettingsTile {
                 Intent intent = new Intent();
                 intent.setComponent(new ComponentName(
                         "com.android.settings",
-                        "com.android.settings.Settings$ASSDisplayRotationActivity"));
+                        "com.android.settings.Settings$DisplayRotationActivity"));
                 startSettingsActivity(intent);
                 return true;
             }

@@ -65,7 +65,6 @@ import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.phone.PhoneStatusBar;
 import com.android.systemui.statusbar.tablet.StatusBarPanel;
 import com.android.systemui.statusbar.tablet.TabletStatusBar;
-
 import com.android.internal.util.MemInfoReader;
 
 import java.io.BufferedReader;
@@ -972,5 +971,4 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             reader.close();
         }
     }
-
 }

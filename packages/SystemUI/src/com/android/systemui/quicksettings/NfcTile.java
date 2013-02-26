@@ -123,5 +123,4 @@ public class NfcTile extends QuickSettingsTile {
         }
         return mNfcAdapter.getAdapterState();
     }
-
 }

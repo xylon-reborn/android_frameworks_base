@@ -361,7 +361,6 @@ public class PowerWidget extends FrameLayout {
             mScrollView.setFadingEdgeLength(mContext.getResources().getDisplayMetrics().widthPixels / LAYOUT_SCROLL_BUTTON_THRESHOLD);
             mScrollView.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
             mScrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
             mScrollView.addView(mButtonLayout, WIDGET_LAYOUT_PARAMS);
             updateScrollbar();
             mBrightnessLayout.addView(mScrollView, ROWS_PARAMS);
@@ -369,10 +368,8 @@ public class PowerWidget extends FrameLayout {
             // not needed, just add the linear layout
             mBrightnessLayout.addView(mButtonLayout, ROWS_PARAMS);
         }
-
         if (mBrightnessLocation == BRIGHTNESS_LOC_BOTTOM) addBrightness(mBrightnessLayout);
         addView(mBrightnessLayout, WIDGET_BRIGHTNESS_LAYOUT_PARAMS);
-
     }
 
     public static float convertDpToPixel(float dp,Context context){

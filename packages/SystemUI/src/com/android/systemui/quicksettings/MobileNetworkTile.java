@@ -85,7 +85,6 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
     public void onWifiSignalChanged(boolean enabled, int wifiSignalIconId,
             String wifitSignalContentDescriptionId, String description) {
         wifiOn = enabled;
-
     }
 
     @Override
@@ -118,7 +117,6 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
     @Override
     public void onAirplaneModeChanged(boolean enabled) {
         // TODO Auto-generated method stub
-
     }
 
     boolean deviceSupportsTelephony() {
