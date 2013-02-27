@@ -63,10 +63,10 @@ public class BatteryController extends BroadcastReceiver {
     private static final int BATTERY_TEXT_STYLE_MIN     = R.string.status_bar_settings_battery_meter_min_format;
 
     private int mLevel = 0;
+    private int mBatteryStyle;
     private int mTextColor = -2;
     private boolean mBatteryPlugged = false;
     private int mBatteryStatus = BatteryManager.BATTERY_STATUS_UNKNOWN;
-    private int mBatteryStyle;
 
     Handler mHandler;
 

@@ -45,7 +45,7 @@ import com.android.internal.R;
 /***
  * Note about CircleBattery Implementation:
  *
- * Unfortunately, we cannot use BatteryController here,
+ * Unfortunately, we cannot use BatteryController or DockBatteryController here,
  * since communication between controller and this view is not possible without
  * huge changes. As a result, this Class is doing everything by itself,
  * monitoring battery level and battery settings.
@@ -84,6 +84,8 @@ public class CircleBattery extends ImageView {
     private int mCircleTextColor;
     private int mCircleAnimSpeed;
 
+    private SettingsObserver mSettingsObserver;
+
     // runnable to invalidate view via mHandler.postDelayed() call
     private final Runnable mInvalidate = new Runnable() {
         public void run() {
@@ -109,50 +111,11 @@ public class CircleBattery extends ImageView {
                     Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED), false, this);
-            onChange(true);
         }
 
         @Override
         public void onChange(boolean selfChange) {
-            Resources res = getResources();
-
-            int batteryStyle = (Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_BATTERY, 0));
-            int circleColor = (Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_COLOR, -2));
-            int circleTextColor = (Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR, -2));
-            int circleAnimSpeed = (Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED, 3));
-
-            if (circleTextColor == -2) {
-                mCircleTextColor = res.getColor(R.color.holo_blue_dark);
-            }
-
-            if (circleColor == -2) {
-                mCircleColor = res.getColor(R.color.holo_blue_dark);
-            }
-
-            initializeCircleVars();
-            mRectLeft = null;
-            mCircleSize = 0;
-
-            mActivated = (batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE || 
-                          batteryStyle == BatteryController.BATTERY_STYLE_DOTTED_CIRCLE || 
-                          batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT || 
-                          batteryStyle == BatteryController.BATTERY_STYLE_DOTTED_CIRCLE_PERCENT);
-
-            mPercentage = (batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT || 
-                           batteryStyle == BatteryController.BATTERY_STYLE_DOTTED_CIRCLE_PERCENT);
-
-            setVisibility(mActivated && isBatteryPresent() ? View.VISIBLE : View.GONE);
-            if (mBatteryReceiver != null) {
-                mBatteryReceiver.updateRegistration();
-            }
-
-            if (mActivated && mAttached) {
-                invalidate();
-            }
+            updateSettings();
         }
     }
 
@@ -178,6 +141,7 @@ public class CircleBattery extends ImageView {
                     LayoutParams l = getLayoutParams();
                     l.width = mCircleSize + getPaddingLeft();
                     setLayoutParams(l);
+
                     invalidate();
                 }
             }
@@ -209,7 +173,7 @@ public class CircleBattery extends ImageView {
         }
     }
 
-    /***
+    /**
      * Start of CircleBattery implementation
      */
     public CircleBattery(Context context) {
@@ -225,37 +189,8 @@ public class CircleBattery extends ImageView {
 
         mContext = context;
         mHandler = new Handler();
-        SettingsObserver settingsObserver = new SettingsObserver(mHandler);
-        settingsObserver.observe();
         mBatteryReceiver = new BatteryReceiver(mContext);
-    }
-
-    /***
-     * Initialize the Circle vars for start and observer
-     */
-    private void initializeCircleVars() {
-        // initialize and setup all paint variables
-        // stroke width is later set in initSizeBasedStuff()
-        Resources res = getResources();
-
-        mPaintFont = new Paint();
-        mPaintFont.setAntiAlias(true);
-        mPaintFont.setDither(true);
-        mPaintFont.setStyle(Paint.Style.STROKE);
-
-        mPaintGray = new Paint(mPaintFont);
-        mPaintSystem = new Paint(mPaintFont);
-        mPaintRed = new Paint(mPaintFont);
-
-        mPaintSystem.setColor(mCircleColor);
-        // could not find the darker definition anywhere in resources
-        // do not want to use static 0x404040 color value. would break theming.
-        mPaintGray.setColor(res.getColor(R.color.darker_gray));
-        mPaintRed.setColor(res.getColor(R.color.holo_red_light));
-
-        // font needs some extra settings
-        mPaintFont.setTextAlign(Align.CENTER);
-        mPaintFont.setFakeBoldText(true);
+        updateSettings();
     }
 
     protected int getLevel() {
@@ -295,6 +230,9 @@ public class CircleBattery extends ImageView {
         if (!mAttached) {
             mAttached = true;
             mBatteryReceiver.updateRegistration();
+            mSettingsObserver = new SettingsObserver(mHandler);
+            mSettingsObserver.observe();
+            updateSettings();
             mHandler.postDelayed(mInvalidate, 250);
         }
     }
@@ -305,6 +243,7 @@ public class CircleBattery extends ImageView {
         if (mAttached) {
             mAttached = false;
             mBatteryReceiver.updateRegistration();
+            mContext.getContentResolver().unregisterContentObserver(mSettingsObserver);
             mRectLeft = null;   // makes sure, size based variables get
                                 // recalculated on next attach
             mCircleSize = 0;    // makes sure, mCircleSize is reread from icons on
@@ -377,12 +316,84 @@ public class CircleBattery extends ImageView {
 
         updateChargeAnim();
 
-        drawCircle(canvas,
-                   getLevel(),
+        drawCircle(canvas,getLevel(),
                    (isBatteryStatusCharging() ? mAnimOffset : 0), mTextLeftX, mRectLeft);
     }
 
-    /***
+    private void updateSettings() {
+        Resources res = getResources();
+
+        mBatteryStyle = (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_BATTERY, 0));
+        mCircleColor = (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CIRCLE_BATTERY_COLOR, -2));
+        mCircleTextColor = (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR, -2));
+        mCircleAnimSpeed = (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED, 3));
+
+        if (mCircleTextColor == -2) {
+            mCircleTextColor = res.getColor(R.color.holo_blue_dark);
+        }
+
+        if (mCircleColor == -2) {
+            mCircleColor = res.getColor(R.color.holo_blue_dark);
+        }
+
+        /**
+         * initialize vars and force redraw
+         */
+        initializeCircleVars();
+        mRectLeft = null;
+        mCircleSize = 0;
+
+        mActivated = (mBatteryStyle == BatteryController.BATTERY_STYLE_CIRCLE ||
+                      mBatteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT ||
+                      mBatteryStyle == BatteryController.BATTERY_STYLE_DOTTED_CIRCLE ||
+                      mBatteryStyle == BatteryController.BATTERY_STYLE_DOTTED_CIRCLE_PERCENT);
+        mPercentage = (mBatteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT ||
+                       mBatteryStyle == BatteryController.BATTERY_STYLE_DOTTED_CIRCLE_PERCENT);
+
+        setVisibility(mActivated && isBatteryPresent() ? View.VISIBLE : View.GONE);
+
+        if (mBatteryReceiver != null) {
+            mBatteryReceiver.updateRegistration();
+        }
+
+        if (mActivated && mAttached) {
+            invalidate();
+        }
+    }
+
+    /**
+     * Initialize the Circle vars for start and observer
+     */
+    private void initializeCircleVars() {
+        // initialize and setup all paint variables
+        // stroke width is later set in initSizeBasedStuff()
+        Resources res = getResources();
+
+        mPaintFont = new Paint();
+        mPaintFont.setAntiAlias(true);
+        mPaintFont.setDither(true);
+        mPaintFont.setStyle(Paint.Style.STROKE);
+
+        mPaintGray = new Paint(mPaintFont);
+        mPaintSystem = new Paint(mPaintFont);
+        mPaintRed = new Paint(mPaintFont);
+
+        mPaintSystem.setColor(mCircleColor);
+        // could not find the darker definition anywhere in resources
+        // do not want to use static 0x404040 color value. would break theming.
+        mPaintGray.setColor(res.getColor(R.color.darker_gray));
+        mPaintRed.setColor(res.getColor(R.color.holo_red_light));
+
+        // font needs some extra settings
+        mPaintFont.setTextAlign(Align.CENTER);
+        mPaintFont.setFakeBoldText(true);
+    }
+
+    /**
      * updates the animation counter
      * cares for timed callbacks to continue animation cycles
      * uses mInvalidate for delayed invalidate() callbacks
@@ -409,7 +420,7 @@ public class CircleBattery extends ImageView {
         mHandler.postDelayed(mInvalidate, 50);
     }
 
-    /***
+    /**
      * initializes all size dependent variables
      * sets stroke width and text size of all involved paints
      * YES! i think the method name is appropriate
@@ -420,11 +431,11 @@ public class CircleBattery extends ImageView {
         }
 
         mPaintFont.setTextSize(mCircleSize / 2f);
+
         float strokeWidth = mCircleSize / 7f;
         mPaintRed.setStrokeWidth(strokeWidth);
         mPaintSystem.setStrokeWidth(strokeWidth);
         mPaintGray.setStrokeWidth(strokeWidth / 3.5f);
-
         // calculate rectangle for drawArc calls
         int pLeft = getPaddingLeft();
         mRectLeft = new RectF(pLeft + strokeWidth / 2.0f, 0 + strokeWidth / 2.0f, mCircleSize
@@ -441,7 +452,7 @@ public class CircleBattery extends ImageView {
         onMeasure(0, 0);
     }
 
-    /***
+    /**
      * we need to measure the size of the circle battery by checking another
      * resource. unfortunately, those resources have transparent/empty borders
      * so we have to count the used pixel manually and deduct the size from
@@ -452,7 +463,6 @@ public class CircleBattery extends ImageView {
         final Bitmap measure = BitmapFactory.decodeResource(getResources(),
                 com.android.systemui.R.drawable.stat_sys_wifi_signal_4_fully);
         final int x = measure.getWidth() / 2;
-
         mCircleSize = measure.getHeight();
     }
 }
