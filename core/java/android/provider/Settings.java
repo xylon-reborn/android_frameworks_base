@@ -3278,6 +3278,12 @@ public final class Settings {
         public static final String POWER_MENU_EXPANDED_DESKTOP_ENABLED = "power_menu_expanded_desktop_enabled";
 
         /**
+         * Restart Launcher
+         * @hide
+         */
+        public static final String EXPANDED_DESKTOP_RESTART_LAUNCHER = "expanded_desktop_restart_launcher";
+
+        /**
          * Whether power menu profiles switcher is enabled
          * @hide
          */
