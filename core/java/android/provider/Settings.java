@@ -2774,6 +2774,12 @@ public final class Settings {
         public static final String LOCKSCREEN_AUTO_ROTATE = "lockscreen_auto_rotate";
 
         /**
+         * Automatic keyboard rotation timeout.  0 to disable completely.
+         * @hide
+         */
+        public static final String KEYBOARD_ROTATION_TIMEOUT = "keyboard_rotation_timeout";
+
+        /**
          * Sets the lockscreen background alpha
          * @hide
          */
