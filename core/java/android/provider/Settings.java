@@ -3405,6 +3405,13 @@ public final class Settings {
         public static final String QS_DISABLE_PANEL = "qs_disable_panel";
 
         /**
+         * QuickSettings flip button longpress PowerWidget toggle
+         *
+         * @hide
+         */
+        public static final String QS_LONGPRESS_PW_TOGGLE = "qs_longpress_pw_toggle";
+
+        /**
          * Quick Settings Quick Pulldown
          * @hide
          */
