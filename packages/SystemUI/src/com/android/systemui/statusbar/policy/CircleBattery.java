@@ -60,6 +60,7 @@ public class CircleBattery extends ImageView {
     private boolean mAttached;      // whether or not attached to a window
     private boolean mActivated;     // whether or not activated due to system settings
     private boolean mPercentage;    // whether or not to show percentage number
+    private boolean mIsCharging;    // whether or not device is currently charging
     private boolean mBatteryPlugged;// whether or not battery is currently plugged
     private int     mBatteryStatus; // current battery status
     private int     mLevel;         // current battery level
@@ -82,6 +83,7 @@ public class CircleBattery extends ImageView {
     private int mCircleColor;
     private int mBatteryStyle;
     private int mCircleTextColor;
+    private int mCircleTextChargingColor;
     private int mCircleAnimSpeed;
 
     private SettingsObserver mSettingsObserver;
@@ -104,13 +106,20 @@ public class CircleBattery extends ImageView {
         public void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_BATTERY), false, this);
+                    Settings.System.STATUS_BAR_BATTERY),
+                    false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_COLOR), false, this);
+                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_COLOR),
+                    false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR), false, this);
+                    Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR),
+                    false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED), false, this);
+                    Settings.System.STATUS_BAR_BATTERY_TEXT_CHARGING_COLOR),
+                    false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED),
+                    false, this);
         }
 
         @Override
@@ -301,6 +310,8 @@ public class CircleBattery extends ImageView {
         } else if (internalLevel < 100 && mPercentage) {
             if (internalLevel <= 14) {
                 mPaintFont.setColor(mPaintRed.getColor());
+            } else if (mIsCharging) {
+                mPaintFont.setColor(mCircleTextChargingColor);
             } else {
                 mPaintFont.setColor(mCircleTextColor);
             }
@@ -329,15 +340,21 @@ public class CircleBattery extends ImageView {
                 Settings.System.STATUS_BAR_CIRCLE_BATTERY_COLOR, -2));
         mCircleTextColor = (Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR, -2));
+        mCircleTextChargingColor = (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_BATTERY_TEXT_CHARGING_COLOR, -2));
         mCircleAnimSpeed = (Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED, 3));
 
-        if (mCircleTextColor == -2) {
-            mCircleTextColor = res.getColor(R.color.holo_blue_dark);
-        }
+        int defaultColor = res.getColor(R.color.holo_blue_dark);
 
+        if (mCircleTextColor == -2) {
+            mCircleTextColor = defaultColor;
+        }
+        if (mCircleTextChargingColor == -2) {
+            mCircleTextChargingColor = defaultColor;
+        }
         if (mCircleColor == -2) {
-            mCircleColor = res.getColor(R.color.holo_blue_dark);
+            mCircleColor = defaultColor;
         }
 
         /**

@@ -53,18 +53,19 @@ public class BatteryController extends BroadcastReceiver {
      *
      * set to public to be reused by CircleBattery
      */
-    public  static final int BATTERY_STYLE_CIRCLE                = 3;
-    public  static final int BATTERY_STYLE_CIRCLE_PERCENT        = 4;
-    public  static final int BATTERY_STYLE_DOTTED_CIRCLE         = 5;
+    public  static final int BATTERY_STYLE_CIRCLE                      = 3;
+    public  static final int BATTERY_STYLE_CIRCLE_PERCENT           = 4;
+    public  static final int BATTERY_STYLE_DOTTED_CIRCLE            = 5;
     public  static final int BATTERY_STYLE_DOTTED_CIRCLE_PERCENT = 6;
-    private static final int BATTERY_STYLE_GONE                  = 7;
+    private static final int BATTERY_STYLE_GONE                        = 7;
 
     private static final int BATTERY_TEXT_STYLE_NORMAL  = R.string.status_bar_settings_battery_meter_format;
     private static final int BATTERY_TEXT_STYLE_MIN     = R.string.status_bar_settings_battery_meter_min_format;
 
     private int mLevel = 0;
-    private int mBatteryStyle;
     private int mTextColor = -2;
+    private int mTextChargingColor = -2;
+    private int mBatteryStyle;
     private boolean mBatteryPlugged = false;
     private int mBatteryStatus = BatteryManager.BATTERY_STATUS_UNKNOWN;
 
@@ -78,9 +79,14 @@ public class BatteryController extends BroadcastReceiver {
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_BATTERY), false, this);
+                    Settings.System.STATUS_BAR_BATTERY),
+                    false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR), false, this);
+                    Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR),
+                    false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_BATTERY_TEXT_CHARGING_COLOR),
+                    false, this);
         }
 
         @Override
@@ -259,11 +265,17 @@ public class BatteryController extends BroadcastReceiver {
             v.setPadding(v.getPaddingLeft(),v.getPaddingTop(),
                     pxTextPadding,v.getPaddingBottom());
 
-            if (mLevel <= 14 && !isBatteryPlugged()) {
+            // turn text red at 14% when not on charger - same level android battery warning appears
+            // if no custom color is defined && over 14% use system color
+            // if charging turn to green or to custom user color
+            if (mLevel <= 14 && !mBatteryPlugged) {
                 v.setTextColor(Color.RED);
-            } else if (mTextColor == -2) {
-                v.setTextColor(mContext.getResources().getColor(
-                        com.android.internal.R.color.holo_blue_light));
+            } else if (mTextColor == -2  && !mBatteryPlugged) {
+                v.setTextColor(mContext.getResources().getColor(com.android.internal.R.color.holo_blue_light));
+            } else if (mTextChargingColor != -2  && mBatteryPlugged) {
+                v.setTextColor(mTextChargingColor);
+            } else if (mBatteryPlugged) {
+                v.setTextColor(Color.GREEN);
             } else {
                 v.setTextColor(mTextColor);
             }
@@ -278,6 +290,9 @@ public class BatteryController extends BroadcastReceiver {
 
         mTextColor = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.STATUS_BAR_BATTERY_TEXT_COLOR, -2);
+
+        mTextChargingColor = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_BATTERY_TEXT_CHARGING_COLOR, -2);
 
         updateBattery();
     }
