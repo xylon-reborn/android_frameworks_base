@@ -125,6 +125,7 @@ public class SearchPanelView extends FrameLayout implements
     private int startPosOffset;
 
     private int mNavRingAmount;
+    private int mCurrentUIMode;
     private boolean mLongPress;
     private boolean mSearchPanelLock;
     private int mTarget;
@@ -250,21 +251,29 @@ public class SearchPanelView extends FrameLayout implements
         // Custom Targets
         ArrayList<TargetDrawable> storedDraw = new ArrayList<TargetDrawable>();
 
-        int endPosOffset;
+        int endPosOffset = 0;
         int middleBlanks = 0;
+		 
+        switch (mCurrentUIMode) {
+            case 0 : // Phone Mode
+                if (isScreenPortrait()) { // NavRing on Bottom
+                    startPosOffset =  1;
+                    endPosOffset =  (mNavRingAmount) + 1;
 
-        boolean navbarCanMove = Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 1;
-
-         if (screenLayout() == Configuration.SCREENLAYOUT_SIZE_LARGE || isScreenPortrait()
-                || (screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE && !isScreenPortrait() && !navbarCanMove)) {
-             startPosOffset =  1;
-             endPosOffset =  (mNavRingAmount) + 1;
-         } else {
-                //lastly the standard landscape with navbar on right
-             startPosOffset =  (Math.min(1,mNavRingAmount / 2)) + 2;
-             endPosOffset =  startPosOffset - 1;
-         }
+                } else { // righty... (Ring actually on left side of tablet)
+                    startPosOffset =  (Math.min(1,mNavRingAmount / 2)) + 2;
+                    endPosOffset =  startPosOffset - 1;
+                }
+                break;
+            case 1 : // Tablet Mode // righty... (Ring actually on left side of tablet)
+                    startPosOffset =  1;
+                    endPosOffset = (mNavRingAmount * 3) + 1;
+                    break;
+            case 2 : // Phablet Mode - Search Ring stays at bottom
+                startPosOffset =  1;
+                endPosOffset =  (mNavRingAmount) + 1;
+                break;
+         } 
 
         intentList.clear();
         longList.clear();
@@ -635,5 +644,8 @@ public class SearchPanelView extends FrameLayout implements
 
         mNavRingAmount = Settings.System.getInt(mContext.getContentResolver(),
                          Settings.System.SYSTEMUI_NAVRING_AMOUNT, 1);
+        // Not using getBoolean here, because CURRENT_UI_MODE can be 0,1 or 2
+        mCurrentUIMode = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.CURRENT_UI_MODE, 0);
     }
 }

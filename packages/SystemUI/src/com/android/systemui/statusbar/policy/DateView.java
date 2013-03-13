@@ -89,17 +89,6 @@ public class DateView extends TextView implements OnClickListener, OnLongClickLi
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
-        if (mParent == null) {
-            mParent = (RelativeLayout) getParent();
-            mParent.setOnClickListener(this);
-            mParent.setOnLongClickListener(this);
-        }
-
-        super.onDraw(canvas);
-    }
-
-    @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
         mWindowVisible = visibility == VISIBLE;

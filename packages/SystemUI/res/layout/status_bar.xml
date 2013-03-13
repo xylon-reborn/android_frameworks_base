@@ -135,9 +135,8 @@
                 android:layout_height="match_parent"
                 android:singleLine="true"
                 android:paddingLeft="6dip"
-                android:visibility="gone"
-                android:gravity="center_vertical|left" />
-
+                android:gravity="center_vertical|left"
+                />
         </LinearLayout>
     </LinearLayout>
 
@@ -145,8 +144,8 @@
         android:id="@+id/center_clock_layout"
         android:gravity="center"
         android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
         <com.android.systemui.statusbar.policy.ClockCenter
             android:textAppearance="@style/TextAppearance.StatusBar.Clock"
@@ -155,10 +154,9 @@
             android:paddingLeft="6.0dip"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:visibility="gone"
             android:singleLine="true" />
     </LinearLayout>
-
+        
     <LinearLayout android:id="@+id/ticker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -204,6 +202,5 @@
     <com.android.systemui.statusbar.policy.BatteryBarController
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:visibility="gone"
         systemui:viewLocation="1" />
 </com.android.systemui.statusbar.phone.PhoneStatusBarView>
