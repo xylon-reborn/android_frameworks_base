@@ -1,7 +1,20 @@
-package com.android.systemui.statusbar;
+/*
+ * Copyright 2011 AOKP
+ * Copyright 2013 SlimRoms
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import com.android.systemui.R;
-import com.android.systemui.WidgetSelectActivity;
+package com.android.systemui.statusbar;
 
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
@@ -11,6 +24,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
+import android.graphics.drawable.Drawable;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.provider.Settings;
@@ -28,6 +43,9 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.systemui.R;
+import com.android.systemui.WidgetSelectActivity;
+
 public class WidgetView extends LinearLayout {
 
     private Context mContext;
@@ -35,6 +53,7 @@ public class WidgetView extends LinearLayout {
     public FrameLayout mPopupView;
     public WindowManager mWindowManager;
     int originalHeight = 0;
+    LinearLayout mWidgetPanel;
     TextView mWidgetLabel;
     ViewPager mWidgetPager;
     WidgetPagerAdapter mAdapter;
@@ -92,9 +111,28 @@ public class WidgetView extends LinearLayout {
     }
 
     public void createWidgetView() {
+        if (mPopupView != null) {
+            mPopupView.removeAllViews();
+            mPopupView = null;
+        }
         mPopupView = new FrameLayout(mContext);
         View widgetView = View.inflate(mContext, R.layout.navigation_bar_expanded, null);
         mPopupView.addView(widgetView);
+
+        String settingWidgets = Settings.System.getString(
+                                    mContext.getContentResolver(),
+                                    Settings.System.NAVIGATION_BAR_WIDGETS);
+        if (settingWidgets != null && settingWidgets.length() > 0) {
+            String[] split = settingWidgets.split("\\|");
+            widgetIds = new int[split.length];
+            for (int i = 0; i < widgetIds.length; i++) {
+                widgetIds[i] = Integer.parseInt(split[i]);
+            }
+        } else {
+            widgetIds = null;
+        }
+
+        mWidgetPanel = (LinearLayout) widgetView.findViewById(R.id.widget);
         mWidgetLabel = (TextView) mPopupView.findViewById(R.id.widgetlabel);
         mWidgetPager = (ViewPager) widgetView.findViewById(R.id.pager);
         mWidgetPager.setAdapter(mAdapter = new WidgetPagerAdapter(mContext, widgetIds));
@@ -103,6 +141,35 @@ public class WidgetView extends LinearLayout {
         int dp = mAdapter.getHeight(mWidgetPager.getCurrentItem());
         float px = dp * getResources().getDisplayMetrics().density;
         mWidgetPager.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,(int) px));
+
+        int widgetBGColor = Settings.System.getInt(
+                                mContext.getContentResolver(),
+                                Settings.System.NAVIGATION_BAR_WIDGETS_BG_COLOR,
+                                -2);
+        int widgetTextColor = Settings.System.getInt(
+                                mContext.getContentResolver(),
+                                Settings.System.NAVIGATION_BAR_WIDGETS_TEXT_COLOR,
+                                -2);
+        float widgetAlpha = Settings.System.getFloat(
+                                mContext.getContentResolver(),
+                                Settings.System.NAVIGATION_BAR_WIDGETS_ALPHA,
+                                0.25f);
+
+        if (mWidgetLabel != null) {
+            mWidgetLabel.setText(mAdapter.getLabel(mWidgetPager.getCurrentItem()));
+            if (widgetTextColor != -2) {
+                mWidgetLabel.setTextColor(widgetTextColor);
+            }
+        }
+
+        if (mWidgetPanel != null) {
+            Drawable background = mWidgetPanel.getBackground();
+            background.setColorFilter(null);
+            if (widgetBGColor != -2) {
+                background.setColorFilter(widgetBGColor, Mode.SRC_ATOP);
+            }
+            background.setAlpha((int) ((1-widgetAlpha) * 255));
+        }
 
         mPopupView.setOnTouchListener(new View.OnTouchListener() {
 
@@ -142,8 +209,6 @@ public class WidgetView extends LinearLayout {
                             mWidgetPager.setLayoutParams(
                                     new LayoutParams(LayoutParams.MATCH_PARENT, newheight));
                             newheight = (int) (newheight / getResources().getDisplayMetrics().density);
-                            mAdapter.setSavedHeight(mCurrentWidgetPage, newheight);
-                            //mFirstMoveY = event.getY(); // reset the diff
                             mDowntime = System.currentTimeMillis();
                         }
                         return true;
@@ -161,7 +226,6 @@ public class WidgetView extends LinearLayout {
                 return false;
             }
         });
-
     }
 
     public OnPageChangeListener mNewPageListener = new OnPageChangeListener() {
@@ -198,27 +262,29 @@ public class WidgetView extends LinearLayout {
                 Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_WIDGETS),
                 false,
                 this);
-            updateSettings();
+            resolver.registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_WIDGETS_BG_COLOR),
+                false,
+                this);
+            resolver.registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_WIDGETS_TEXT_COLOR),
+                false,
+                this);
+            resolver.registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_WIDGETS_ALPHA),
+                false,
+                this);
+            resolver.registerContentObserver(
+                Settings.Secure.getUriFor(Settings.Secure.UI_MODE_IS_TOGGLED),
+                false,
+                this);
+            createWidgetView();
         }
 
         @Override
         public void onChange(boolean selfChange) {
-            updateSettings();
+            createWidgetView();
         }
-    }
-
-    protected void updateSettings() {
-        ContentResolver resolver = mContext.getContentResolver();
-        String settingWidgets = Settings.System.getString(resolver,
-                Settings.System.NAVIGATION_BAR_WIDGETS);
-        if (settingWidgets != null && settingWidgets.length() > 0) {
-            String[] split = settingWidgets.split("\\|");
-            widgetIds = new int[split.length];
-            for (int i = 0; i < widgetIds.length; i++) {
-                widgetIds[i] = Integer.parseInt(split[i]);
-            }
-        }
-        createWidgetView();
     }
 
     public class WidgetReceiver extends BroadcastReceiver {
@@ -263,5 +329,4 @@ public class WidgetView extends LinearLayout {
             }
         }
     }
-
 }

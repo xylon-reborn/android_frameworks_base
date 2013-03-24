@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 AOKP
+ * Copyright 2013 SlimRoms
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.systemui.statusbar;
 
@@ -13,6 +28,8 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 
+import com.android.systemui.R;
+
 public class WidgetPagerAdapter extends PagerAdapter {
 
     private static final String TAG = "Widget";
@@ -24,11 +41,11 @@ public class WidgetPagerAdapter extends PagerAdapter {
     AppWidgetManager mAppWidgetManager;
 
     public WidgetPagerAdapter(Context c, int[] ids) {
-    	if (ids != null) {
-    		widgetIds = ids;
-    	} else { // got passed null id set .. create a fake one
-    		widgetIds[0] = -1;
-    	}
+        if (ids != null) {
+            widgetIds = ids;
+        } else { // got passed null id set .. create a fake one
+            widgetIds[0] = -1;
+        }
         mContext = c;
         hostViews = new AppWidgetHostView[widgetIds.length];
         mAppWidgetManager = AppWidgetManager.getInstance(c);
@@ -41,42 +58,47 @@ public class WidgetPagerAdapter extends PagerAdapter {
     }
 
     public int getHeight(int pos) {
-        int height = getSavedHeight(pos);
-        if (height == -1) {
-            if (hostViews[pos] != null && hostViews[pos].getAppWidgetInfo() != null) {
-                height = hostViews[pos].getAppWidgetInfo().minHeight;
+        int height;
+        if (hostViews[pos] != null && hostViews[pos].getAppWidgetInfo() != null) {
+            height = hostViews[pos].getAppWidgetInfo().minHeight;
+        } else if (widgetIds[0] != -1) {
+            AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(widgetIds[0]);
+            if (appWidgetInfo != null) {
+                hostViews[0] = mAppWidgetHost.createView(mContext, widgetIds[0], appWidgetInfo);
+                hostViews[0].setAppWidget(widgetIds[0], appWidgetInfo);
+                height = hostViews[0].getAppWidgetInfo().minHeight;
             } else {
                 height = 100;  // default size
             }
-            setSavedHeight(pos, height);    
+        } else {
+            height = 100;  // default size
         }
+        height = (int) (Math.ceil((double) height/70) * 70) + 40;
         return height;
     }
 
     public String getLabel(int pos) {
-    	if (hostViews[pos] != null && hostViews[pos].getAppWidgetInfo() != null) {
-    		return hostViews[pos].getAppWidgetInfo().label;
-    	} else 
-    		return "Widget";
-    	
-    }
-    private int getSavedHeight(int pos) {
-        SharedPreferences prefs = mContext.getSharedPreferences("widget_adapter",
-                Context.MODE_WORLD_WRITEABLE);
-        return prefs.getInt("widget_id_" + widgetIds[pos], -1);
-    }
-
-    public void setSavedHeight(int pos, int height) {
-        SharedPreferences prefs = mContext.getSharedPreferences("widget_adapter",
-                Context.MODE_WORLD_WRITEABLE);
-        prefs.edit().putInt("widget_id_" + widgetIds[pos], height).commit();
+        if (hostViews[pos] != null && hostViews[pos].getAppWidgetInfo() != null) {
+            return hostViews[pos].getAppWidgetInfo().label;
+        } else if (widgetIds[0] != -1) {
+            AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(widgetIds[0]);
+            if (appWidgetInfo != null) {
+                hostViews[0] = mAppWidgetHost.createView(mContext, widgetIds[0], appWidgetInfo);
+                hostViews[0].setAppWidget(widgetIds[0], appWidgetInfo);
+                return hostViews[0].getAppWidgetInfo().label;
+            } else {
+                return mContext.getResources().getString(R.string.widgets);
+            }
+        } else {
+            return mContext.getResources().getString(R.string.widgets);
+        }
     }
 
     /**
      * Create the page for the given position. The adapter is responsible for
      * adding the view to the container given here, although it only must ensure
      * this is done by the time it returns from {@link #finishUpdate()}.
-     * 
+     *
      * @param container The containing View in which the page will be shown.
      * @param position The page position to be instantiated.
      * @return Returns an Object representing the new page. This does not need
@@ -99,7 +121,7 @@ public class WidgetPagerAdapter extends PagerAdapter {
      * Remove a page for the given position. The adapter is responsible for
      * removing the view from its container, although it only must ensure this
      * is done by the time it returns from {@link #finishUpdate()}.
-     * 
+     *
      * @param container The containing View from which the page will be removed.
      * @param position The page position to be removed.
      * @param object The same object that was returned by
@@ -119,7 +141,7 @@ public class WidgetPagerAdapter extends PagerAdapter {
      * Called when the a change in the shown pages has been completed. At this
      * point you must ensure that all of the pages have actually been added or
      * removed from the container as appropriate.
-     * 
+     *
      * @param container The containing View which is displaying this adapter's
      *            page views.
      */
@@ -151,5 +173,4 @@ public class WidgetPagerAdapter extends PagerAdapter {
             mAppWidgetHost.stopListening();
         }
     }
-
 }

@@ -3842,7 +3842,7 @@ public final class Settings {
          * Control the level of haptic feedback globally by adjusting vibration multiplier
          * @hide
          */
-	public static final String VIBRATION_MULTIPLIER = "vibration_multiplier";
+	    public static final String VIBRATION_MULTIPLIER = "vibration_multiplier";
 
         /**
          * Low battery warning dialog and sound
