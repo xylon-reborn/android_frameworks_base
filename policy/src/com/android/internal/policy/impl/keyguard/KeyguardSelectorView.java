@@ -246,7 +246,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
 
         LinearLayout msgAndShortcutsContainer = (LinearLayout) findViewById(R.id.keyguard_message_and_shortcuts);
         msgAndShortcutsContainer.bringToFront();
-
         mGlowPadView = (GlowPadView) findViewById(R.id.glow_pad_view);
         mGlowPadView.setOnTriggerListener(mOnTriggerListener);
         updateTargets();
@@ -520,6 +519,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         mShortcuts = (KeyguardShortcuts) findViewById(R.id.shortcuts);
         if (mShortcuts != null) {
             mShortcuts.setKeyguardCallback(callback);
+            mShortcuts.setLauncher(mActivityLauncher);
         }
     }
 
