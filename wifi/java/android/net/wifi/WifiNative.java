@@ -857,4 +857,14 @@ public class WifiNative {
        Log.d(mTAG, "setPreferredChannel Command that goes to Supplicant is=" + command);
        return doBooleanCommand(command) && doBooleanCommand("SAVE_CONFIG");
     }
+
+    /* Set the current mode of miracast operation.
+     *  0 = disabled
+     *  1 = operating as source
+     *  2 = operating as sink
+     */
+    public void setMiracastMode(int mode) {
+        // Note: optional feature on the driver. It is ok for this to fail.
+        doBooleanCommand("DRIVER MIRACAST " + mode);
+    }
 }
