@@ -370,7 +370,7 @@ public class PieControlPanel extends FrameLayout implements StatusBarPanel, OnNa
                     InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
     	}
     };
-    
+
     public boolean getKeyguardStatus() {
         return mKeyguardManger.isKeyguardLocked() && mKeyguardManger.isKeyguardSecure();
     }
