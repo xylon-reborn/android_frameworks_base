@@ -1266,8 +1266,9 @@ public class LockPatternUtils {
                 || mode == DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC
                 || mode == DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC
                 || mode == DevicePolicyManager.PASSWORD_QUALITY_COMPLEX;
-        final boolean secure = isPattern && isLockPatternEnabled() && savedPatternExists()
-                || isPassword && savedPasswordExists();
+        final boolean isProfileSecure = mProfileManager.getActiveProfile().getScreenLockModeWithDPM(mContext) == Profile.LockMode.DEFAULT;
+        final boolean secure = (isPattern && isLockPatternEnabled() && savedPatternExists()
+                || isPassword && savedPasswordExists()) && isProfileSecure;
         return secure;
     }
 
