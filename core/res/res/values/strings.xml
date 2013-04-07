@@ -425,9 +425,6 @@
     <!-- status message in phone options dialog for when airplane mode is off -->
     <string name="global_actions_airplane_mode_off_status">Airplane mode is OFF</string>
 
-    <!-- label for item that toggles Navbar Hide -->
-    <string name="global_actions_toggle_navbar_hide">Navbar Controls</string>
-
     <!-- Text to use when the number in a notification info is too large
          (greater than status_bar_notification_info_maxnum, defined in
          values/config.xml) and must be truncated. May need to be localized
@@ -3454,7 +3451,7 @@
 
     <!-- Shown in gadget hosts (e.g. the home screen) when there was an error inflating
     the gadget. -->
-    <string name="gadget_host_error_inflating">Couldn\'t add widget. Maybe you forgot to setup your widget.</string>
+    <string name="gadget_host_error_inflating">Couldn\'t add widget.</string>
 
     <!-- Long label for a button on a full-screen input method for the "Go" action. -->
     <string name="ime_action_go">Go</string>
@@ -3773,6 +3770,9 @@
 
     <!-- Storage description for the SD card. [CHAR LIMIT=NONE] -->
     <string name="storage_sd_card">SD card</string>
+
+    <!-- Storage description for the SD card on the dock. [CHAR LIMIT=NONE] -->
+    <string name="storage_sd_dock_card">Dock SD card</string>
 
     <!-- Storage description for USB storage. [CHAR LIMIT=NONE] -->
     <string name="storage_usb">USB storage</string>

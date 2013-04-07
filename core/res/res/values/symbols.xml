@@ -1833,19 +1833,13 @@
   <!-- From PinyinIME(!!!) -->
   <java-symbol type="string" name="inputMethod" />
 
-<!-- ===============================================================
-   Resources added in version 10 of CyanogenMod
-   =============================================================== -->
-  <eat-comment />
-
   <!-- Config.xml entries -->
   <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
   <java-symbol type="bool" name="config_hasRotationLockSwitch" />
   <java-symbol type="integer" name="config_backKillTimeout" />
   <java-symbol type="bool" name="config_show_cmIMESwitcher"/>
+  <java-symbol type="integer" name="config_wallpaperMaxWidth" />
   <java-symbol type="string" name="config_legacyUmsLunFile" />
-  <java-symbol type="bool" name="config_hasRemovableLid" />
-  <java-symbol type="bool" name="config_hasDockBattery" />
   <java-symbol type="bool" name="config_noDelayInATwoDP" />
 
   <!-- Telephony -->
@@ -1914,9 +1908,10 @@
   <!-- Device specific handlers -->
   <java-symbol type="string" name="config_deviceHandlersLib" />
   <java-symbol type="string" name="config_deviceKeyHandlerClass" />
-  <java-symbol type="string" name="config_deviceDockBatteryHandlerClass" />
 
   <!-- Stylus gestures -->
   <java-symbol type="bool" name="config_stylusGestures" />
 
+  <!-- IME Picker showing upon pressing Sym Key -->
+  <java-symbol type="bool" name="config_symKeyShowsImePicker" />
 </resources>
