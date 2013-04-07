@@ -4339,8 +4339,6 @@ public final class ActivityThread {
         //    VMRuntime.getRuntime().setTargetHeapConcurrentStart(4*1024*1024);
         //}
 
-
-
         android.ddm.DdmHandleAppName.setAppName(data.processName,
                                                 UserHandle.myUserId());
 
@@ -4352,7 +4350,7 @@ public final class ActivityThread {
                 HardwareRenderer.disable(false);
             }
         }
-        
+
         if (mProfiler.profileFd != null) {
             mProfiler.startProfiling();
         }

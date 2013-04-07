@@ -855,7 +855,9 @@ public class Notification implements Parcelable
         }
         // TODO(dsandler): defaults take precedence over local values, so reorder the branches below
         sb.append(" vibrate=");
-        if (this.vibrate != null) {
+        if ((this.defaults & DEFAULT_VIBRATE) != 0) {
+            sb.append("default");
+        } else if (this.vibrate != null) {
             int N = this.vibrate.length-1;
             sb.append("[");
             for (int i=0; i<N; i++) {
@@ -866,16 +868,14 @@ public class Notification implements Parcelable
                 sb.append(this.vibrate[N]);
             }
             sb.append("]");
-        } else if ((this.defaults & DEFAULT_VIBRATE) != 0) {
-            sb.append("default");
         } else {
             sb.append("null");
         }
         sb.append(" sound=");
-        if (this.sound != null) {
-            sb.append(this.sound.toString());
-        } else if ((this.defaults & DEFAULT_SOUND) != 0) {
+        if ((this.defaults & DEFAULT_SOUND) != 0) {
             sb.append("default");
+        } else if (this.sound != null) {
+            sb.append(this.sound.toString());
         } else {
             sb.append("null");
         }
@@ -1390,6 +1390,8 @@ public class Notification implements Parcelable
         /**
          * Add an action to this notification. Actions are typically displayed by
          * the system as a button adjacent to the notification content.
+         * <br>
+         * A notification displays up to 3 actions, from left to right in the order they were added.
          *
          * @param icon Resource ID of a drawable that represents the action.
          * @param title Text describing the action.
