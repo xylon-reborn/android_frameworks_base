@@ -21,5 +21,4 @@ package com.android.internal.os;
  */
 public interface IDeviceHandler {
     public DeviceKeyHandler getDeviceKeyHandler();
-    public DeviceDockBatteryHandler getDeviceDockBatteryHandler();
 }

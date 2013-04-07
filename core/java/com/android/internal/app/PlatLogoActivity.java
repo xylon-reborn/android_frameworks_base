@@ -126,7 +126,6 @@ public class PlatLogoActivity extends Activity {
                 return true;
             }
         });
-        
         setContentView(mContent);
     }
 }

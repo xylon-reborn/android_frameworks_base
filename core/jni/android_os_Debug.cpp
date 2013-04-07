@@ -43,7 +43,6 @@ enum {
     HEAP_UNKNOWN,
     HEAP_DALVIK,
     HEAP_NATIVE,
-    HEAP_STACK,
     HEAP_CURSOR,
     HEAP_ASHMEM,
     HEAP_UNKNOWN_DEV,
@@ -160,13 +159,10 @@ static void read_mapinfo(FILE *fp, stats_t* stats)
             name = line + name_pos;
             nameLen = strlen(name);
 
-            if ((strstr(name, "[heap]") == name) ||
-                (strstr(name, "/dev/ashmem/libc malloc") == name)) {
+            if (strstr(name, "[heap]") == name) {
                 whichHeap = HEAP_NATIVE;
             } else if (strstr(name, "/dev/ashmem/dalvik-") == name) {
                 whichHeap = HEAP_DALVIK;
-            } else if (strstr(name, "[stack") == name) {
-                whichHeap = HEAP_STACK;
             } else if (strstr(name, "/dev/ashmem/CursorWindow") == name) {
                 whichHeap = HEAP_CURSOR;
             } else if (strstr(name, "/dev/ashmem/") == name) {
@@ -181,8 +177,7 @@ static void read_mapinfo(FILE *fp, stats_t* stats)
                 whichHeap = HEAP_APK;
             } else if (nameLen > 4 && strcmp(name+nameLen-4, ".ttf") == 0) {
                 whichHeap = HEAP_TTF;
-            } else if ((nameLen > 4 && strcmp(name+nameLen-4, ".dex") == 0) ||
-                       (nameLen > 5 && strcmp(name+nameLen-5, ".odex") == 0)) {
+            } else if (nameLen > 4 && strcmp(name+nameLen-4, ".dex") == 0) {
                 whichHeap = HEAP_DEX;
             } else if (nameLen > 0) {
                 whichHeap = HEAP_UNKNOWN_MAP;
@@ -513,7 +508,7 @@ static void android_os_Debug_dumpNativeHeap(JNIEnv* env, jobject clazz,
     jobject fileDescriptor)
 {
     if (fileDescriptor == NULL) {
-        jniThrowNullPointerException(env, "fd == null");
+        jniThrowNullPointerException(env, NULL);
         return;
     }
     int origFd = jniGetFDFromFileDescriptor(env, fileDescriptor);
@@ -550,7 +545,7 @@ static void android_os_Debug_dumpNativeBacktraceToFile(JNIEnv* env, jobject claz
     jint pid, jstring fileName)
 {
     if (fileName == NULL) {
-        jniThrowNullPointerException(env, "file == null");
+        jniThrowNullPointerException(env, NULL);
         return;
     }
     const jchar* str = env->GetStringCritical(fileName, 0);
@@ -614,19 +609,6 @@ int register_android_os_Debug(JNIEnv *env)
 {
     jclass clazz = env->FindClass("android/os/Debug$MemoryInfo");
 
-    // Sanity check the number of other statistics expected in Java matches here.
-    jfieldID numOtherStats_field = env->GetStaticFieldID(clazz, "NUM_OTHER_STATS", "I");
-    jint numOtherStats = env->GetStaticIntField(clazz, numOtherStats_field);
-    int expectedNumOtherStats = _NUM_HEAP - _NUM_CORE_HEAP;
-    if (numOtherStats != expectedNumOtherStats) {
-        jniThrowExceptionFmt(env, "java/lang/RuntimeException",
-                             "android.os.Debug.Meminfo.NUM_OTHER_STATS=%d expected %d",
-                             numOtherStats, expectedNumOtherStats);
-        return JNI_ERR;
-    }
-
-    otherStats_field = env->GetFieldID(clazz, "otherStats", "[I");
-
     for (int i=0; i<_NUM_CORE_HEAP; i++) {
         stat_fields[i].pss_field =
                 env->GetFieldID(clazz, stat_field_names[i].pss_name, "I");
@@ -635,6 +617,8 @@ int register_android_os_Debug(JNIEnv *env)
         stat_fields[i].sharedDirty_field =
                 env->GetFieldID(clazz, stat_field_names[i].sharedDirty_name, "I");
     }
+
+    otherStats_field = env->GetFieldID(clazz, "otherStats", "[I");
 
     return jniRegisterNativeMethods(env, "android/os/Debug", gMethods, NELEM(gMethods));
 }
