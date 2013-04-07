@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (C) 2012 ParanoidAndroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -287,7 +286,7 @@ public final class Settings {
      */
     @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
     public static final String ACTION_NOTIFICATION_SHORTCUTS_SETTINGS =
-            "android.settings.notificationshortcuts.NOTIFICATION_SHORTCUTS";
+            "android.settings.liquid.notificationshortcut.NOTIFICATION_SHORTCUTS";
 
     /**
      * Activity Action: Show settings to allow configuration of locale.
@@ -1757,13 +1756,6 @@ public final class Settings {
         public static final String AUTO_BRIGHTNESS_BACKLIGHT = "auto_brightness_backlight";
 
         /**
-         * Touch Key Light Duration
-         *
-         * @hide
-         */
-        public static final String TOUCHKEY_LIGHT_DUR = "touchkey_light_dir";
-
-        /**
          * Whether to enable the electron beam animation when turning screen on
          *
          * @hide */
@@ -1808,12 +1800,6 @@ public final class Settings {
         public static final int VOLUME_OVERLAY_EXPANDED = 2;
         /** @hide */
         public static final int VOLUME_OVERLAY_NONE = 3;
-
-        /**
-         * Ability to enable/disable Daul pane prefs.
-         * @hide
-         */
-        public static final String DUAL_PANE_PREFS = "dual_pane_prefs";
 
         /**
          * Volume Adjust Sounds Enable, This is the noise made when using volume hard buttons
@@ -1902,7 +1888,7 @@ public final class Settings {
          * Whether to prevent loud volume levels when headset is first plugged in.
          * @hide
          */
-        public static final String SAFE_HEADSET_VOLUME_RESTORE = "safe_headset_volume_restore";
+        public static final String SAFE_HEADSET_VOLUME = "safe_headset_volume";
 
         /**
          * Master volume (float in the range 0.0f to 1.0f).
@@ -2532,13 +2518,6 @@ public final class Settings {
          * @hide
          */
         public static final String TORCH_STATE = "torch_state";
-
-       /**
-        * Status Bar notification icon opacity
-        * @hide
-        */
-        public static final String STATUS_BAR_NOTIF_ICON_OPACITY = "status_bar_notif_icon_opacity";
-
         /**
          * Pointer speed setting.
          * This is an integer value in a range between -7 and +7, so there are 15 possible values.
@@ -2765,6 +2744,12 @@ public final class Settings {
         public static final String NOTIFICATION_SHORTCUTS_HIDE_CARRIER = "notification_shortcuts_hide_carrier";
 
         /**
+         * Alt Activity Resolver Grid
+         * @hide
+         */
+        public static final String ACTIVITY_RESOLVER_USE_ALT = "activity_resolver_use_alt";
+
+        /**
          * LiquidSmooth Settings (Lockscreen)
          */
 
@@ -2957,6 +2942,30 @@ public final class Settings {
         public static final String NAVIGATION_BAR_CAN_MOVE = "navigation_bar_can_move";
 
         /**
+         * Widgets to show, should be separated by |
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_WIDGETS = "navigation_bar_widgets";
+
+        /**
+         * Widgets background color
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_WIDGETS_BG_COLOR = "navigation_bar_widgets_bg_color";
+
+        /**
+         * Widgets text color
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_WIDGETS_TEXT_COLOR = "navigation_bar_widgets_text_color";
+
+        /**
+         * Widgets background transparency
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_WIDGETS_ALPHA = "navigation_bar_widgets_alpha";
+
+        /**
          * @hide
          */
         public static final String NAVIGATION_BAR_BUTTONS_QTY = "navigation_bar_buttons_qty";
@@ -3065,11 +3074,6 @@ public final class Settings {
             "navigation_custom_app_icon_5",
             "navigation_custom_app_icon_6",
         };
-
-        /**
-         * @hide
-         */
-        public static final String NAVIGATION_BAR_WIDGETS = "navigation_bar_widgets";
 
         /**
          * @hide
@@ -3664,6 +3668,12 @@ public final class Settings {
         public static final String STATUS_BAR_NOTIFICATION_COUNT = "status_bar_notification_count";
 
         /**
+         * Status Bar notification icon opacity
+         * @hide
+         */
+        public static final String STATUS_BAR_NOTIF_ICON_OPACITY = "status_bar_notif_icon_opacity";
+
+        /**
          * LiquidSmooth Settings (Others)
          */
 
@@ -3827,6 +3837,12 @@ public final class Settings {
         public static final String VOLBTN_MUSIC_CONTROLS = "volbtn_music_controls";
 
         /**
+         * Whether or not to launch default music player when headset is connected
+         * @hide
+         */
+        public static final String HEADSET_CONNECT_PLAYER = "headset_connect_player";
+
+        /**
          * Whether to wake the screen with the volume keys, the value is boolean.
          * @hide
          */
@@ -3842,14 +3858,10 @@ public final class Settings {
          * Control the level of haptic feedback globally by adjusting vibration multiplier
          * @hide
          */
-	    public static final String VIBRATION_MULTIPLIER = "vibration_multiplier";
+        public static final String VIBRATION_MULTIPLIER = "vibration_multiplier";
 
         /**
          * Low battery warning dialog and sound
-         * 0 = off
-         * 1 = dialog only
-         * 2 = sound only
-         * 3 = dialog and sound
          * @hide
          */
         public static final String POWER_UI_LOW_BATTERY_WARNING_POLICY = "power_ui_low_battery_warning_policy";
@@ -3871,6 +3883,30 @@ public final class Settings {
          * @hide
          */
         public static final String MISSED_CALL_BREATH = "missed_call_breath";
+
+        /**
+         * Touch Key Light Duration
+         * @hide
+         */
+        public static final String TOUCHKEY_LIGHT_DUR = "touchkey_light_dir";
+
+        /**
+         * Ability to enable/disable Daul pane prefs.
+         * @hide
+         */
+        public static final String DUAL_PANE_PREFS = "dual_pane_prefs";
+
+        /**
+         * NFC polling mode configuration key
+         * @hide
+         */
+        public static final String NFC_POLLING_MODE = "nfc_polling_mode";
+
+        /**
+         * Lock Volume Keys, Whether to lock ringer volume changes in silent mode.
+         * @hide
+         */
+        public static final String LOCK_VOLUME_KEYS = "lock_volume_keys";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -4090,8 +4126,7 @@ public final class Settings {
                 Global.WIFI_NETWORKS_AVAILABLE_NOTIFICATION_ON;
 
         /**
-         * wake up when plugged or unplugged
-         *
+         * Wake up when plugged or unplugged
          * @hide
          */
         public static final String WAKEUP_WHEN_PLUGGED_UNPLUGGED = "wakeup_when_plugged_unplugged";
@@ -4299,7 +4334,6 @@ public final class Settings {
             MOVED_TO_GLOBAL.add(Settings.Global.USE_GOOGLE_MAIL);
             MOVED_TO_GLOBAL.add(Settings.Global.WEB_AUTOFILL_QUERY_URL);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_COUNTRY_CODE);
-            MOVED_TO_GLOBAL.add(Settings.Global.WIFI_COUNTRY_CODE_USER);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_FRAMEWORK_SCAN_INTERVAL_MS);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_FREQUENCY_BAND);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_IDLE_MS);
@@ -6514,12 +6548,6 @@ public final class Settings {
         * @hide
         */
        public static final String WIFI_COUNTRY_CODE = "wifi_country_code";
-
-        /**
-         * 802.11 country code in ISO 3166 format custom user value
-         * @hide
-         */
-        public static final String WIFI_COUNTRY_CODE_USER = "wifi_country_code_user";
 
        /**
         * The interval in milliseconds to issue wake up scans when wifi needs
