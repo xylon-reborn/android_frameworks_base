@@ -36,7 +36,6 @@
     <!-- the darkening filter applied to notifications -->
     <drawable name="notification_icon_area_smoke">#aa000000</drawable>
     <color name="notification_panel_scrim_color">#B0000000</color>
-
     <!-- Notification Shortcuts -->
     <drawable name="notification_shortcut_background_color">#00000000</drawable>
     <drawable name="notification_item_background_color">#ff111111</drawable>
@@ -58,5 +57,4 @@
     <color name="battery_juice_critical">#ff4444</color>
     <color name="battery_background">#ffffff</color>
     <color name="status">#ffffff</color>
-
 </resources>

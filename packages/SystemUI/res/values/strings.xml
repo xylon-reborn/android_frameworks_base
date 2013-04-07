@@ -521,7 +521,7 @@
     <!-- QuickSettings -->
     <string name="quick_settings_gps">GPS</string>
     <string name="quick_settings_gps_off">GPS off</string>
-    <string name="quick_settings_screen_sleep">Go to sleep</string>
+    <string name="quick_settings_power">Power</string>
     <string name="quick_settings_ringer_on">Sound on</string>
     <string name="quick_settings_ringer_off">Sound off</string>
     <string name="quick_settings_vibration_on">Vibration on</string>
@@ -552,6 +552,10 @@
     <string name="quick_settings_wifiap_off">Wi-Fi AP off</string>
     <string name="quick_settings_lte">LTE</string>
     <string name="quick_settings_lte_off">LTE off</string>
+    <string name="quick_settings_volume">Volume</string>
+    <!-- Expanded desktop strings break the rules a bit - the icon identifies the feature, the string indicates current state -->
+    <string name="quick_settings_expanded_desktop">Expanded</string>
+    <string name="quick_settings_expanded_desktop_off">Normal</string>
 
     <!-- Title of help text shown when the notification panel is pulled down for the very first time. [CHAR LIMIT=NONE] -->
     <string name="status_bar_help_title">Notifications appear here</string>
@@ -565,7 +569,6 @@
     </string>
 
     <!--  Target/Action Strings -->
-    <string name="shortcut_label">Actions</string>
     <string name="action_home">Home</string>
     <string name="action_back">Back</string>
     <string name="action_recents">Recents</string>
@@ -578,8 +581,6 @@
     <string name="action_lastapp">Last App</string>
     <string name="action_none">Empty</string>
 
-    <string name="widgets">Widgets</string>
-    <string name="toggle_widgets">Widgets - Toggle</string>
     <string name="toggle_ring_vib">Ring/Vib - Toggle</string>
     <string name="toggle_ring_silent">Ring/Silent - Toggle</string>
     <string name="toggle_ring_vib_silent">Ring/Vib/Silent - Toggle</string>
@@ -610,5 +611,4 @@
     <string name="pie_hour_format_12">hh:mm</string>
     <string name="pie_hour_format_24">HH:mm</string>
     <string name="pie_am_pm">a</string>
-
 </resources>
