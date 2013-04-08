@@ -893,22 +893,22 @@ public class WifiStateMachine extends StateMachine {
      * TODO: doc
      */
     public void setScanOnlyMode(boolean enable) {
-        if (enable) {
-            sendMessage(obtainMessage(CMD_SET_SCAN_MODE, SCAN_ONLY_MODE, 0));
-        } else {
-            sendMessage(obtainMessage(CMD_SET_SCAN_MODE, CONNECT_MODE, 0));
-        }
+      if (enable) {
+          sendMessage(obtainMessage(CMD_SET_SCAN_MODE, SCAN_ONLY_MODE, 0));
+      } else {
+          sendMessage(obtainMessage(CMD_SET_SCAN_MODE, CONNECT_MODE, 0));
+      }
     }
 
     /**
      * TODO: doc
      */
     public void setScanType(boolean active) {
-        if (active) {
-            sendMessage(obtainMessage(CMD_SET_SCAN_TYPE, SCAN_ACTIVE, 0));
-        } else {
-            sendMessage(obtainMessage(CMD_SET_SCAN_TYPE, SCAN_PASSIVE, 0));
-        }
+      if (active) {
+          sendMessage(obtainMessage(CMD_SET_SCAN_TYPE, SCAN_ACTIVE, 0));
+      } else {
+          sendMessage(obtainMessage(CMD_SET_SCAN_TYPE, SCAN_PASSIVE, 0));
+      }
     }
 
     /**
@@ -1080,14 +1080,6 @@ public class WifiStateMachine extends StateMachine {
      * @param persist {@code true} if the setting should be remembered.
      */
     public void setCountryCode(String countryCode, boolean persist) {
-
-        String countryCodeUser = Settings.Global.getString(mContext.getContentResolver(),
-                Settings.Global.WIFI_COUNTRY_CODE_USER);
-        if (countryCodeUser != null && countryCodeUser != countryCode) {
-            persist = true;
-            countryCode = countryCodeUser;
-        }
-
         if (persist) {
             Settings.Global.putString(mContext.getContentResolver(),
                     Settings.Global.WIFI_COUNTRY_CODE,
