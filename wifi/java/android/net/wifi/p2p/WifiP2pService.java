@@ -1053,48 +1053,48 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
                     //and wait instead for the GO_NEGOTIATION_REQUEST_EVENT.
                     //Handling provision discovery and issuing a p2p_connect before
                     //group negotiation comes through causes issues
-                    break;
+                   break;
                 case WifiP2pManager.CREATE_GROUP:
-                    mAutonomousGroup = true;
-                    int netId = message.arg1;
-                    boolean ret = false;
-                    if (netId == WifiP2pGroup.PERSISTENT_NET_ID) {
-                        // check if the go persistent group is present.
-                        netId = mGroups.getNetworkId(mThisDevice.deviceAddress);
-                        if (netId != -1) {
-                            ret = mWifiNative.p2pGroupAdd(netId);
-                        } else {
-                            ret = mWifiNative.p2pGroupAdd(true);
-                        }
-                    } else {
-                        ret = mWifiNative.p2pGroupAdd(false);
-                    }
+                   mAutonomousGroup = true;
+                   int netId = message.arg1;
+                   boolean ret = false;
+                   if (netId == WifiP2pGroup.PERSISTENT_NET_ID) {
+                       // check if the go persistent group is present.
+                       netId = mGroups.getNetworkId(mThisDevice.deviceAddress);
+                       if (netId != -1) {
+                           ret = mWifiNative.p2pGroupAdd(netId);
+                       } else {
+                           ret = mWifiNative.p2pGroupAdd(true);
+                       }
+                   } else {
+                       ret = mWifiNative.p2pGroupAdd(false);
+                   }
 
-                    if (ret) {
-                        replyToMessage(message, WifiP2pManager.CREATE_GROUP_SUCCEEDED);
-                        transitionTo(mGroupNegotiationState);
-                    } else {
-                        replyToMessage(message, WifiP2pManager.CREATE_GROUP_FAILED,
-                                WifiP2pManager.ERROR);
-                        // remain at this state.
-                    }
-                    break;
+                   if (ret) {
+                       replyToMessage(message, WifiP2pManager.CREATE_GROUP_SUCCEEDED);
+                       transitionTo(mGroupNegotiationState);
+                   } else {
+                       replyToMessage(message, WifiP2pManager.CREATE_GROUP_FAILED,
+                               WifiP2pManager.ERROR);
+                       // remain at this state.
+                   }
+                   break;
                 case WifiMonitor.P2P_GROUP_STARTED_EVENT:
-                    mGroup = (WifiP2pGroup) message.obj;
-                    if (DBG) logd(getName() + " group started");
+                   mGroup = (WifiP2pGroup) message.obj;
+                   if (DBG) logd(getName() + " group started");
 
                     // We hit this scenario when a persistent group is reinvoked
-                    if (mGroup.getNetworkId() == WifiP2pGroup.PERSISTENT_NET_ID) {
-                        mAutonomousGroup = false;
-                        deferMessage(message);
-                        transitionTo(mGroupNegotiationState);
-                    } else {
-                        loge("Unexpected group creation, remove " + mGroup);
-                        mWifiNative.p2pGroupRemove(mGroup.getInterface());
-                    }
-                    break;
+                   if (mGroup.getNetworkId() == WifiP2pGroup.PERSISTENT_NET_ID) {
+                       mAutonomousGroup = false;
+                       deferMessage(message);
+                       transitionTo(mGroupNegotiationState);
+                   } else {
+                       loge("Unexpected group creation, remove " + mGroup);
+                       mWifiNative.p2pGroupRemove(mGroup.getInterface());
+                   }
+                   break;
                 default:
-                    return NOT_HANDLED;
+                   return NOT_HANDLED;
             }
             return HANDLED;
         }
