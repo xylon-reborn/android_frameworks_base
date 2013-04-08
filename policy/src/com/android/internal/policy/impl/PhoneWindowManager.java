@@ -1,5 +1,6 @@
 /*
- * File modifications copyright (C) 2012 The CyanogenMod Project
+ * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2012-2013 The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +69,7 @@ import android.os.Vibrator;
 import android.provider.Settings;
 
 import com.android.internal.R;
+import com.android.internal.app.ThemeUtils;
 import com.android.internal.os.DeviceKeyHandler;
 import com.android.internal.os.IDeviceHandler;
 import com.android.internal.policy.PolicyManager;
@@ -166,6 +168,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.lang.reflect.Constructor;
 
 /**
  * WindowManagerPolicy implementation for the Android phone UI.  This
@@ -346,7 +349,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mUiMode;
     int mDockMode = Intent.EXTRA_DOCK_STATE_UNDOCKED;
     int mLidOpenRotation;
-    boolean mHasRemovableLid;
     int mCarDockRotation;
     int mDeskDockRotation;
     int mHdmiRotation;
@@ -1024,7 +1026,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     triggerVirtualKeypress(KeyEvent.KEYCODE_SEARCH);
                     break;
                 case KEY_ACTION_KILL_APP:
-                    mHandler.postDelayed(mBackLongPress, mBackKillTimeout);
+                    mHandler.postDelayed(mBackLongPress, mBackKillTimeout - 500);
                     break;
                 case KEY_ACTION_WIDGETS:
                     try {
@@ -1217,8 +1219,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 com.android.internal.R.integer.config_lidNavigationAccessibility);
         mLidControlsSleep = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_lidControlsSleep);
-        mHasRemovableLid = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_hasRemovableLid);
         mBackKillTimeout = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_backKillTimeout);
         mDeviceHardwareKeys = mContext.getResources().getInteger(
@@ -1605,8 +1605,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         if (updateRotation) {
             updateRotation(true);
-        }
-        if(mDisplay != null) {
+
+        if (mDisplay != null) {
             setInitialDisplaySize(mDisplay, mUnrestrictedScreenWidth, mUnrestrictedScreenHeight, density);
         }
     }
@@ -4740,11 +4740,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
 
             final int preferredRotation;
-            if ((mLidState == LID_OPEN && mLidOpenRotation >= 0)
-                    && !(mHasRemovableLid
-                            && mDockMode == Intent.EXTRA_DOCK_STATE_UNDOCKED)) {
-                // Ignore sensor when lid switch is open and rotation is forced
-                // and a removable lid was not undocked.
+            if (mLidState == LID_OPEN && mLidOpenRotation >= 0) {
+                // Ignore sensor when lid switch is open and rotation is forced.
                 preferredRotation = mLidOpenRotation;
             } else if (mDockMode == Intent.EXTRA_DOCK_STATE_CAR
                     && (mCarDockEnablesAccelerometer || mCarDockRotation >= 0)) {
@@ -5390,9 +5387,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return diff;
     }
 
-    // Used for menu button behaviour etc which we let stay for hardware key
-    // devices like it should without navbar. See for more details
-    // PhoneWindowManager.java @Line 1115
+    // Use this instead of checking config_showNavigationBar so that it can be consistently
+    // overridden by qemu.hw.mainkeys in the emulator.
     public boolean hasNavigationBar() {
         return mHasNavigationBar;
     }
