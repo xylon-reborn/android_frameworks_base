@@ -957,6 +957,14 @@ public class TabletStatusBar extends BaseStatusBar implements
                 mHandler.sendEmptyMessage(MSG_CLOSE_RECENTS_PANEL);
             }
         }
+        if ((diff & (StatusBarManager.DISABLE_HOME
+                | StatusBarManager.DISABLE_RECENT
+                | StatusBarManager.DISABLE_BACK
+                | StatusBarManager.DISABLE_SEARCH)) != 0) {
+
+            // all navigation bar listeners will take care of these
+            propagateDisabledFlags(state);
+        }
     }
 
     private void setNavigationVisibility(int visibility) {
@@ -1035,7 +1043,6 @@ public class TabletStatusBar extends BaseStatusBar implements
             mHandler.removeMessages(MSG_CLOSE_COMPAT_MODE_PANEL);
             mHandler.sendEmptyMessage(MSG_CLOSE_COMPAT_MODE_PANEL);
         }
-
     }
 
     @Override
@@ -1054,6 +1061,20 @@ public class TabletStatusBar extends BaseStatusBar implements
         }
 
         mNavigationIconHints = hints;
+
+        mBackButton.setAlpha(
+            (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_NOP)) ? 0.5f : 1.0f);
+        mHomeButton.setAlpha(
+            (0 != (hints & StatusBarManager.NAVIGATION_HINT_HOME_NOP)) ? 0.5f : 1.0f);
+        mRecentButton.setAlpha(
+            (0 != (hints & StatusBarManager.NAVIGATION_HINT_RECENT_NOP)) ? 0.5f : 1.0f);
+
+        mBackButton.setImageResource(
+            (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_ALT))
+                ? R.drawable.ic_sysbar_back_ime
+                : R.drawable.ic_sysbar_back);
+
+        propagateNavigationIconHints(hints);
     }
 
     private void notifyUiVisibilityChanged() {
@@ -1103,6 +1124,7 @@ public class TabletStatusBar extends BaseStatusBar implements
             Slog.d(TAG, (showMenu?"showing":"hiding") + " the MENU button");
         }
         mMenuButton.setVisibility(showMenu ? View.VISIBLE : View.GONE);
+        propagateMenuVisibility(showMenu);
 
         // See above re: lights-out policy for legacy apps.
         if (showMenu) setLightsOn(true);
@@ -1536,5 +1558,4 @@ public class TabletStatusBar extends BaseStatusBar implements
                 || (mDisabled & StatusBarManager.DISABLE_HOME) != 0;
     }
 }
-
 
