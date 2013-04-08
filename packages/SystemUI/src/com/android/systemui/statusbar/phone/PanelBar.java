@@ -19,7 +19,6 @@ package com.android.systemui.statusbar.phone;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Slog;
 import java.util.Hashtable;
@@ -208,7 +207,6 @@ public class PanelBar extends FrameLayout {
             go(STATE_CLOSED);
             onAllPanelsCollapsed();
         }
-
         if(mStatusBar.mPieControlPanel != null) mStatusBar.mPieControlPanel.animateCollapsePanels();
     }
 
