@@ -428,9 +428,9 @@ public class WifiConfiguration implements Parcelable {
         BSSID = null;
         priority = 0;
         hiddenSSID = false;
-        status = WifiConfiguration.Status.DISABLED;
         isIBSS = false;
         frequency = 0;
+        status = WifiConfiguration.Status.DISABLED;
         disableReason = DISABLED_UNKNOWN_REASON;
         allowedKeyManagement = new BitSet();
         allowedProtocols = new BitSet();
@@ -629,9 +629,9 @@ public class WifiConfiguration implements Parcelable {
             wepTxKeyIndex = source.wepTxKeyIndex;
             priority = source.priority;
             hiddenSSID = source.hiddenSSID;
-            status = source.status;
             isIBSS = source.isIBSS;
             frequency = source.frequency;
+            status = source.status;
             allowedKeyManagement   = (BitSet) source.allowedKeyManagement.clone();
             allowedProtocols       = (BitSet) source.allowedProtocols.clone();
             allowedAuthAlgorithms  = (BitSet) source.allowedAuthAlgorithms.clone();
