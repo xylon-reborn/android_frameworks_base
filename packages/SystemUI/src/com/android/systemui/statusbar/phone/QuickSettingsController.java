@@ -227,8 +227,6 @@ public class QuickSettingsController {
                 qs = createTile(deviceSupportsTelephony(), tileName, instanceID, inflater);
             } else if (tileName.equals(TILE_PROFILE)) {
                 qs = createTile(systemProfilesEnabled(resolver), tileName, instanceID, inflater);
-            } else if (tileName.equals(TILE_USBTETHER)){
-                qs = createTile(deviceSupportsUsbTether(), tileName, instanceID, inflater);
             } else {
                 qs = createTile(true, tileName, instanceID, inflater);
             }
