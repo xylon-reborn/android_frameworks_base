@@ -87,7 +87,6 @@ class ServerThread extends Thread {
 
     public static final String FAST_CHARGE_DIR = "/sys/kernel/fast_charge";
     public static final String FAST_CHARGE_FILE = "force_fast_charge";
-
     ContentResolver mContentResolver;
 
     void reportWtf(String msg, Throwable e) {
@@ -1085,7 +1084,6 @@ class ServerThread extends Thread {
     }
 
     static final void startSystemUi(Context context) {
-
         // restore fast charge state before starting systemui
         boolean enabled = Settings.System.getInt(context.getContentResolver(), Settings.System.FCHARGE_ENABLED, 0) == 1;
             try {
@@ -1103,7 +1101,6 @@ class ServerThread extends Thread {
                     Settings.System.putInt(context.getContentResolver(),
                          Settings.System.FCHARGE_ENABLED, 0);
                 }
-
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.android.systemui",
                     "com.android.systemui.SystemUIService"));
