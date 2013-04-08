@@ -199,14 +199,16 @@ android.app.backup.BackupHelperDispatcher$Header
 android.app.backup.FileBackupHelperBase
 android.app.backup.FullBackup
 android.appwidget.AppWidgetManager
+android.bluetooth.BluetoothAudioGateway
 android.bluetooth.BluetoothSocket
+android.bluetooth.HeadsetBase
 android.bluetooth.IBluetooth
 android.bluetooth.IBluetooth$Stub
 android.bluetooth.IBluetoothA2dp
 android.bluetooth.IBluetoothA2dp$Stub
 android.content.AbstractThreadedSyncAdapter
 android.content.AbstractThreadedSyncAdapter$ISyncAdapterImpl
-android.content.AbstractThreadedSyncAdapter$SyncThread
+undroid.content.AbstractThreadedSyncAdapter$SyncThread
 android.content.BroadcastReceiver
 android.content.BroadcastReceiver$PendingResult
 android.content.ComponentCallbacks
@@ -735,6 +737,9 @@ android.provider.Settings$NameValueTable
 android.provider.Settings$Secure
 android.provider.Settings$System
 android.renderscript.RenderScript
+android.server.BluetoothA2dpService
+android.server.BluetoothEventLoop
+android.server.BluetoothService
 android.telephony.PhoneNumberUtils
 android.telephony.TelephonyManager
 android.text.AndroidBidi
@@ -839,6 +844,7 @@ android.util.EventLog$Event
 android.util.FinitePool
 android.util.FloatMath
 android.util.FloatProperty
+android.util.LocaleUtil
 android.util.Log
 android.util.Log$1
 android.util.Log$TerribleFailureHandler
@@ -1016,6 +1022,7 @@ android.view.ViewRootImpl$ConsumeBatchedInputRunnable
 android.view.ViewRootImpl$InputMethodCallback
 android.view.ViewRootImpl$InvalidateOnAnimationRunnable
 android.view.ViewRootImpl$QueuedInputEvent
+android.view.ViewRootImpl$ResizedInfo
 android.view.ViewRootImpl$RunQueue
 android.view.ViewRootImpl$RunQueue$HandlerAction
 android.view.ViewRootImpl$TrackballAxis
@@ -1035,6 +1042,7 @@ android.view.ViewTreeObserver$OnScrollChangedListener
 android.view.ViewTreeObserver$OnTouchModeChangeListener
 android.view.Window
 android.view.Window$Callback
+android.view.Window$LocalWindowManager
 android.view.WindowLeaked
 android.view.WindowManager
 android.view.WindowManager$LayoutParams
@@ -1042,6 +1050,7 @@ android.view.WindowManager$LayoutParams$1
 android.view.WindowManagerGlobal
 android.view.WindowManagerGlobal$1
 android.view.WindowManagerImpl
+android.view.WindowManagerImpl$CompatModeWrapper
 android.view.accessibility.AccessibilityEvent
 android.view.accessibility.AccessibilityEventSource
 android.view.accessibility.AccessibilityManager
@@ -1834,6 +1843,7 @@ java.text.CharacterIterator
 java.text.DateFormat
 java.text.DateFormatSymbols
 java.text.DecimalFormat
+java.text.DecimalFormat$1
 java.text.DecimalFormatSymbols
 java.text.FieldPosition
 java.text.Format
@@ -1985,6 +1995,7 @@ java.util.concurrent.Executors$FinalizableDelegatedExecutorService
 java.util.concurrent.Future
 java.util.concurrent.FutureTask
 java.util.concurrent.FutureTask$WaitNode
+java.util.concurrent.FutureTask$Sync
 java.util.concurrent.LinkedBlockingQueue
 java.util.concurrent.LinkedBlockingQueue$Node
 java.util.concurrent.RejectedExecutionHandler
@@ -2004,6 +2015,7 @@ java.util.concurrent.TimeUnit$7
 java.util.concurrent.atomic.AtomicBoolean
 java.util.concurrent.atomic.AtomicInteger
 java.util.concurrent.atomic.AtomicReference
+java.util.concurrent.atomic.UnsafeAccess
 java.util.concurrent.locks.AbstractOwnableSynchronizer
 java.util.concurrent.locks.AbstractQueuedSynchronizer
 java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject
@@ -2022,6 +2034,7 @@ java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock
 java.util.concurrent.locks.ReentrantReadWriteLock$Sync
 java.util.concurrent.locks.ReentrantReadWriteLock$Sync$ThreadLocalHoldCounter
 java.util.concurrent.locks.ReentrantReadWriteLock$WriteLock
+java.util.concurrent.locks.UnsafeAccess
 java.util.jar.Attributes
 java.util.jar.Attributes$Name
 java.util.jar.InitManifest
@@ -2098,6 +2111,7 @@ javax.net.ssl.X509ExtendedKeyManager
 javax.net.ssl.X509KeyManager
 javax.net.ssl.X509TrustManager
 javax.security.auth.x500.X500Principal
+libcore.icu.ErrorCode
 libcore.icu.ICU
 libcore.icu.LocaleData
 libcore.icu.NativeBreakIterator
@@ -2108,6 +2122,7 @@ libcore.icu.NativeDecimalFormat$FieldPositionIterator
 libcore.icu.NativeIDN
 libcore.icu.NativeNormalizer
 libcore.icu.NativePluralRules
+libcore.icu.TimeZones
 libcore.internal.StringPool
 libcore.io.AsynchronousCloseMonitor
 libcore.io.Base64
