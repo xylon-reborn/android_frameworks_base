@@ -837,8 +837,18 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
 
                         // Send BT state broadcast to update
                         // the BT icon correctly
-                        bluetoothStateChangeHandler(BluetoothAdapter.STATE_ON,
-                                                    BluetoothAdapter.STATE_TURNING_OFF);
+                        if ((mState == BluetoothAdapter.STATE_TURNING_ON) ||
+                            (mState == BluetoothAdapter.STATE_ON)) {
+                            bluetoothStateChangeHandler(BluetoothAdapter.STATE_ON,
+                                                        BluetoothAdapter.STATE_TURNING_OFF);
+                            mState = BluetoothAdapter.STATE_TURNING_OFF;
+                        }
+                        if (mState == BluetoothAdapter.STATE_TURNING_OFF) {
+                            bluetoothStateChangeHandler(BluetoothAdapter.STATE_TURNING_OFF,
+                                                        BluetoothAdapter.STATE_OFF);
+                        }
+
+                        mHandler.removeMessages(MESSAGE_BLUETOOTH_STATE_CHANGE);
                         mState = BluetoothAdapter.STATE_OFF;
                     }
                     break;
@@ -882,11 +892,22 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
                                 }
                             }
                         }
-                        mHandler.removeMessages(MESSAGE_BLUETOOTH_STATE_CHANGE);
+
+                        if (mState == BluetoothAdapter.STATE_TURNING_OFF) {
+                            // MESSAGE_USER_SWITCHED happened right after MESSAGE_ENABLE
+                            bluetoothStateChangeHandler(mState, BluetoothAdapter.STATE_OFF);
+                            mState = BluetoothAdapter.STATE_OFF;
+                        }
+                        if (mState == BluetoothAdapter.STATE_OFF) {
+                            bluetoothStateChangeHandler(mState, BluetoothAdapter.STATE_TURNING_ON);
+                            mState = BluetoothAdapter.STATE_TURNING_ON;
+                        }
 
                         waitForOnOff(true, false);
 
-                        bluetoothStateChangeHandler(mState, BluetoothAdapter.STATE_ON);
+                        if (mState == BluetoothAdapter.STATE_TURNING_ON) {
+                            bluetoothStateChangeHandler(mState, BluetoothAdapter.STATE_ON);
+                        }
 
                         // disable
                         handleDisable();
@@ -896,9 +917,8 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
 
                         waitForOnOff(false, true);
 
-                        bluetoothStateChangeHandler(BluetoothAdapter.STATE_ON,
+                        bluetoothStateChangeHandler(BluetoothAdapter.STATE_TURNING_OFF,
                                                     BluetoothAdapter.STATE_OFF);
-                        mState = BluetoothAdapter.STATE_OFF;
                         sendBluetoothServiceDownCallback();
                         synchronized (mConnection) {
                             if (mBluetooth != null) {
@@ -909,6 +929,8 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
                         }
                         SystemClock.sleep(100);
 
+                        mHandler.removeMessages(MESSAGE_BLUETOOTH_STATE_CHANGE);
+                        mState = BluetoothAdapter.STATE_OFF;
                         // enable
                         handleEnable(mQuietEnable);
 		    } else if (mBinding || mBluetooth != null) {
@@ -1027,14 +1049,9 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
                 sendBluetoothStateCallback(isUp);
 
                 //If Bluetooth is off, send service down event to proxy objects, and unbind
-                if (!isUp) {
-                    //Only unbind with mEnable flag not set
-                    //For race condition: disable and enable back-to-back
-                    //Avoid unbind right after enable due to callback from disable
-                    if ((!mEnable) && (mBluetooth != null)) {
-                        sendBluetoothServiceDownCallback();
-                        unbindAndFinish();
-                    }
+                if (!isUp && canUnbindBluetoothService()) {
+                    sendBluetoothServiceDownCallback();
+                    unbindAndFinish();
                 }
             }
 
