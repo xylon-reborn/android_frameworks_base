@@ -22,7 +22,6 @@ import android.content.res.Resources;
 import android.os.Binder;
 import android.util.Log;
 
-import com.android.internal.os.DeviceDockBatteryHandler;
 import com.android.internal.os.DeviceKeyHandler;
 import com.android.internal.os.IDeviceHandler;
 
@@ -34,7 +33,6 @@ import java.lang.reflect.Constructor;
  * DeviceHandlerService exposed device specific handlers to other services.
  * All specific device, not implemented by aosp, should be included here.
  * @see DeviceKeyHandler
- * @see DeviceDockBatteryHandler
  * @hide
  */
 public final class DeviceHandlerService extends Binder implements IDeviceHandler {
@@ -45,7 +43,6 @@ public final class DeviceHandlerService extends Binder implements IDeviceHandler
     private final Context mContext;
 
     private DeviceKeyHandler mDeviceKeyHandler = null;
-    private DeviceDockBatteryHandler mDeviceDockBatteryHandler = null;
 
     public DeviceHandlerService(Context context) {
         mContext = context;
@@ -78,22 +75,6 @@ public final class DeviceHandlerService extends Binder implements IDeviceHandler
         if (!handlerClass.isEmpty()) {
             mDeviceKeyHandler = (DeviceKeyHandler)getHandler(classLoader, "key", handlerClass);
         }
-
-        // ------------------
-        // DeviceDockBatteryHandler
-        // ------------------
-        // Has dock battery? and device specific handler?
-        boolean hasDockBattery = res.getBoolean(com.android.internal.R.bool.config_hasDockBattery);
-        if (hasDockBattery) {
-            handlerClass =
-                    res.getString(
-                            com.android.internal.R.string.config_deviceDockBatteryHandlerClass);
-            if (!handlerClass.isEmpty()) {
-                mDeviceDockBatteryHandler =
-                        (DeviceDockBatteryHandler)getHandler(
-                                classLoader, "dock battery", handlerClass);
-            }
-        }
     }
 
     private Object getHandler(final ClassLoader classLoader,
@@ -117,9 +98,5 @@ public final class DeviceHandlerService extends Binder implements IDeviceHandler
 
     public DeviceKeyHandler getDeviceKeyHandler() {
         return mDeviceKeyHandler;
-    }
-
-    public DeviceDockBatteryHandler getDeviceDockBatteryHandler() {
-        return mDeviceDockBatteryHandler;
     }
 }
