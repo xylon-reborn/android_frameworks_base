@@ -1605,6 +1605,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         if (updateRotation) {
             updateRotation(true);
+        }
 
         if (mDisplay != null) {
             setInitialDisplaySize(mDisplay, mUnrestrictedScreenWidth, mUnrestrictedScreenHeight, density);
@@ -4530,6 +4531,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
         }
     };
+
     BroadcastReceiver mWifiDisplayReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
@@ -4670,7 +4672,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (mKeyguardMediator == null) return false;
         return mKeyguardMediator.isShowingAndNotHidden();
     }
-
 
     /** {@inheritDoc} */
     public boolean isKeyguardLocked() {
@@ -4913,7 +4914,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean isAnyPortrait(int rotation) {
         return rotation == mPortraitRotation || rotation == mUpsideDownRotation;
     }
-
 
     // User rotation: to be used when all else fails in assigning an orientation to the device
     public void setUserRotationMode(int mode, int rot) {
@@ -5283,6 +5283,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         ringTone.setStreamType(AudioManager.STREAM_MUSIC);
         ringTone.play();
     }
+
     private boolean isGlobalAccessibilityGestureEnabled() {
         return Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.ENABLE_ACCESSIBILITY_GLOBAL_GESTURE_ENABLED, 0) == 1;
@@ -5576,3 +5577,4 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 pw.print(" mHdmiRotationLock="); pw.println(mHdmiRotationLock);
     }
 }
+
