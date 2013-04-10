@@ -314,7 +314,7 @@ class ServerThread extends Thread {
             lights = new LightsService(context);
 
             Slog.i(TAG, "Battery Service");
-            battery = new BatteryService(context, lights, device);
+            battery = new BatteryService(context, lights);
             ServiceManager.addService("battery", battery);
 
             Slog.i(TAG, "Vibrator Service");
