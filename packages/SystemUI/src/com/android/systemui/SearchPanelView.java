@@ -106,6 +106,7 @@ public class SearchPanelView extends FrameLayout implements
     private final Context mContext;
     private BaseStatusBar mBar;
     private StatusBarTouchProxy mStatusBarTouchProxy;
+    private SettingsObserver mObserver;
 
     private boolean mShowing;
     private View mSearchTargetsContainer;
@@ -147,18 +148,7 @@ public class SearchPanelView extends FrameLayout implements
 
         mContentResolver = mContext.getContentResolver();
         mLiquidTarget = new LiquidTarget(context);
-        mSettingsObserver = new SettingsObserver(new Handler());
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        mSettingsObserver.observe();
-        updateSettings();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        mContentResolver.unregisterContentObserver(mSettingsObserver);
+        mObserver = new SettingsObserver(new Handler());
     }
 
     private class H extends Handler {
@@ -247,9 +237,6 @@ public class SearchPanelView extends FrameLayout implements
         // TODO: fetch views
         mGlowPadView = (GlowPadView) findViewById(R.id.glow_pad_view);
         mGlowPadView.setOnTriggerListener(mGlowPadViewListener);
-
-        updateSettings();
-        setDrawables();
     }
 
     private void setDrawables() {
@@ -520,6 +507,21 @@ public class SearchPanelView extends FrameLayout implements
         return true;
     }
 
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        mObserver.observe();
+        updateSettings();
+        setDrawables();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mObserver.unobserve();
+    }
+
     /**
      * Whether the panel is showing, or, if it's animating, whether it will be
      * when the animation is done.
@@ -603,7 +605,10 @@ public class SearchPanelView extends FrameLayout implements
                         false, this);
 
             }
+        }
 
+        void unobserve() {
+            mContext.getContentResolver().unregisterContentObserver(this);
         }
 
         @Override
