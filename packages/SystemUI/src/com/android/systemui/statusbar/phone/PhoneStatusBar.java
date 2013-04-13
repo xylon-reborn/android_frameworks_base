@@ -380,6 +380,8 @@ public class PhoneStatusBar extends BaseStatusBar {
                     Settings.System.NOTIFICATION_SHORTCUTS_TOGGLE), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NOTIFICATION_SHORTCUTS_HIDE_CARRIER), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.AUTO_HIDE_STATUSBAR), false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -402,6 +404,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             if (mCarrierLabel != null) {
                 toggleCarrierAndWifiLabelVisibility();
             }
+            updateStatusBarVisibility();
         }
     }
 
@@ -1235,6 +1238,18 @@ public class PhoneStatusBar extends BaseStatusBar {
         setAreThereNotifications();
     }
 
+    private void updateStatusBarVisibility() {
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.AUTO_HIDE_STATUSBAR, 0) == 1) {
+            Settings.System.putInt(mContext.getContentResolver(),
+                    Settings.System.HIDE_STATUSBAR,
+                    (mNotificationData.size() == 0) ? 1 : 0);
+        } else {
+            Settings.System.putInt(mContext.getContentResolver(),
+                    Settings.System.HIDE_STATUSBAR, 0);
+        }
+    }
+
     private void updateShowSearchHoldoff() {
         mShowSearchHoldoff = mContext.getResources().getInteger(
             R.integer.config_show_search_delay);
@@ -1476,6 +1491,8 @@ public class PhoneStatusBar extends BaseStatusBar {
                 })
                 .start();
         }
+
+        if (mNotificationData.size() < 2) updateStatusBarVisibility();
 
         updateCarrierAndWifiLabelVisibility(false);
     }
