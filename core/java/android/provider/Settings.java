@@ -2756,6 +2756,12 @@ public final class Settings {
         public static final String ACTIVITY_RESOLVER_USE_ALT = "activity_resolver_use_alt";
 
         /**
+         * Select Classic Recents menu style [GB-]
+         * @hide
+         */
+        public static final String CLASSIC_RECENTS_MENU = "classic_recents_menu";
+
+        /**
          * LiquidSmooth Settings (Lockscreen)
          */
 
