@@ -3698,6 +3698,12 @@ public final class Settings {
         public static final String HIDE_STATUSBAR = "hide_statusbar";
 
         /**
+         * Whether Status Bar is currently hidden or not for notification
+         * @hide
+         */
+        public static final String TOGGLE_NOTIFICATION_SHADE = "toggle_notification_shade";
+
+        /**
          * LiquidSmooth Settings (Others)
          */
 
