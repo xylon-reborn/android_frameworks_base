@@ -118,8 +118,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected static final boolean ENABLE_INTRUDERS = false;
 
-    private WidgetView mWidgetView;
-
     // Should match the value in PhoneWindowManager
     public static final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
 
