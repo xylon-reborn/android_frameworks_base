@@ -1430,6 +1430,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     public void updateSettings() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(metrics);
+        int density = metrics.densityDpi;
         ContentResolver resolver = mContext.getContentResolver();
 
         mExpandedMode = Settings.System.getInt(mContext.getContentResolver(),
@@ -1634,15 +1638,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (mDisplay != null) {
             setInitialDisplaySize(mDisplay, mUnrestrictedScreenWidth, mUnrestrictedScreenHeight, density);
         }
-    }
-
-    private void resetScreenHelper() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(metrics);
-        int density = metrics.densityDpi;
-        if(mDisplay != null)
-            setInitialDisplaySize(mDisplay, mUnrestrictedScreenWidth, mUnrestrictedScreenHeight, density);
     }
 
     private void enablePointerLocation() {
@@ -5616,4 +5611,3 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 pw.print(" mHdmiRotationLock="); pw.println(mHdmiRotationLock);
     }
 }
-
