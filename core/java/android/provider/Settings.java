@@ -3801,7 +3801,9 @@ public final class Settings {
         public static final String HOME_UNLOCK_SCREEN = "home_unlock_screen";
 
         /**
-         * Whether to unlock the menu key.  The value is boolean (1 or 0).
+         * Control the display of the action overflow button within app UI.
+         * 0 = use system default
+         * 1 = force on
          * @hide
          */
         public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
@@ -4000,6 +4002,15 @@ public final class Settings {
          * @hide
          */
         public static final String NFC_POLLING_MODE = "nfc_polling_mode";
+
+        /**
+         * MediaScanner behavior on boot.
+         * 0 = enabled
+         * 1 = ask (notification)
+         * 2 = disabled
+         * @hide
+         */
+        public static final String MEDIA_SCANNER_ON_BOOT = "media_scanner_on_boot";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
