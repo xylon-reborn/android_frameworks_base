@@ -675,10 +675,4 @@
     <string name="calendar_error_alert">No Calendar app installed.</string>
     <string name="clock_error_alert">No DeskClock app installed.</string>
     <string name="qs_shortcut_error">Choose shortcut target first to change its icon !</string>
-
-    <!-- PIE PIE PIE PIE PIE PIE PIE PIE PIE PIE PIE PIE -->
-    <string name="pie_date_format">ccc, dd MMM yyyy</string>
-    <string name="pie_hour_format_12">hh:mm</string>
-    <string name="pie_hour_format_24">HH:mm</string>
-    <string name="pie_am_pm">a</string>
 </resources>
