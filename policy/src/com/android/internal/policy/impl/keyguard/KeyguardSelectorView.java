@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import android.animation.ObjectAnimator;
 import android.app.SearchManager;
 import android.app.admin.DevicePolicyManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -78,6 +80,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     private boolean mIsBouncing;
     private boolean mCameraDisabled;
     private boolean mSearchDisabled;
+    private boolean mUnlockBroadcasted = false;
     private LockPatternUtils mLockPatternUtils;
     private SecurityMessageDisplay mSecurityMessageDisplay;
     private Drawable mBouncerFrame;
@@ -85,6 +88,8 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     private int mTargetOffset;
     private boolean mIsScreenLarge;
     private int mCreationOrientation;
+    private UnlockReceiver receiver;
+    private IntentFilter filter;
 
     OnTriggerListener mOnTriggerListener = new OnTriggerListener() {
 
@@ -107,6 +112,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 case com.android.internal.R.drawable.ic_lockscreen_camera:
                     mActivityLauncher.launchCamera(null, null);
                     mCallback.userActivity(0);
+                    mCallback.dismiss(false);
                     break;
 
                 case com.android.internal.R.drawable.ic_lockscreen_unlock_phantom:
@@ -257,6 +263,12 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             LinearLayout ecaContainer = (LinearLayout) findViewById(R.id.keyguard_selector_fade_container);
             ecaContainer.bringToFront();
         }
+
+        mUnlockBroadcasted = false;
+        filter = new IntentFilter();
+        filter.addAction(UnlockReceiver.ACTION_UNLOCK_RECEIVER);
+        receiver = new UnlockReceiver();
+        mContext.registerReceiver(receiver, filter);
     }
 
     public void setCarrierArea(View carrierArea) {
@@ -553,5 +565,21 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         mIsBouncing = false;
         KeyguardSecurityViewHelper.
                 hideBouncer(mSecurityMessageDisplay, mFadeView, mBouncerFrame, duration);
+    }
+
+    public class UnlockReceiver extends BroadcastReceiver {
+        public static final String ACTION_UNLOCK_RECEIVER = "com.android.lockscreen.ACTION_UNLOCK_RECEIVER";
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(ACTION_UNLOCK_RECEIVER)) {
+                if (!mUnlockBroadcasted) {
+                    mUnlockBroadcasted = true;
+                    mCallback.userActivity(0);
+                    mCallback.dismiss(false);
+                }
+            }
+            mContext.unregisterReceiver(receiver);
+        }
     }
 }
