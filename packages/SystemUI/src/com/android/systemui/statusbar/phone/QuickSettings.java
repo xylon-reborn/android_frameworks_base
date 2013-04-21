@@ -94,6 +94,7 @@ public class QuickSettings {
     private DisplayManager mDisplayManager;
     private WifiDisplayStatus mWifiDisplayStatus;
     private BaseStatusBar mStatusBarService;
+    private PhoneStatusBar mPhoneBarService;
     private BluetoothState mBluetoothState;
 
     private BrightnessController mBrightnessController;
@@ -168,8 +169,16 @@ public class QuickSettings {
         mStatusBarService = statusBar;
     }
 
+    public void setService(PhoneStatusBar phoneStatusBar) {
+        mPhoneBarService = phoneStatusBar;
+    }
+
     public BaseStatusBar getService() {
         return mStatusBarService;
+    }
+
+    public PhoneStatusBar getService() {
+        return mPhoneBarService;
     }
 
     public void setImeWindowStatus(boolean visible) {
