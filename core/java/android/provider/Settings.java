@@ -3418,6 +3418,12 @@ public final class Settings {
         */
         public static final String PIE_LONG_PRESS_ENABLE_SECOND_LAYER = "pie_long_press_enable_second_layer";
 
+       /**
+        * Whether right edge PIE is mirrored or not
+        * @hide
+        */
+        public static final String PIE_MIRROR_RIGHT = "pie_mirror_right";
+
         /**
          * LiquidSmooth Settings (Powermenu)
          */
