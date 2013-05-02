@@ -260,8 +260,6 @@
   <java-symbol type="string" name="notify_turn_wifi_ap_off_title" />
   <java-symbol type="layout" name="resolver_grid_alt" />
   <java-symbol type="id" name="checkbox_always" />
-  <java-symbol type="bool" name="config_forceAnalogCarDock" />
-  <java-symbol type="bool" name="config_forceAnalogDeskDock" />
 
   <!-- Keyguard random NumPadKeys -->
   <java-symbol type="string" name="keyboardview_keycode_random" />

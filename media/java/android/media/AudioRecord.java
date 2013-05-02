@@ -342,7 +342,6 @@ public class AudioRecord
         else
             bytesPerSample = 2;
         int frameSizeInBytes = mChannelCount * bytesPerSample;
-
         if ((audioBufferSize % frameSizeInBytes != 0) || (audioBufferSize < 1)) {
             throw (new IllegalArgumentException("Invalid audio buffer size."));
         }
