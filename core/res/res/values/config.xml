@@ -1111,9 +1111,6 @@
          legacy USB manager should be started. -->
     <string name="config_legacyUmsLunFile">/sys/devices/platform/usb_mass_storage/lun0/file</string>
 
-    <!-- Boolean to enable Stylus gestures -->
-    <bool name="config_stylusGestures">false</bool>
-
     <!-- The list absolute paths of jar/apk files containing the device specific handlers,
          delimited by File.pathSeparator, which defaults to ":" on Android -->
     <string name="config_deviceHandlersLib" translatable="false"></string>
