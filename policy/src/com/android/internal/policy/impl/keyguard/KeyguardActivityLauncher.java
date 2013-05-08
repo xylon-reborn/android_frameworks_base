@@ -120,7 +120,7 @@ public abstract class KeyguardActivityLauncher {
     public void launchWidgetPicker(int appWidgetId) {
         Intent pickIntent = new Intent(AppWidgetManager.ACTION_KEYGUARD_APPWIDGET_PICK);
 
-        if (Settings.System.getInt(mContext.getContentResolver(),
+        if (Settings.System.getInt(getContext().getContentResolver(),
                 Settings.System.LOCKSCREEN_ALL_WIDGETS, 0) == 1) {
             pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             pickIntent.putExtra(AppWidgetManager.EXTRA_CUSTOM_SORT, false);
