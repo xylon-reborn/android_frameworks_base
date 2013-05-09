@@ -3854,7 +3854,7 @@ public final class Settings {
          * Whether Status Bar is currently hidden or not for notification
          * @hide
          */
-        public static final String TOGGLE_NOTIFICATION_SHADE = "toggle_notification_shade";
+        public static final String TOGGLE_NOTIFICATION_AND_QS_SHADE = "toggle_notification_and_qs_shade";
 
         /**
          * LiquidSmooth Settings (Others)
