@@ -3582,13 +3582,6 @@ public final class Settings {
         public static final String QS_DISABLE_PANEL = "qs_disable_panel";
 
         /**
-         * QuickSettings flip button longpress PowerWidget toggle
-         *
-         * @hide
-         */
-        public static final String QS_LONGPRESS_PW_TOGGLE = "qs_longpress_pw_toggle";
-
-        /**
          * Quick Settings Quick Pulldown
          * @hide
          */
@@ -4069,6 +4062,12 @@ public final class Settings {
          * @hide
          */
         public static final String NFC_POLLING_MODE = "nfc_polling_mode";
+
+        /**
+         * Always show settings button toggle
+         * @hide
+         */
+        public static final String NOTIFICATION_SETTINGS_BUTTON = "notification_settings_btn";
 
         /**
          * MediaScanner behavior on boot.
