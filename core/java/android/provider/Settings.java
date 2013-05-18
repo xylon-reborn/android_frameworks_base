@@ -3849,6 +3849,12 @@ public final class Settings {
         public static final String FAST_TOGGLE = "fast_toggle";
 
         /**
+         * Forces formal text input.  1 to replace emoticon key with enter key.
+         * @hide
+         */
+        public static final String FORMAL_TEXT_INPUT = "formal_text_input";
+
+        /**
          * Whether fcharge is enabled or not if kernel supports it
          * @hide
          */
