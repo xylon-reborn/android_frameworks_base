@@ -3895,6 +3895,20 @@ public final class Settings {
         public static final String STATUSBAR_PEEK = "statusbar_peek";
 
         /**
+         * Status icon color.
+         *
+         * @hide
+         */
+        public static final String STATUS_ICON_COLOR = "status_icon_color";
+
+        /**
+         * Reset to default icon of System Icons in Statusbar.
+         *
+         * @hide
+         */
+        public static final String ICON_COLOR_BEHAVIOR = "icon_color_behavior";
+
+        /**
          * LiquidSmooth Settings (Others)
          */
 

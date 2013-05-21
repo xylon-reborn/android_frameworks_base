@@ -329,6 +329,9 @@ public class PhoneStatusBar extends BaseStatusBar {
     // tracking calls to View.setSystemUiVisibility()
     int mSystemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE;
 
+    private int customColor;
+    private int color = 0;
+
     DisplayMetrics mDisplayMetrics = new DisplayMetrics();
 
     // XXX: gesture research
@@ -403,6 +406,10 @@ public class PhoneStatusBar extends BaseStatusBar {
                     Settings.System.EXPANDED_DESKTOP_STATE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NOTIFICATION_SETTINGS_BUTTON), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_ICON_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.ICON_COLOR_BEHAVIOR), false, this);
             update();
         }
 
@@ -428,6 +435,13 @@ public class PhoneStatusBar extends BaseStatusBar {
                     Settings.System.NOTIFICATION_HIDE_CARRIER, 0, UserHandle.USER_CURRENT) != 0;
             boolean notificationSettingsBtn = Settings.System.getInt(
                     resolver, Settings.System.NOTIFICATION_SETTINGS_BUTTON, 0) == 1;
+
+            color = Settings.System.getInt(resolver,
+                    Settings.System.STATUS_ICON_COLOR, 0);
+
+            customColor = Settings.System.getInt(resolver,
+                    Settings.System.ICON_COLOR_BEHAVIOR, 0) == 1;
+
             if (mHasSettingsPanel) {
                 mSettingsButton.setVisibility(notificationSettingsBtn ? View.VISIBLE : View.GONE);
             } else {
@@ -1267,6 +1281,14 @@ public class PhoneStatusBar extends BaseStatusBar {
     public void addIcon(String slot, int index, int viewIndex, StatusBarIcon icon) {
         if (SPEW) Slog.d(TAG, "addIcon slot=" + slot + " index=" + index + " viewIndex=" + viewIndex
                 + " icon=" + icon);
+
+        Drawable iconDrawable = StatusBarIconView.getIcon(mContext, icon);
+        if (customColor) {
+            iconDrawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        } else {
+            iconDrawable.clearColorFilter();
+        }
+
         StatusBarIconView view = new StatusBarIconView(mContext, slot, null);
         view.set(icon);
         mStatusIcons.addView(view, viewIndex, new LinearLayout.LayoutParams(mIconSize, mIconSize));
@@ -1278,6 +1300,14 @@ public class PhoneStatusBar extends BaseStatusBar {
             StatusBarIcon old, StatusBarIcon icon) {
         if (SPEW) Slog.d(TAG, "updateIcon slot=" + slot + " index=" + index + " viewIndex=" + viewIndex
                 + " old=" + old + " icon=" + icon);
+
+        Drawable iconDrawable = StatusBarIconView.getIcon(mContext, icon);
+        if (customColor) {
+            iconDrawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        } else {
+            iconDrawable.clearColorFilter();
+        }
+
         StatusBarIconView view = (StatusBarIconView)mStatusIcons.getChildAt(viewIndex);
         view.set(icon);
     }
