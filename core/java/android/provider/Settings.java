@@ -2920,6 +2920,12 @@ public final class Settings {
         public static final String LOCKSCREEN_LONG_CAMERA_ACTION = "lockscreen_long_camera_action";
 
         /**
+         * Enables user to set transparency level for lockscreen
+         * @hide
+         */
+        public static final String LOCKSCREEN_ALPHA_CONFIG = "lockscreen_alpha_config";
+
+        /**
          * Whether to use a separate delay for "slide to unlock" and security
          * @hide
          */
