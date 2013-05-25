@@ -47,6 +47,7 @@ import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.UserHandle;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -70,6 +71,9 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     private static final String ASSIST_ICON_METADATA_NAME =
         "com.android.systemui.action_assist_icon";
 
+    private final int TORCH_TIMEOUT = ViewConfiguration.getLongPressTimeout(); //longpress glowpad torch
+    private final int TORCH_CHECK = 2000; //make sure torch turned off
+
     private KeyguardSecurityCallback mCallback;
     private GlowPadView mGlowPadView;
     private KeyguardShortcuts mShortcuts;
@@ -85,6 +89,8 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     private int mTargetOffset;
     private boolean mIsScreenLarge;
     private int mCreationOrientation;
+    private int mGlowTorch;
+    private boolean mGlowTorchOn;
 
     OnTriggerListener mOnTriggerListener = new OnTriggerListener() {
 
@@ -138,6 +144,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         }
 
         public void onReleased(View v, int handle) {
+            fireTorch();
             if (!mIsBouncing) {
                 doTransition(mFadeView, 1.0f);
             }
@@ -146,6 +153,10 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         public void onGrabbed(View v, int handle) {
             mCallback.userActivity(0);
             doTransition(mFadeView, 0.0f);
+            if (mGlowTorch != 0) {
+                mHandler.removeCallbacks(checkTorch);
+                mHandler.postDelayed(startTorch, TORCH_TIMEOUT);
+            }
         }
 
         public void onGrabbedStateChange(View v, int handle) {
@@ -153,13 +164,14 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         }
 
         public void onTargetChange(View v, int target) {
-
+            if (target != -1) {
+                fireTorch();
+            }
         }
 
         public void onFinishFinalAnimation() {
 
         }
-
     };
 
     KeyguardUpdateMonitorCallback mInfoCallback = new KeyguardUpdateMonitorCallback() {
@@ -245,6 +257,10 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         mGlowPadView.setOnTriggerListener(mOnTriggerListener);
         updateTargets();
 
+        mGlowTorch = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_GLOW_TORCH, 0);
+        mGlowTorchOn = false;
+
         mSecurityMessageDisplay = new KeyguardMessageArea.Helper(this);
         View bouncerFrameView = findViewById(R.id.keyguard_selector_view_frame);
         mBouncerFrame = bouncerFrameView.getBackground();
@@ -317,6 +333,55 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     public void showUsabilityHint() {
         mGlowPadView.ping();
     }
+
+    private void fireTorch() {
+        mHandler.removeCallbacks(startTorch);
+        if (mGlowTorch != 0 && mGlowTorchOn) {
+            mGlowTorchOn = false;
+            vibrate();
+            torchOff();
+            mHandler.postDelayed(checkTorch, TORCH_CHECK);
+        }
+    }
+
+    private void torchOff() {
+        Intent intent = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
+        intent.putExtra("bright", false);
+        mContext.sendBroadcast(intent);
+    }
+
+    private void vibrate() {
+        if (Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.HAPTIC_FEEDBACK_ENABLED, 1, UserHandle.USER_CURRENT) != 0) {
+            android.os.Vibrator vib = (android.os.Vibrator)mContext.getSystemService(
+                    Context.VIBRATOR_SERVICE);
+            vib.vibrate(25);
+        }
+    }
+
+    final Runnable checkTorch = new Runnable () {
+        public void run() {
+            int torchActive = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.TORCH_STATE, 0);
+            if (torchActive != 0) {
+                torchOff();
+            }
+        }
+    };
+
+    final Runnable startTorch = new Runnable () {
+        public void run() {
+            int torchActive = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.TORCH_STATE, 0);
+            if (torchActive != 1 && !mGlowTorchOn) {
+                mGlowTorchOn = true;
+                vibrate();
+                Intent intent = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
+                intent.putExtra("bright", false);
+                mContext.sendBroadcast(intent);
+            }
+        }
+    };
 
     private void updateTargets() {
         int currentUserHandle = mLockPatternUtils.getCurrentUser();

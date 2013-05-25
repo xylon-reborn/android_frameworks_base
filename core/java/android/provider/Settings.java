@@ -2926,6 +2926,12 @@ public final class Settings {
         public static final String LOCKSCREEN_ALPHA_CONFIG = "lockscreen_alpha_config";
 
         /**
+         * Longpress glowpad to light torch and release to turn torch off
+         * @hide
+         */
+        public static final String LOCKSCREEN_GLOW_TORCH = "lockscreen_glow_torch";
+
+        /**
          * Whether to use a separate delay for "slide to unlock" and security
          * @hide
          */
