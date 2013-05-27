@@ -96,11 +96,11 @@ final class DisplayPowerRequest {
         blockScreenOn = other.blockScreenOn;
         electronBeamMode = other.electronBeamMode;
         electronBeamOffEnabled = other.electronBeamOffEnabled;
+        responsitivityFactor = other.responsitivityFactor;
     }
 
     public int getElectronBeamMode() {
         return electronBeamMode;
-        responsitivityFactor = other.responsitivityFactor;
     }
 
     @Override
