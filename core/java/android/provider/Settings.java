@@ -2559,6 +2559,23 @@ public final class Settings {
 
         /**
          * Action to perform when the home key pressed. (Default is 1)
+         * 0 - Nothing
+         * 1 - Home
+         * 2 - Back
+         * 3 - Menu
+         * 4 - App-switch
+         * 5 - Search
+         * 6 - Voice Search
+         * 7 - In-App Search
+         * 8 - Power Off
+         * 9 - Notification shade toggle
+         * 10 - Expanded desktop toggle
+         * 11 - Kill App
+         * 12 - Last App
+         * 13 - Custom App
+         * 14 - Widget viewpager
+         * 15 - QuickSettings shade toggle
+         * 16 - Camera button
          * @hide
          */
         public static final String KEY_HOME_ACTION = "key_home_action";
@@ -2877,6 +2894,30 @@ public final class Settings {
          * @hide
          */
         public static final String LOCKSCREEN_LONG_MENU_ACTION = "lockscreen_long_menu_action";
+
+        /**
+         * Action for long-pressing menu button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_MENU_ACTION = "lockscreen_long_menu_action";
+
+        /**
+         * Action for long-pressing assist button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_ASSIST_ACTION = "lockscreen_long_assist_action";
+
+        /**
+         * Action for long-pressing app switch button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_APP_SWITCH_ACTION = "lockscreen_long_app_switch_action";
+
+        /**
+         * Action for long-pressing camera button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_CAMERA_ACTION = "lockscreen_long_camera_action";
 
         /**
          * Whether to use a separate delay for "slide to unlock" and security
@@ -3870,6 +3911,20 @@ public final class Settings {
          * @hide
          */
         public static final String FCHARGE_ENABLED = "fcharge_enabled";
+
+        /**
+         * Action to perform when the camera key is pressed. (Default is 16)
+         * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
+         * @hide
+         */
+        public static final String KEY_CAMERA_ACTION = "key_camera_action";
+
+        /**
+         * Action to perform when the app camera is long-pressed. (Default is 0)
+         * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
+         * @hide
+         */
+        public static final String KEY_CAMERA_LONG_PRESS_ACTION = "key_camera_long_press_action";
 
         /**
          * Whether to unlock the screen with the home key.  The value is boolean (1 or 0).
