@@ -46,13 +46,15 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.android.internal.telephony.IccCardConstants.State;
-import com.android.internal.util.liquid.LockscreenTargetUtils;
-import com.android.internal.widget.LockPatternUtils;
-import com.android.internal.widget.multiwaveview.GlowPadView;
-import com.android.internal.widget.multiwaveview.GlowPadView.OnTriggerListener;
 import com.android.internal.R;
+import com.android.internal.view.RotationPolicy;
+import com.android.internal.widget.LockPatternUtils;
+import com.android.internal.util.liquid.GlowPadTorchHelper;
+import com.android.internal.telephony.IccCardConstants.State;
+import com.android.internal.widget.multiwaveview.GlowPadView;
+import com.android.internal.util.liquid.LockscreenTargetUtils;
 import com.android.internal.widget.multiwaveview.TargetDrawable;
+import com.android.internal.widget.multiwaveview.GlowPadView.OnTriggerListener;
 
 public class KeyguardSelectorView extends LinearLayout implements KeyguardSecurityView {
     private static final boolean DEBUG = KeyguardHostView.DEBUG;
@@ -76,10 +78,25 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     private int mTargetOffset;
     private boolean mIsScreenLarge;
     private UnlockReceiver mUnlockReceiver;
+    private int mGlowTorch;
+    private boolean mUserRotation;
+    private boolean mGlowTorchOn;
+    private boolean mGlowPadLock;
+    private boolean mLongPress = false;
+
     private IntentFilter filter;
     private boolean mReceiverRegistered = false;
 
     OnTriggerListener mOnTriggerListener = new OnTriggerListener() {
+
+       final Runnable SetLongPress = new Runnable () {
+            public void run() {
+                if (!mLongPress) {
+                    GlowPadTorchHelper.vibrate(mContext);
+                    mLongPress = true;
+                }
+            }
+        };
 
         public void onTrigger(View v, int target) {
             if (mReceiverRegistered) {
@@ -139,11 +156,23 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             if (!mIsBouncing) {
                 doTransition(mFadeView, 1.0f);
             }
+            if (!mGlowPadLock && mLongPress) {
+                mGlowPadLock = true;
+                if (mReceiverRegistered) {
+                    mContext.unregisterReceiver(receiver);
+                    mReceiverRegistered = false;
+                }
+                launchAction(longActivities[mTarget]);
+            }
         }
 
         public void onGrabbed(View v, int handle) {
             mCallback.userActivity(0);
             doTransition(mFadeView, 0.0f);
+            if (mGlowTorch == 1) {
+                mHandler.removeCallbacks(checkTorch);
+                mHandler.postDelayed(startTorch, GlowPadTorchHelper.TORCH_TIMEOUT);
+            }
         }
 
         public void onGrabbedStateChange(View v, int handle) {
@@ -249,6 +278,10 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         mGlowPadView.setOnTriggerListener(mOnTriggerListener);
         updateTargets();
 
+        mGlowTorch = Settings.System.getInt(cr,
+                Settings.System.LOCKSCREEN_GLOW_TORCH, 0);
+        mGlowTorchOn = false;
+
         mSecurityMessageDisplay = new KeyguardMessageArea.Helper(this);
         View bouncerFrameView = findViewById(R.id.keyguard_selector_view_frame);
         mBouncerFrame = bouncerFrameView.getBackground();
@@ -300,6 +333,34 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     public void showUsabilityHint() {
         mGlowPadView.ping();
     }
+
+    private void fireTorch() {
+        mHandler.removeCallbacks(startTorch);
+        if (mGlowTorch == 1 && mGlowTorchOn) {
+            mGlowTorchOn = false;
+            GlowPadTorchHelper.killTorch(mContext);
+            RotationPolicy.setRotationLock(mContext, mUserRotation);
+            mHandler.postDelayed(checkTorch, GlowPadTorchHelper.TORCH_CHECK);
+        }
+    }
+
+    final Runnable startTorch = new Runnable () {
+        public void run() {
+            if (!mGlowTorchOn) {
+                mUserRotation = RotationPolicy.isRotationLocked(mContext);
+                RotationPolicy.setRotationLock(mContext, true);
+                mGlowTorchOn = GlowPadTorchHelper.startTorch(mContext);
+            }
+        }
+    };
+
+    final Runnable checkTorch = new Runnable () {
+        public void run() {
+            if (GlowPadTorchHelper.torchActive(mContext)) {
+                GlowPadTorchHelper.torchOff(mContext, true);
+            }
+        }
+    };
 
     private void updateTargets() {
         int currentUserHandle = mLockPatternUtils.getCurrentUser();
