@@ -2914,12 +2914,6 @@ public final class Settings {
         public static final String LOCKSCREEN_LONG_CAMERA_ACTION = "lockscreen_long_camera_action";
 
         /**
-         * Longpress glowpad to light torch and release to turn torch off
-         * @hide
-         */
-        public static final String LOCKSCREEN_GLOW_TORCH = "lockscreen_glow_torch";
-
-        /**
          * Whether to use a separate delay for "slide to unlock" and security
          * @hide
          */
