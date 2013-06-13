@@ -1531,7 +1531,7 @@ final class ActivityStack {
         
         // We need to start pausing the current activity so the top one
         // can be resumed...
-        if (mResumedActivity != null) {
+        if (mResumedActivity != null && !next.floatingWindow) {
             if (DEBUG_SWITCH) Slog.v(TAG, "Skip resume: need to start pausing");
             // At this point we want to put the upcoming activity's process
             // at the top of the LRU list, since we know we will be needing it
@@ -1610,7 +1610,7 @@ final class ActivityStack {
             if (prev.finishing) {
                 if (DEBUG_TRANSITION) Slog.v(TAG,
                         "Prepare close transition: prev=" + prev);
-                if (mNoAnimActivities.contains(prev)) {
+                if (mNoAnimActivities.contains(prev) || next.floatingWindow) {
                     mService.mWindowManager.prepareAppTransition(
                             WindowManagerPolicy.TRANSIT_NONE, false);
                 } else {
@@ -1755,7 +1755,7 @@ final class ActivityStack {
                 if (!next.hasBeenLaunched) {
                     next.hasBeenLaunched = true;
                 } else {
-                    if (SHOW_APP_STARTING_PREVIEW && mMainStack) {
+                    if (SHOW_APP_STARTING_PREVIEW && mMainStack && !next.floatingWindow) {
                         mService.mWindowManager.setAppStartingWindow(
                                 next.appToken, next.packageName, next.theme,
                                 mService.compatibilityInfoForPackageLocked(
@@ -1789,7 +1789,7 @@ final class ActivityStack {
             if (!next.hasBeenLaunched) {
                 next.hasBeenLaunched = true;
             } else {
-                if (SHOW_APP_STARTING_PREVIEW) {
+                if (SHOW_APP_STARTING_PREVIEW && !next.floatingWindow) {
                     mService.mWindowManager.setAppStartingWindow(
                             next.appToken, next.packageName, next.theme,
                             mService.compatibilityInfoForPackageLocked(

@@ -2670,6 +2670,25 @@ public final class Settings {
         public static final String DISABLE_FULLSCREEN_KEYBOARD = "disable_fullscreen_keyboard";
 
         /**
+         * HALO, should default to 0 (no, do not show)  
+         * @hide  
+         */  
+        public static final String HALO_ACTIVE = "halo_active";  
+  
+        /**  
+         * HALO reversed?, should default to 1 (yes, reverse)  
+         * @hide  
+         */  
+        public static final String HALO_REVERSED = "halo_reversed";  
+  
+        /**  
+         * HALO hide?, should default to 0 (no, do not hide)  
+         * @hide  
+         */  
+        public static final String HALO_HIDE = "halo_hide";  
+  
+        /**  
+
          * Sets the portrait background of notification drawer
          * @hide
          */
