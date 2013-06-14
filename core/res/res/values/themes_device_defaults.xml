@@ -497,7 +497,8 @@ easier.
         <item name="android:windowCloseOnTouchOutside">true</item>  
         <item name="android:windowFullscreen">false</item>  
         <item name="android:windowSoftInputMode">stateAlwaysHidden|adjustPan</item>  
-    </style>  
+    </style>
+    
     <style name="Theme.DeviceDefault.FloatingWindowLight" parent="Theme.Holo.Light.Dialog">  
         <item name="android:windowIsFloating">false</item>  
         <item name="android:windowIsTranslucent">true</item>  
@@ -510,7 +511,6 @@ easier.
         <item name="android:windowSoftInputMode">stateAlwaysHidden|adjustPan</item>  
     </style>  
    
-    </style>
     <!-- DeviceDefault light theme for panel windows. This removes all extraneous window
     decorations, so you basically have an empty rectangle in which to place your content. It makes
     the window floating, with a transparent background, and turns off dimming behind the window. -->
@@ -525,7 +525,6 @@ easier.
     <!-- DeviceDefault theme for windows that want to have the user's selected wallpaper appear
     behind them and without an action bar. -->
     <style name="Theme.DeviceDefault.Wallpaper.NoTitleBar" parent="Theme.Holo.Wallpaper.NoTitleBar" >
-
     </style>
     <!-- DeviceDefault style for input methods, which is used by the
          {@link android.inputmethodservice.InputMethodService} class.-->
