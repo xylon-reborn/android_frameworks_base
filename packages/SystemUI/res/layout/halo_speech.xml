@@ -26,8 +26,7 @@
                 android:singleLine="false"
                 android:textColor="#ffffff"
                 android:maxLines = "3"
-                android:visibility="gone"/>
-            </TextView>
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/bubble_l"
@@ -41,11 +40,9 @@
                 android:singleLine="false"
                 android:textColor="#ffffff"
                 android:maxLines = "3"
-                android:visibility="gone"/>
-            </TextView>
+                android:visibility="gone" />
             
         </RelativeLayout>
 
     </RelativeLayout>
-
 </LinearLayout>

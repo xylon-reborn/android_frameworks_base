@@ -1463,10 +1463,9 @@ public class Activity extends ContextThemeWrapper
         if (mWindow != null) {
             // Pass the configuration changed event to the window
             mWindow.onConfigurationChanged(newConfig);
-+            if (mWindow.mIsFloatingWindow) {  
+            if (mWindow.mIsFloatingWindow) {  
                 scaleFloatingWindow(null);  
-            }  
-
+            }
         }
 
         if (mActionBar != null) {
