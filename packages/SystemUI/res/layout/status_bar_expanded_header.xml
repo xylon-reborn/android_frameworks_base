@@ -73,7 +73,7 @@
         android:padding="2dp"
         />
 
-	<ImageView android:id="@+id/halo_button"  
+    <ImageView android:id="@+id/halo_button"  
         android:layout_width="50dp"  
         android:layout_height="50dp"  
         android:scaleType="center"  
