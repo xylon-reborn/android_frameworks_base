@@ -444,10 +444,10 @@ public class PhoneStatusBar extends BaseStatusBar {
             if (mQuickSettingsButton != null && mHasFlipSettings) {
                 mQuickSettingsButton.setVisibility(userSetup ? View.VISIBLE : View.INVISIBLE);
             }
-            if (mHaloButton != null && mHasFlipSettings) {  
-                mHaloButtonVisible = userSetup;  
-                updateHaloButton();  
-			}
+            if (mHaloButton != null && mHasFlipSettings) {
+                mHaloButtonVisible = userSetup;
+                updateHaloButton();
+            }
             if (mSettingsPanel != null) {
                 mSettingsPanel.setEnabled(userSetup);
             }
@@ -658,14 +658,15 @@ public class PhoneStatusBar extends BaseStatusBar {
                 mQuickSettingsButton.setImageResource(R.drawable.ic_notify_settings);
                 mSettingsButton.setVisibility(View.GONE);
             }
+
         }
 
-        mHaloButton = (ImageView) mStatusBarWindow.findViewById(R.id.halo_button);  
-        if (mHaloButton != null) {  
-            mHaloButton.setOnClickListener(mHaloButtonListener);  
-            mHaloButtonVisible = true;  
-            updateHaloButton();  
-        } 
+        mHaloButton = (ImageView) mStatusBarWindow.findViewById(R.id.halo_button);
+        if (mHaloButton != null) {
+            mHaloButton.setOnClickListener(mHaloButtonListener);
+            mHaloButtonVisible = true;
+            updateHaloButton();
+        }
 
         if (mHasFlipSettings) {
             mNotificationButton = (ImageView) mStatusBarWindow.findViewById(R.id.notification_button);
@@ -708,7 +709,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         mTicker = new MyTicker(context, mStatusBarView);
         TickerView tickerView = (TickerView)mStatusBarView.findViewById(R.id.tickerText);
         tickerView.mTicker = mTicker;
-		if (mHaloActive) mTickerView.setVisibility(View.GONE); 
+        if (mHaloActive) mTickerView.setVisibility(View.GONE);
 
         mEdgeBorder = res.getDimensionPixelSize(R.dimen.status_bar_edge_ignore);
 
@@ -1375,9 +1376,10 @@ public class PhoneStatusBar extends BaseStatusBar {
         if (mQuickSettingsButton != null) {
             mQuickSettingsButton.setEnabled(isDeviceProvisioned());
         }
-        if (mHaloButton != null) {  
-            mHaloButton.setEnabled(isDeviceProvisioned());     
-		}
+
+        if (mHaloButton != null) {
+            mHaloButton.setEnabled(isDeviceProvisioned());
+        }
     }
 
     @Override
@@ -1941,7 +1943,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         if (mPowerWidgetAnim != null) mPowerWidgetAnim.cancel();
         if (mScrollViewAnim != null) mScrollViewAnim.cancel();
         if (mQuickSettingsButtonAnim != null) mQuickSettingsButtonAnim.cancel();
-		if (mHaloButtonAnim != null) mHaloButtonAnim.cancel(); 
+        if (mHaloButtonAnim != null) mHaloButtonAnim.cancel();
         if (mNotificationButtonAnim != null) mNotificationButtonAnim.cancel();
         if (mClearButtonAnim != null) mClearButtonAnim.cancel();
 
@@ -1994,11 +1996,11 @@ public class PhoneStatusBar extends BaseStatusBar {
         mQuickSettingsButtonAnim = start(
             ObjectAnimator.ofFloat(mQuickSettingsButton, View.ALPHA, 1f)
                 .setDuration(FLIP_DURATION));
-        mHaloButtonVisible = true;  
-        updateHaloButton();  
-        mHaloButtonAnim = start(  
-            ObjectAnimator.ofFloat(mHaloButton, View.ALPHA, 1f)  
-                .setDuration(FLIP_DURATION));  
+        mHaloButtonVisible = true;
+        updateHaloButton();
+        mHaloButtonAnim = start(
+            ObjectAnimator.ofFloat(mHaloButton, View.ALPHA, 1f)
+                .setDuration(FLIP_DURATION));
         mClearButton.setVisibility(View.VISIBLE);
         mClearButton.setAlpha(0f);
         setAreThereNotifications(); // this will show/hide the button as necessary
@@ -2049,8 +2051,8 @@ public class PhoneStatusBar extends BaseStatusBar {
         mFlipSettingsView.setScaleX(1f);
         mFlipSettingsView.setVisibility(View.VISIBLE);
         mQuickSettingsButton.setVisibility(View.GONE);
-        mHaloButtonVisible = false;  
-        updateHaloButton(); 
+        mHaloButtonVisible = false;
+        updateHaloButton();
         mScrollView.setVisibility(View.GONE);
         mScrollView.setScaleX(0f);
         mPowerWidget.setVisibility(View.GONE);
@@ -2127,6 +2129,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             if (mPowerWidgetAnim != null) mPowerWidgetAnim.cancel();
             if (mScrollViewAnim != null) mScrollViewAnim.cancel();
             if (mQuickSettingsButtonAnim != null) mQuickSettingsButtonAnim.cancel();
+            if (mHaloButtonAnim != null) mHaloButtonAnim.cancel();
             if (mNotificationButtonAnim != null) mNotificationButtonAnim.cancel();
             if (mClearButtonAnim != null) mClearButtonAnim.cancel();
 
@@ -2163,6 +2166,11 @@ public class PhoneStatusBar extends BaseStatusBar {
             mQuickSettingsButtonAnim = start(
                 setVisibilityWhenDone(
                     ObjectAnimator.ofFloat(mQuickSettingsButton, View.ALPHA, 0f)
+                        .setDuration(FLIP_DURATION),
+                        mScrollView, View.INVISIBLE));
+            mHaloButtonAnim = start(
+                setVisibilityWhenDone(
+                    ObjectAnimator.ofFloat(mHaloButton, View.ALPHA, 0f)
                         .setDuration(FLIP_DURATION),
                         mScrollView, View.INVISIBLE));
             mNotificationButton.setVisibility(View.VISIBLE);
@@ -2228,6 +2236,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             if (mPowerWidgetAnim != null) mPowerWidgetAnim.cancel();
             if (mScrollViewAnim != null) mScrollViewAnim.cancel();
             if (mQuickSettingsButtonAnim != null) mQuickSettingsButtonAnim.cancel();
+            if (mHaloButtonAnim != null) mHaloButtonAnim.cancel();
             if (mNotificationButtonAnim != null) mNotificationButtonAnim.cancel();
             if (mClearButtonAnim != null) mClearButtonAnim.cancel();
 
@@ -2235,6 +2244,9 @@ public class PhoneStatusBar extends BaseStatusBar {
             mScrollView.setVisibility(View.VISIBLE);
             mQuickSettingsButton.setAlpha(1f);
             mQuickSettingsButton.setVisibility(View.VISIBLE);
+            mHaloButton.setAlpha(1f);
+            mHaloButtonVisible = true;
+            updateHaloButton();
             mNotificationPanel.setVisibility(View.GONE);
             if (!mHideSettingsPanel)
                 mFlipSettingsView.setVisibility(View.GONE);
@@ -2653,8 +2665,8 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     @Override
     protected void tick(IBinder key, StatusBarNotification n, boolean firstTime) {
-        // no ticking in lights-out mode
-        if (!areLightsOn()) return;
+        // no ticking in lights-out mode, except if halo is active
+        if (!areLightsOn() && !mHaloActive) return;
 
         // no ticking in Setup
         if (!isDeviceProvisioned()) return;
@@ -2682,33 +2694,38 @@ public class PhoneStatusBar extends BaseStatusBar {
         @Override
         public void tickerStarting() {
             mTicking = true;
-            mStatusBarContents.setVisibility(View.GONE);
-            mCenterClockLayout.setVisibility(View.GONE);
-            mTickerView.setVisibility(View.VISIBLE);
-            mTickerView.startAnimation(loadAnim(com.android.internal.R.anim.push_up_in, null));
-            mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.push_up_out, null));
-            mCenterClockLayout.startAnimation(loadAnim(com.android.internal.R.anim.push_up_out, null));
+            if (!mHaloActive) {
+                mStatusBarContents.setVisibility(View.GONE);
+                mCenterClockLayout.setVisibility(View.GONE);
+                mTickerView.setVisibility(View.VISIBLE);
+                mTickerView.startAnimation(loadAnim(com.android.internal.R.anim.push_up_in, null));
+                mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.push_up_out, null));
+                mCenterClockLayout.startAnimation(loadAnim(com.android.internal.R.anim.push_up_out, null));
+            }
         }
 
         @Override
         public void tickerDone() {
-            mStatusBarContents.setVisibility(View.VISIBLE);
-            mCenterClockLayout.setVisibility(View.VISIBLE);
-            mTickerView.setVisibility(View.GONE);
-            mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.push_down_in, null));
-            mTickerView.startAnimation(loadAnim(com.android.internal.R.anim.push_down_out,
-                        mTickingDoneListener));
-            mCenterClockLayout.startAnimation(loadAnim(com.android.internal.R.anim.push_down_in, null));
+            if (!mHaloActive) {
+                mStatusBarContents.setVisibility(View.VISIBLE);
+                mCenterClockLayout.setVisibility(View.VISIBLE);
+                mTickerView.setVisibility(View.GONE);
+                mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.push_down_in, null));
+                mTickerView.startAnimation(loadAnim(com.android.internal.R.anim.push_down_out,
+                            mTickingDoneListener));
+                mCenterClockLayout.startAnimation(loadAnim(com.android.internal.R.anim.push_down_in, null));
+            }
         }
 
         @Override
         public void tickerHalting() {
-            mStatusBarContents.setVisibility(View.VISIBLE);
-            mCenterClockLayout.setVisibility(View.VISIBLE);
-            mTickerView.setVisibility(View.GONE);
-            mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.fade_in, null));
-            mCenterClockLayout.startAnimation(loadAnim(com.android.internal.R.anim.fade_in, null));
-            // we do not animate the ticker away at this point, just get rid of it (b/6992707)
+            if (!mHaloActive) {
+                mStatusBarContents.setVisibility(View.VISIBLE);
+                mCenterClockLayout.setVisibility(View.VISIBLE);
+                mTickerView.setVisibility(View.GONE);
+                mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.fade_in, null));
+                mCenterClockLayout.startAnimation(loadAnim(com.android.internal.R.anim.fade_in, null));
+            }
         }
     }
 
@@ -2978,6 +2995,18 @@ public class PhoneStatusBar extends BaseStatusBar {
                 mPowerWidget.startAnimation(anim);
             }
             return true;
+        }
+    };
+
+    private View.OnClickListener mHaloButtonListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            // Activate HALO
+            Settings.System.putInt(mContext.getContentResolver(),
+                    Settings.System.HALO_ACTIVE, 1);
+            // Switch off regular ticker
+            mTickerView.setVisibility(View.GONE);
+            // Collapse
+            animateCollapsePanels();
         }
     };
 

@@ -53,15 +53,15 @@ public abstract class Ticker {
     private TextSwitcher mTextSwitcher;
     private float mIconScale;
     private TickerCallback mEvent;
-	
-	public interface TickerCallback
-    {    
-        public void updateTicker(StatusBarNotification notification, String text);  
-    }    
-  
-    public void setUpdateEvent(TickerCallback event) {  
-        mEvent = event;  
-    } 
+
+    public interface TickerCallback  
+    {  
+        public void updateTicker(StatusBarNotification notification, String text);
+    }  
+
+    public void setUpdateEvent(TickerCallback event) {
+        mEvent = event;
+    }
 
     public static boolean isGraphicOrEmoji(char c) {
         int gc = Character.getType(c);
@@ -74,15 +74,14 @@ public abstract class Ticker {
     }
 
     public final class Segment {
-			public StatusBarNotification notification;  
-        public Drawable icon;  
-        public CharSequence text;  
-        public int current;  
-        public int next;  
-        public boolean first; 
+        public StatusBarNotification notification;
+        public Drawable icon;
+        public CharSequence text;
+        public int current;
+        public int next;
+        public boolean first;
 
-
-        Public StaticLayout getLayout(CharSequence substr) {
+        public StaticLayout getLayout(CharSequence substr) {
             int w = mTextSwitcher.getWidth() - mTextSwitcher.getPaddingLeft()
                     - mTextSwitcher.getPaddingRight();
             return new StaticLayout(substr, mPaint, w, Alignment.ALIGN_NORMAL, 1, 0, true);
@@ -228,24 +227,24 @@ public abstract class Ticker {
         }
 
         mSegments.add(newSegment);
-        if (mEvent != null) {  
-            if (newSegment != null) {  
-                mEvent.updateTicker(newSegment.notification, text.toString());  
-            }  
-        }  
-		
+        if (mEvent != null) {
+            if (newSegment != null) {
+                mEvent.updateTicker(newSegment.notification, text.toString());
+            }
+        }
+        
         if (initialCount == 0 && mSegments.size() > 0) {
             Segment seg = mSegments.get(0);
             seg.first = false;
-            
+
             mIconSwitcher.setAnimateFirstView(false);
             mIconSwitcher.reset();
             mIconSwitcher.setImageDrawable(seg.icon);
-            
+
             mTextSwitcher.setAnimateFirstView(false);
             mTextSwitcher.reset();
             mTextSwitcher.setText(seg.getText());
-            
+
             tickerStarting();
             scheduleAdvance();
         }
@@ -309,4 +308,3 @@ public abstract class Ticker {
     public abstract void tickerDone();
     public abstract void tickerHalting();
 }
-

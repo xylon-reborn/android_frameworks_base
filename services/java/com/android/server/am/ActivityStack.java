@@ -1623,7 +1623,7 @@ final class ActivityStack {
             } else {
                 if (DEBUG_TRANSITION) Slog.v(TAG,
                         "Prepare open transition: prev=" + prev);
-                if (mNoAnimActivities.contains(next)) {
+                if (mNoAnimActivities.contains(next) || next.floatingWindow) {
                     noAnim = true;
                     mService.mWindowManager.prepareAppTransition(
                             WindowManagerPolicy.TRANSIT_NONE, false);
@@ -1888,12 +1888,12 @@ final class ActivityStack {
             }
             if (DEBUG_TRANSITION) Slog.v(TAG,
                     "Prepare open transition: starting " + r);
-            if ((r.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0) {
+            if (((r.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0) || (r.floatingWindow && !r.topIntent)) {
                 mService.mWindowManager.prepareAppTransition(
                         WindowManagerPolicy.TRANSIT_NONE, keepCurTransition);
                 mNoAnimActivities.add(r);
             } else {
-                mService.mWindowManager.prepareAppTransition(newTask
+                mService.mWindowManager.prepareAppTransition(newTask && !r.floatingWindow
                         ? WindowManagerPolicy.TRANSIT_TASK_OPEN
                         : WindowManagerPolicy.TRANSIT_ACTIVITY_OPEN, keepCurTransition);
                 mNoAnimActivities.remove(r);
@@ -1915,7 +1915,7 @@ final class ActivityStack {
                     doShow = topRunningNonDelayedActivityLocked(null) == r;
                 }
             }
-            if (SHOW_APP_STARTING_PREVIEW && doShow) {
+            if (SHOW_APP_STARTING_PREVIEW && doShow && !r.floatingWindow) {
                 // Figure out if we are transitioning from another activity that is
                 // "has the same starting icon" as the next one.  This allows the
                 // window manager to keep the previous window it had previously
@@ -3820,7 +3820,7 @@ final class ActivityStack {
                     || (mHistory.get(index-1)).task != r.task;
             if (DEBUG_TRANSITION) Slog.v(TAG,
                     "Prepare close transition: finishing " + r);
-            mService.mWindowManager.prepareAppTransition(endTask
+            mService.mWindowManager.prepareAppTransition(endTask && !r.floatingWindow
                     ? WindowManagerPolicy.TRANSIT_TASK_CLOSE
                     : WindowManagerPolicy.TRANSIT_ACTIVITY_CLOSE, false);
     
@@ -4306,7 +4306,7 @@ final class ActivityStack {
         if (top < 0 || (mHistory.get(top)).task.taskId == task) {
             // nothing to do!
             if (reason != null &&
-                    (reason.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0) {
+                    ((reason.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0 || reason.floatingWindow)) {
                 ActivityOptions.abort(options);
             } else {
                 updateTransitLocked(WindowManagerPolicy.TRANSIT_TASK_TO_FRONT, options);
@@ -4345,7 +4345,7 @@ final class ActivityStack {
         if (DEBUG_TRANSITION) Slog.v(TAG,
                 "Prepare to front transition: task=" + tr);
         if (reason != null &&
-                (reason.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0) {
+                ((reason.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0 || reason.floatingWindow)) {
             mService.mWindowManager.prepareAppTransition(
                     WindowManagerPolicy.TRANSIT_NONE, false);
             ActivityRecord r = topRunningActivityLocked(null);
@@ -4438,7 +4438,7 @@ final class ActivityStack {
         }
 
         if (reason != null &&
-                (reason.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0) {
+                ((reason.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0 || reason.floatingWindow)) {
             mService.mWindowManager.prepareAppTransition(
                     WindowManagerPolicy.TRANSIT_NONE, false);
             ActivityRecord r = topRunningActivityLocked(null);
