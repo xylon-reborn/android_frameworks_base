@@ -2639,6 +2639,12 @@ public final class Settings {
          * LiquidSmooth Settings (Interface)
          */
 
+       /**
+         * HALO enabled, should default to 0 (HALO is disabled)
+         * @hide
+         */
+        public static final String HALO_ENABLED = "halo_enabled";
+
         /**
          * User selected UI Mode
          * @hide
