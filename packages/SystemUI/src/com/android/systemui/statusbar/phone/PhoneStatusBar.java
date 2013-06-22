@@ -2104,6 +2104,7 @@ public class PhoneStatusBar extends BaseStatusBar {
                  mPowerWidget.setVisibility(View.GONE);
             }
 
+            mHaloButtonVisible = true;
         } else { // settings side
             mFlipSettingsView.setScaleX(percent);
             mFlipSettingsView.setVisibility(View.VISIBLE);
@@ -2116,6 +2117,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             updateCarrierAndWifiLabelVisibility(false);
         }
         mClearButton.setVisibility(View.GONE);
+        updateHaloButton();
     }
 
     public void flipToSettings() {
@@ -2182,6 +2184,7 @@ public class PhoneStatusBar extends BaseStatusBar {
                     ObjectAnimator.ofFloat(mClearButton, View.ALPHA, 0f)
                     .setDuration(FLIP_DURATION),
                     mClearButton, View.INVISIBLE));
+            mHaloButton.setVisibility(View.GONE);
             mNotificationPanel.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -2244,7 +2247,6 @@ public class PhoneStatusBar extends BaseStatusBar {
             mScrollView.setVisibility(View.VISIBLE);
             mQuickSettingsButton.setAlpha(1f);
             mQuickSettingsButton.setVisibility(View.VISIBLE);
-            mHaloButton.setAlpha(1f);
             mHaloButtonVisible = true;
             updateHaloButton();
             mNotificationPanel.setVisibility(View.GONE);
@@ -2287,7 +2289,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
     }
 
-    /**
+    /**-
      * Enables or disables layers on the children of the notifications pile.
      *
      * When layers are enabled, this method attempts to enable layers for the minimal
