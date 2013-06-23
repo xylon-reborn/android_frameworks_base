@@ -43,7 +43,7 @@ public class QuickSettingsTile implements OnClickListener {
     protected final Context mContext;
     protected final ViewGroup mContainerView;
     protected final LayoutInflater mInflater;
-
+    protected QuickSettingsContainerView mContainer;
     protected QuickSettingsTileView mTile;
     protected OnClickListener mOnClick;
     protected OnLongClickListener mOnLongClick;
@@ -87,6 +87,8 @@ public class QuickSettingsTile implements OnClickListener {
     void createQuickSettings() {
         mTile = (QuickSettingsTileView) mInflater.inflate(R.layout.quick_settings_tile, mContainerView, false);
         mTile.setContent(mTileLayout, mInflater);
+        mContainer = container;
+        mContainer.addView(mTile);
         mContainerView.addView(mTile);
         mTile.addOnLayoutChangeListener(new OnLayoutChangeListener() {
             @Override
