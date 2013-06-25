@@ -2698,6 +2698,12 @@ public final class Settings {
         public static final String HALO_PAUSE = "halo_pause";
 
         /**
+         * HALO colors
+         * @hide
+         */
+        public static final String HALO_COLORS = "halo_colors";
+
+        /**
          * HALO circle bg color
          * @hide
          */
