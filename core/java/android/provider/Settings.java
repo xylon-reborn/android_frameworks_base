@@ -2710,6 +2710,12 @@ public final class Settings {
         public static final String HALO_CIRCLE_COLOR = "halo_circle_color";
 
         /**
+         * HALO effect color
+         * @hide
+         */
+        public static final String HALO_EFFECT_COLOR = "halo_effect_color";
+
+        /**
          * HALO speech bubble color
          * @hide
          */
@@ -3750,7 +3756,6 @@ public final class Settings {
 
         /**
          * Battery icon text charging color
-         * in statusbar
          */
         public static final String STATUS_BAR_BATTERY_TEXT_CHARGING_COLOR = "status_bar_battery_text_charging_color";
 
