@@ -99,20 +99,19 @@
 
     <!-- Notification drawer tuning parameters (phone UI) -->
     <!-- Initial velocity of the shade when expanding on its own -->
-    <dimen name="self_expand_velocity">3000dp</dimen>
+    <dimen name="self_expand_velocity">2500dp</dimen>
     <!-- Initial velocity of the shade when collapsing on its own -->
-    <dimen name="self_collapse_velocity">3000dp</dimen>
+    <dimen name="self_collapse_velocity">2500dp</dimen>
     <!-- Minimum final velocity of gestures interpreted as expand requests -->
     <dimen name="fling_expand_min_velocity">100dp</dimen>
     <!-- Minimum final velocity of gestures interpreted as collapse requests -->
     <dimen name="fling_collapse_min_velocity">100dp</dimen>
     <!-- Cap on contribution of x dimension of gesture to overall velocity -->
-    <dimen name="fling_gesture_max_x_velocity">300dp</dimen>
+    <dimen name="fling_gesture_max_x_velocity">250dp</dimen>
     <!-- Cap on overall resulting fling speed (s^-1) -->
-    <dimen name="fling_gesture_max_output_velocity">4000dp</dimen>
-
+    <dimen name="fling_gesture_max_output_velocity">3500dp</dimen>
     <!-- Minimum distance a fling must travel (anti-jitter) -->
-    <dimen name="fling_gesture_min_dist">30dp</dimen>
+    <dimen name="fling_gesture_min_dist">25dp</dimen>
 
     <!-- Minimum fraction of the display a gesture must travel, at any velocity, to qualify as a
          collapse request -->
