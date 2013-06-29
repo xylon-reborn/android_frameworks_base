@@ -64,7 +64,7 @@ public class QuickSettingsController {
      */
     public static final String TILE_AIRPLANE = "toggleAirplane";
     public static final String TILE_ALARM = "toggleAlarm";
-    public static final String TILE_CAMERA = "toggleCamera"
+    public static final String TILE_CAMERA = "toggleCamera";
     public static final String TILE_CUSTOMSHORTCUT = "toggleCustomShortcut";
     public static final String TILE_AUTOROTATE = "toggleAutoRotate";
     public static final String TILE_BATTERY = "toggleBattery";

@@ -876,7 +876,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         for (int i=0; i<3; i++) {
             mRotatedViews[i].setVisibility(View.GONE);
         }
-        if (mSystemUiLayout != 360) { // this is either a tablet of Phablet.
+        if (mCurrentUIMode != 0) { // this is either a tablet or phablet
             mCurrentView = mRotatedViews[Surface.ROTATION_0];
         } else {
             mCurrentView = mRotatedViews[rot];
