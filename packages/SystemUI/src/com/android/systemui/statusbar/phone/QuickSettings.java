@@ -962,5 +962,4 @@ public class QuickSettings {
 
         }
     };
-
 }

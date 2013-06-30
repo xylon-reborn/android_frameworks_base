@@ -43,7 +43,7 @@ public class QuickSettingsTile implements OnClickListener {
     protected final Context mContext;
     protected final ViewGroup mContainerView;
     protected final LayoutInflater mInflater;
-    protected QuickSettingsContainerView mContainer;
+
     protected QuickSettingsTileView mTile;
     protected OnClickListener mOnClick;
     protected OnLongClickListener mOnLongClick;
@@ -65,7 +65,6 @@ public class QuickSettingsTile implements OnClickListener {
             QuickSettingsContainerView container, QuickSettingsController qsc) {
         mContext = context;
         mContainerView = container;
-        mContainer = container;
         mInflater = inflater;
         mDrawable = R.drawable.ic_notifications;
         mLabel = mContext.getString(R.string.quick_settings_label_enabled);
@@ -88,7 +87,6 @@ public class QuickSettingsTile implements OnClickListener {
     void createQuickSettings() {
         mTile = (QuickSettingsTileView) mInflater.inflate(R.layout.quick_settings_tile, mContainerView, false);
         mTile.setContent(mTileLayout, mInflater);
-        mContainer.addView(mTile);
         mContainerView.addView(mTile);
         mTile.addOnLayoutChangeListener(new OnLayoutChangeListener() {
             @Override
@@ -115,11 +113,13 @@ public class QuickSettingsTile implements OnClickListener {
 
     void updateQuickSettings() {
         TextView tv = (TextView) mTile.findViewById(R.id.tile_textview);
-        tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
-        tv.setText(mLabel);
-        tv.setTextSize(1, mTileTextSize);
-        if (mTileTextColor != -2) {
-            tv.setTextColor(mTileTextColor);
+        if (tv != null) {
+            tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
+            tv.setText(mLabel);
+            tv.setTextSize(1, mTileTextSize);
+            if (mTileTextColor != -2) {
+                tv.setTextColor(mTileTextColor);
+            }
         }
     }
 
@@ -146,7 +146,9 @@ public class QuickSettingsTile implements OnClickListener {
 
     @Override
     public void onClick(View v) {
-        mOnClick.onClick(v);
+        if (mOnClick != null) {
+            mOnClick.onClick(v);
+        }
         ContentResolver resolver = mContext.getContentResolver();
         boolean shouldCollapse = Settings.System.getInt(resolver, Settings.System.QS_COLLAPSE_PANEL, 0) == 1;
         if (shouldCollapse) {

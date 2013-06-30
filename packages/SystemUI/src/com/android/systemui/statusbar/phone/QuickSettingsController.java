@@ -31,7 +31,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.net.ConnectivityManager;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.Settings;
@@ -64,7 +63,6 @@ public class QuickSettingsController {
      */
     public static final String TILE_AIRPLANE = "toggleAirplane";
     public static final String TILE_ALARM = "toggleAlarm";
-    public static final String TILE_CAMERA = "toggleCamera";
     public static final String TILE_CUSTOMSHORTCUT = "toggleCustomShortcut";
     public static final String TILE_AUTOROTATE = "toggleAutoRotate";
     public static final String TILE_BATTERY = "toggleBattery";
@@ -106,7 +104,6 @@ public class QuickSettingsController {
     static {
         TILES_CLASSES.put(TILE_AIRPLANE, "com.android.systemui.quicksettings.AirplaneModeTile");
         TILES_CLASSES.put(TILE_ALARM, "com.android.systemui.quicksettings.AlarmTile");
-        TILES_CLASSES.put(TILE_CAMERA, "com.android.systemui.quicksettings.CameraTile");
         TILES_CLASSES.put(TILE_CUSTOMSHORTCUT, "com.android.systemui.quicksettings.CustomShortcutTile");
         TILES_CLASSES.put(TILE_AUTOROTATE, "com.android.systemui.quicksettings.AutoRotateTile");
         TILES_CLASSES.put(TILE_BATTERY, "com.android.systemui.quicksettings.BatteryTile");
@@ -246,8 +243,6 @@ public class QuickSettingsController {
             if (tileName.equals(TILE_BLUETOOTH)) {
                 qs = createTile(deviceSupportsBluetooth(), tileName, instanceID, inflater,
                     mStatusBarService.mBluetoothController);
-            } else if (tileName.equals(TILE_CAMERA)) {
-                qs = createTile(deviceSupportsCamera(), tileName, instanceID, inflater, null);
             } else if (tileName.equals(TILE_WIFIAP)
                 || tileName.equals(TILE_NETWORKMODE) || tileName.equals(TILE_MOBILEDATA)) {
                 qs = createTile(deviceSupportsTelephony(), tileName, instanceID, inflater, null);
@@ -273,7 +268,6 @@ public class QuickSettingsController {
                 allTilesMap.put(tile, qs);
             }
         }
-        Log.e("\r\n\r\n"+TAG, "All tiles sucessfully created");
         updateTilesContent();
     }
 
@@ -404,10 +398,6 @@ public class QuickSettingsController {
     boolean deviceSupportsUsbTether() {
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         return (cm.getTetherableUsbRegexs().length != 0);
-    }
-
-    boolean deviceSupportsCamera() {
-        return Camera.getNumberOfCameras() > 0;
     }
 
     boolean systemProfilesEnabled(ContentResolver resolver) {
