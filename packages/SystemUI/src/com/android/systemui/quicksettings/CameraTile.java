@@ -250,11 +250,11 @@ public class CameraTile extends QuickSettingsTile {
     }
 
     public CameraTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container,
-            QuickSettingsController qsc, Handler handler) {
-        super(context, inflater, container, qsc, R.layout.quick_settings_tile_camera);
+            QuickSettingsContainerView container, QuickSettingsController qsc, Handler handler) {
+        super(context, inflater, container, qsc);
         mHandler = handler;
 
+        mTileLayout = R.layout.quick_settings_tile_camera;
         String imageFileNameFormat = DEFAULT_IMAGE_FILE_NAME_FORMAT;
         try {
             final Resources camRes = context.getPackageManager()
