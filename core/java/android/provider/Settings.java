@@ -3928,6 +3928,12 @@ public final class Settings {
         public static final String NOTIFICATION_CONVERT_SOUND_TO_VIBRATION = "convert_sound_to_vibration";
 
         /**
+         * Whether to allow notification vibration while notification alerts are disabled
+         * @hide
+         */
+        public static final String NOTIFICATION_VIBRATE_DURING_ALERTS_DISABLED = "vibrate_while_no_alerts";
+
+        /**
          * Whether to enable quiet hours.
          * @hide
          */
