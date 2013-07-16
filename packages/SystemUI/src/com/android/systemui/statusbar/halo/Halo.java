@@ -791,16 +791,20 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
                         mMarkerIndex = -1;
 
                         boolean gestureChanged = false;
-                         final int deltaIndex = (Math.abs(deltaY) - verticalThreshold) / verticalSteps;
-
-                        if (deltaIndex < 1 && mGesture != Gesture.NONE) {
-                            // Dead zone buffer to prevent accidental notifiction dismissal
-                            mGesture = Gesture.NONE;
-                            gestureChanged = true;
-                            mEffect.setHaloOverlay(HaloProperties.Overlay.NONE, 0f);
-                            gestureText = "";
-                        } else if (deltaY > 0) { 
-                            if (deltaIndex == 1 && mGesture != Gesture.UP1) {
+                        final int deltaIndex = (Math.abs(deltaY) - verticalThreshold) / verticalSteps;
+                        if (deltaY > 0) { 
+                            if (deltaIndex < 1 && mGesture != Gesture.NONE) {
+                                // Dead zone buffer to prevent accidental notifiction dismissal
+                                mGesture = Gesture.NONE;
+                                gestureChanged = true;
+                                mEffect.setHaloOverlay(HaloProperties.Overlay.NONE, 0f);
+                                gestureText = "";
+                            } else if (deltaIndex == 1 && mGesture != Gesture.UP1) {
+                                mGesture = Gesture.UP1;
+                                gestureChanged = true;
+                                mEffect.setHaloOverlay(HaloProperties.Overlay.DISMISS, 1f);
+                                gestureText = mContext.getResources().getString(R.string.halo_dismiss);
+                            } else if (deltaIndex > 1 && mGesture != Gesture.UP2) {
                                 mGesture = Gesture.UP2;
                                 gestureChanged = true;
                                 mEffect.setHaloOverlay(HaloProperties.Overlay.CLEAR_ALL, 1f);
