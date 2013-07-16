@@ -2802,15 +2802,10 @@ public final class Settings {
 
         /**
          * Choose side for Clear button on Recents window
+         * 0 = left, 1 = right
          * @hide
          */
         public static final String CLEAR_RECENTS_POSITION = "clear_recents_position";
-
-        /**
-         * whether circle RAM meter is used
-         * @hide
-         */
-        public static final String RECENTS_RAM_CIRCLE = "recents_ram_circle";
 
         /**
          * Whether to show the IME switcher in the status bar
