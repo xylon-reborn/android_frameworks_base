@@ -2741,6 +2741,12 @@ public final class Settings {
         public static final String HALO_BUBBLE_TEXT_COLOR = "halo_bubble_text_color";
 
         /**
+         * HALO size fraction, default is 1.0f (normal)
+         * @hide
+         */
+        public static final String HALO_SIZE = "halo_size";
+
+        /**
          * Sets the portrait background of notification drawer
          * @hide
          */
