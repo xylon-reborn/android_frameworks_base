@@ -113,7 +113,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     TextView mRamText;
 
     private static int mClearPosition;
-    private static boolean mCircleRam;
+    private static boolean mCircleRamBar;
 
     private CircleMemoryMeter mCircleMeterLeft;
     private CircleMemoryMeter mCircleMeterRight;
@@ -365,8 +365,8 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         mShowing = show;
         mClearPosition = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.CLEAR_RECENTS_POSITION, 0);
-        mCircleRam = Settings.System.getBoolean(mContext.getContentResolver(),
-                Settings.System.RECENTS_RAM_CIRCLE, false);
+        mCircleRamBar = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.RECENTS_RAM_CIRCLE, 0) == 1;
 
         if (show) {
             // if there are no apps, bring up a "No recent apps" message
