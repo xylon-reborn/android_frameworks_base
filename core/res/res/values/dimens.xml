@@ -19,9 +19,13 @@
 -->
 <resources>
     <!-- The width that is used when creating thumbnails of applications. -->
-    <dimen name="thumbnail_width">164dp</dimen>
+    <dimen name="thumbnail_width">170dp</dimen>
     <!-- The height that is used when creating thumbnails of applications. -->
-    <dimen name="thumbnail_height">145dp</dimen>
+    <dimen name="thumbnail_height">150dp</dimen>
+    <!-- The width that is used when creating thumbnails of applications. -->
+    <dimen name="thumbnail_width_alt">168dp</dimen>
+    <!-- The height that is used when creating thumbnails of applications. -->
+    <dimen name="thumbnail_height_alt">267dp</dimen>
     <!-- The standard size (both width and height) of an application icon that
          will be displayed in the app launcher and elsewhere. -->
     <dimen name="app_icon_size">48dip</dimen>
@@ -351,5 +355,4 @@
 
     <!-- Left padding of num pad key on keyguard -->
     <dimen name="kg_num_pad_key_padding_left">10dp</dimen>
-
 </resources>
