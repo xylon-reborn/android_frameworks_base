@@ -109,6 +109,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
     public static final String TAG = "HaloLauncher";
 
     enum State {
+        FIRST_START,
         IDLE,
         HIDDEN,
         SILENT,
@@ -184,6 +185,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
     SharedPreferences preferences;
     private String KEY_HALO_POSITION_Y = "halo_position_y";
     private String KEY_HALO_POSITION_X = "halo_position_x";
+    private String KEY_HALO_FIRST_START = "halo_first_start";
 
 
     private final class SettingsObserver extends ContentObserver {
@@ -322,6 +324,11 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
         preferences = mContext.getSharedPreferences("Halo", 0);
         int msavePositionX = preferences.getInt(KEY_HALO_POSITION_X, 0);
         int msavePositionY = preferences.getInt(KEY_HALO_POSITION_Y, mScreenHeight / 2 - mIconHalfSize);
+
+        if (preferences.getBoolean(KEY_HALO_FIRST_START, true)) {
+            mState = State.FIRST_START;
+            preferences.edit().putBoolean(KEY_HALO_FIRST_START, false).apply();
+        }
         
         mKillX = mScreenWidth / 2;
         mKillY = mIconHalfSize;
@@ -354,7 +361,28 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
             mEffect.setHaloX(msavePositionX);
             mEffect.setHaloY(msavePositionY);
             mEffect.nap(500);
-            if (mHideTicker) mEffect.sleep(HaloEffect.SNAP_TIME + HaloEffect.NAP_TIME + 2500, HaloEffect.SLEEP_TIME, false);
+
+            if (mState == State.FIRST_START) {
+                mEffect.ticker(mContext.getResources().getString(R.string.halo_tutorial1), 0, 1000);
+                mEffect.updateResources();
+                mHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        mEffect.ticker(mContext.getResources().getString(R.string.halo_tutorial2), 0, 4000);
+                        mEffect.updateResources();
+                        mHandler.postDelayed(new Runnable() {
+                            public void run() {
+                                mEffect.ticker(mContext.getResources().getString(R.string.halo_tutorial3), 0, 3000);
+                                mEffect.updateResources();
+                                mHandler.postDelayed(new Runnable() {
+                                    public void run() {
+                                        mState = State.IDLE;
+                                        if (mHideTicker) mEffect.sleep(HaloEffect.SNAP_TIME + HaloEffect.NAP_TIME + 2500, HaloEffect.SLEEP_TIME, false);
+                                   }}, 3000);
+                            }}, 7000);
+                    }}, 5000);
+            } else {
+                if (mHideTicker) mEffect.sleep(HaloEffect.SNAP_TIME + HaloEffect.NAP_TIME + 2500, HaloEffect.SLEEP_TIME, false);
+              }
         }
     }
     
@@ -502,6 +530,9 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mGestureDetector.onTouchEvent(event);
+
+        // Prevent any kind of interaction while HALO explains itself
+        if (mState == State.FIRST_START) return true;
 
         final int action = event.getAction();
         switch(action) {
@@ -753,14 +784,16 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
                         mMarkerIndex = -1;
 
                         boolean gestureChanged = false;
-                        final int deltaIndex = (Math.abs(deltaY) - verticalThreshold) / verticalSteps;
-                        if (deltaY > 0) {                           
-                            if (deltaIndex < 2 && mGesture != Gesture.UP1) {
-                                mGesture = Gesture.UP1;
-                                gestureChanged = true;
-                                mEffect.setHaloOverlay(HaloProperties.Overlay.DISMISS, 1f);
-                                gestureText = mContext.getResources().getString(R.string.halo_dismiss);
-                            } else if (deltaIndex > 1 && mGesture != Gesture.UP2) {
+                         final int deltaIndex = (Math.abs(deltaY) - verticalThreshold) / verticalSteps;
+
+                        if (deltaIndex < 1 && mGesture != Gesture.NONE) {
+                            // Dead zone buffer to prevent accidental notifiction dismissal
+                            mGesture = Gesture.NONE;
+                            gestureChanged = true;
+                            mEffect.setHaloOverlay(HaloProperties.Overlay.NONE, 0f);
+                            gestureText = "";
+                        } else if (deltaY > 0) { 
+                            if (deltaIndex == 1 && mGesture != Gesture.UP1) {
                                 mGesture = Gesture.UP2;
                                 gestureChanged = true;
                                 mEffect.setHaloOverlay(HaloProperties.Overlay.CLEAR_ALL, 1f);
@@ -768,7 +801,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
                             }
 
                         } else {
-                            if (deltaIndex < 2 && mGesture != Gesture.DOWN1) {
+                            if (deltaIndex == 1 && mGesture != Gesture.DOWN1) {
                                 mGesture = Gesture.DOWN1;
                                 gestureChanged = true;
                                 mEffect.setHaloOverlay(mTickerLeft ? HaloProperties.Overlay.BACK_LEFT
@@ -1198,7 +1231,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
         mEffect.mHaloIcon.setImageDrawable(new BitmapDrawable(mContext.getResources(), entry.getRoundIcon()));
 
         // Set text
-        if (mState != State.SILENT) mEffect.ticker(text, delay, duration);
+        if (mState != State.SILENT && mState != State.FIRST_START) mEffect.ticker(text, delay, duration);
 
         mEffect.updateResources();
         mEffect.invalidate();
