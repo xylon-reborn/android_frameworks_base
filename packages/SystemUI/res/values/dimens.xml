@@ -263,7 +263,6 @@
     <dimen name="pie_snap_radius">45dp</dimen>
     <!-- Stroke width of the snap points -->
     <dimen name="pie_snap_outline">4dp</dimen>
-
     <dimen name="pie_outline">2dp</dimen>
     <!-- Text size of "normal" / small text on the pie control -->
     <dimen name="pie_textsize">12sp</dimen>
@@ -281,10 +280,11 @@
     <dimen name="halo_bubble_size">75dp</dimen>
     <dimen name="halo_number_size">24dp</dimen>
     <dimen name="halo_number_text_size">14sp</dimen>
+
     <dimen name="halo_speech_text_size">15sp</dimen>
-    <dimen name="halo_speech_hpadding_short">18sp</dimen>
-    <dimen name="halo_speech_hpadding_wide">24dp</dimen>
-    <dimen name="halo_speech_vpadding_top">10dp</dimen>
-    <dimen name="halo_speech_vpadding_bottom">10dp</dimen>
+    <dimen name="halo_speech_hpadding_short">10dp</dimen>
+    <dimen name="halo_speech_hpadding_wide">18dp</dimen>
+    <dimen name="halo_speech_vpadding_top">7dp</dimen>
+    <dimen name="halo_speech_vpadding_bottom">5dp</dimen>
     <dimen name="halo_content_max_width">250dp</dimen>
 </resources>
