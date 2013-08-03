@@ -16,8 +16,8 @@
 
 package com.android.systemui.statusbar.tv;
 
+import android.service.notification.StatusBarNotification;
 import com.android.internal.statusbar.StatusBarIcon;
-import com.android.internal.statusbar.StatusBarNotification;
 import com.android.systemui.statusbar.BaseStatusBar;
 
 import android.os.IBinder;
@@ -95,6 +95,10 @@ public class TvStatusBar extends BaseStatusBar {
     }
 
     @Override
+    public void toggleStatusBar(boolean enable) {
+    }
+
+    @Override
     public void toggleRecentApps() {
     }
 
@@ -145,6 +149,11 @@ public class TvStatusBar extends BaseStatusBar {
     }
 
     @Override
+    protected boolean isNotificationPanelFullyVisible() {
+        return false;
+    }
+
+    @Override
     protected boolean shouldDisableNavbarGestures() {
         return true;
     }
@@ -156,4 +165,9 @@ public class TvStatusBar extends BaseStatusBar {
     @Override
     public void animateExpandSettingsPanel(boolean flip) {
     }
+
+    @Override
+    protected void refreshLayout(int layoutDirection) {
+    }
+
 }

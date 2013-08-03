@@ -78,7 +78,7 @@ public class PlatLogoActivity extends Activity {
         tv.setTextSize(size);
         tv.setTextColor(0xFFFFFFFF);
         tv.setShadowLayer(4*metrics.density, 0, 2*metrics.density, 0x66000000);
-        tv.setText(mIsLiquid ? "Android " + Build.VERSION.RELEASE : "JELLY BEAN");
+        tv.setText("JELLY BEAN");
         view.addView(tv, lp);
 
         return view;
@@ -126,6 +126,7 @@ public class PlatLogoActivity extends Activity {
                 return true;
             }
         });
+        
         setContentView(mContent);
     }
 }

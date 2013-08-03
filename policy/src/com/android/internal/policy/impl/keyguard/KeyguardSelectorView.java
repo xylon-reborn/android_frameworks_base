@@ -94,8 +94,8 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 switch (resId) {
                 case com.android.internal.R.drawable.ic_action_assist_generic:
                     Intent assistIntent =
-                    ((SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE))
-                    .getAssistIntent(mContext, UserHandle.USER_CURRENT);
+                            ((SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE))
+                            .getAssistIntent(mContext, true, UserHandle.USER_CURRENT);
                     if (assistIntent != null) {
                         mActivityLauncher.launchActivity(assistIntent, false, true, null, null);
                     } else {
@@ -122,15 +122,11 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 } else {
                     target -= 1 + mTargetOffset;
                     if (target < mStoredTargets.length && mStoredTargets[target] != null) {
-                        if (mStoredTargets[target].equals(GlowPadView.EMPTY_TARGET)) {
-                            mCallback.dismiss(false);
-                        } else {
-                            try {
-                                Intent launchIntent = Intent.parseUri(mStoredTargets[target], 0);
-                                mActivityLauncher.launchActivity(launchIntent, false, true, null, null);
-                                return;
-                            } catch (URISyntaxException e) {
-                            }
+                        try {
+                            Intent launchIntent = Intent.parseUri(mStoredTargets[target], 0);
+                            mActivityLauncher.launchActivity(launchIntent, false, true, null, null);
+                            return;
+                        } catch (URISyntaxException e) {
                         }
                     }
                 }
@@ -241,6 +237,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
 
         LinearLayout msgAndShortcutsContainer = (LinearLayout) findViewById(R.id.keyguard_message_and_shortcuts);
         msgAndShortcutsContainer.bringToFront();
+
         mGlowPadView = (GlowPadView) findViewById(R.id.glow_pad_view);
         mGlowPadView.setOnTriggerListener(mOnTriggerListener);
         updateTargets();
@@ -276,7 +273,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
 
     private boolean isShortcuts() {
         final String apps = Settings.System.getStringForUser(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_SHORTCUTS, UserHandle.USER_CURRENT);
+                Settings.System.LOCKSCREEN_SHORTCUTS_CONFIG, UserHandle.USER_CURRENT);
         if (apps == null || apps.isEmpty()) return false;
         return true;
     }
@@ -344,7 +341,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 currentUserHandle);
         boolean searchActionAvailable =
                 ((SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE))
-                .getAssistIntent(mContext, UserHandle.USER_CURRENT) != null;
+                .getAssistIntent(mContext, false, UserHandle.USER_CURRENT) != null;
         mCameraDisabled = cameraDisabledByAdmin || disabledBySimState || !cameraPresent
                 || !currentUserSetup;
         mSearchDisabled = disabledBySimState || !searchActionAvailable || !searchTargetPresent
@@ -359,7 +356,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             // Update the search icon with drawable from the search .apk
             if (!mSearchDisabled) {
                 Intent intent = ((SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE))
-                        .getAssistIntent(mContext, UserHandle.USER_CURRENT);
+                        .getAssistIntent(mContext, false, UserHandle.USER_CURRENT);
                 if (intent != null) {
                     // XXX Hack. We need to substitute the icon here but haven't formalized
                     // the public API. The "_google" metadata will be going away, so
@@ -381,9 +378,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                     .ic_lockscreen_camera, !mCameraDisabled);
             mGlowPadView.setEnableTarget(com.android.internal.R.drawable
                     .ic_action_assist_generic, !mSearchDisabled);
-
-            // Enable magnetic targets
-            mGlowPadView.setMagneticTargets(true);
         } else {
             mStoredTargets = storedVal.split("\\|");
             mIsScreenLarge = isScreenLarge();
@@ -394,11 +388,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             final boolean isLandscape = mCreationOrientation == Configuration.ORIENTATION_LANDSCAPE;
             final Drawable blankActiveDrawable = res.getDrawable(R.drawable.ic_lockscreen_target_activated);
             final InsetDrawable activeBack = new InsetDrawable(blankActiveDrawable, 0, 0, 0, 0);
-            // Disable magnetic target
-            mGlowPadView.setMagneticTargets(false);
-            //Magnetic target replacement
-            final Drawable blankInActiveDrawable = res.getDrawable(com.android.internal.R.drawable.ic_lockscreen_lock_pressed);
-            final Drawable unlockActiveDrawable = res.getDrawable(com.android.internal.R.drawable.ic_lockscreen_unlock_activated);
             // Shift targets for landscape lockscreen on phones
             mTargetOffset = isLandscape && !mIsScreenLarge ? 2 : 0;
             if (mTargetOffset == 2) {
@@ -477,7 +466,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                             storedDraw.add(new TargetDrawable(res, 0));
                         }
                     } else {
-                        storedDraw.add(new TargetDrawable(res, getLayeredDrawable(unlockActiveDrawable, blankInActiveDrawable, tmpInset, true)));
+                        storedDraw.add(new TargetDrawable(res, 0));
                     }
                 } else {
                     storedDraw.add(new TargetDrawable(res, 0));

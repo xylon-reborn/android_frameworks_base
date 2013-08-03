@@ -112,6 +112,12 @@ public class Build {
         public static final String CODENAME = getString("ro.build.version.codename");
 
         /**
+         * The current version string that defines the liquid version
+         * the device is on
+         */
+        public static final String LIQUID = getString("ro.liquid.version");
+
+        /**
          * The SDK version to use when accessing resources.
          * Use the current SDK version code.  If we are a development build,
          * also allow the previous SDK version + 1.
@@ -431,6 +437,11 @@ public class Build {
          * </ul>
          */
         public static final int JELLY_BEAN_MR1 = 17;
+
+        /**
+         * Android 4.3: Jelly Bean MR2, the revenge of the beans.
+         */
+        public static final int JELLY_BEAN_MR2 = 18;
     }
     
     /** The type of build, like "user" or "eng". */

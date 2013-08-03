@@ -120,38 +120,21 @@ public abstract class KeyguardActivityLauncher {
     public void launchWidgetPicker(int appWidgetId) {
         Intent pickIntent = new Intent(AppWidgetManager.ACTION_KEYGUARD_APPWIDGET_PICK);
 
-        if (Settings.System.getInt(getContext().getContentResolver(),
-                Settings.System.LOCKSCREEN_ALL_WIDGETS, 0) == 1) {
-            pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            pickIntent.putExtra(AppWidgetManager.EXTRA_CUSTOM_SORT, false);
-            pickIntent.putExtra(AppWidgetManager.EXTRA_CATEGORY_FILTER,
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD);
+        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        pickIntent.putExtra(AppWidgetManager.EXTRA_CUSTOM_SORT, false);
 
-            Bundle options = new Bundle();
-            options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD);
-            pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
-            pickIntent.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        } else {
-            pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            pickIntent.putExtra(AppWidgetManager.EXTRA_CUSTOM_SORT, false);
-            pickIntent.putExtra(AppWidgetManager.EXTRA_CATEGORY_FILTER,
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
+        pickIntent.putExtra(AppWidgetManager.EXTRA_CATEGORY_FILTER,
+                AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD);
 
-            Bundle options = new Bundle();
-            options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
-            pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
-            pickIntent.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        }
+        Bundle options = new Bundle();
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
+                AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD);
+        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
+        pickIntent.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
 
         launchActivity(pickIntent, false, false, null, null);
     }
@@ -192,7 +175,7 @@ public abstract class KeyguardActivityLauncher {
         boolean isSecure = lockPatternUtils.isSecure();
         if (!isSecure || showsWhileLocked) {
             if (!isSecure) {
-                dismissKeyguardOnNextActivity();
+                getCallback().dismiss(false);
             }
             try {
                 if (DEBUG) Log.d(TAG, String.format("Starting activity for intent %s at %s",
@@ -239,6 +222,7 @@ public abstract class KeyguardActivityLauncher {
                 try {
                     WaitResult result = ActivityManagerNative.getDefault().startActivityAndWait(
                             null /*caller*/,
+                            null /*caller pkg*/,
                             intent,
                             intent.resolveTypeIfNeeded(getContext().getContentResolver()),
                             null /*resultTo*/,

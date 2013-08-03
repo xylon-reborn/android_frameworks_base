@@ -212,7 +212,7 @@ public class RecentsHorizontalScrollView extends HorizontalScrollView
         mSwipeHelper.dismissChild(v, 0);
     }
 
-    public void onChildDismissed(View v, boolean fromUser) {
+    public void onChildDismissed(View v) {
         addToRecycledViews(v);
         mLinearLayout.removeView(v);
         mCallback.handleSwipe(v);
@@ -272,7 +272,7 @@ public class RecentsHorizontalScrollView extends HorizontalScrollView
             mPerformanceHelper.drawCallback(canvas,
                     left, right, top, bottom, mScrollX, mScrollY,
                     0, 0,
-                    getLeftFadingEdgeStrength(), getRightFadingEdgeStrength());
+                    getLeftFadingEdgeStrength(), getRightFadingEdgeStrength(), mPaddingTop);
         }
     }
 

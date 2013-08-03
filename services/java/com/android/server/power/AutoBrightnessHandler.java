@@ -16,6 +16,7 @@
 package com.android.server.power;
 
 import android.content.Context;
+import android.os.SystemProperties;
 import android.provider.Settings;
 
 import java.io.File;
@@ -28,25 +29,26 @@ import java.io.IOException;
  * This is done by setting a sysfs node. This behavior can be configured by setting the
  * config_panelAutoBrightnessValue to the integer value to write when enabled.
  *
+ * Some high-end panels might support alternative brightness modes such as high gamma. This
+ * is highly device-specific, but we will support these via a persistent system property.
+ *
  * @hide
  */
 public class AutoBrightnessHandler {
 
     private static final String NODE = "/sys/class/lcd/panel/panel/auto_brightness";
 
+    private static final String ALT_BRIGHTNESS_PROP = "persist.sys.alt.brightness";
+
     private static final int PANEL_MANUAL = 0;
 
-    private final int mPanelAutoValue;
-
     public AutoBrightnessHandler(Context context) {
-        mPanelAutoValue = context.getResources().getInteger(
-                com.android.internal.R.integer.config_panelAutoBrightnessValue);
-
     }
-    public void onAutoBrightnessChanged(int mode) {
-        if (mPanelAutoValue > -1) {
-            writeValue(NODE, mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC ? mPanelAutoValue : PANEL_MANUAL);
-        }
+
+    public void onAutoBrightnessChanged(int mode, int panelAutoValue) {
+        int override = SystemProperties.getInt(ALT_BRIGHTNESS_PROP, -1);
+        writeValue(NODE, mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC ?
+                (override > -1 ? override : panelAutoValue) : PANEL_MANUAL);
     }
 
     private static void writeValue(String filename, int value) {

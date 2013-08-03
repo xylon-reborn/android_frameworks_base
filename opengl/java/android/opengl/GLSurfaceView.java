@@ -169,8 +169,6 @@ public class GLSurfaceView extends SurfaceView implements SurfaceHolder.Callback
     private final static boolean LOG_RENDERER = false;
     private final static boolean LOG_RENDERER_DRAW_FRAME = false;
     private final static boolean LOG_EGL = false;
-
-    private final static boolean RGB565 = SystemProperties.getBoolean("ro.opengles.surface.rgb565", false);
     /**
      * The renderer only renders
      * when the surface is created, or when {@link #requestRender} is called.
@@ -976,7 +974,7 @@ public class GLSurfaceView extends SurfaceView implements SurfaceHolder.Callback
      */
     private class SimpleEGLConfigChooser extends ComponentSizeChooser {
         public SimpleEGLConfigChooser(boolean withDepthBuffer) {
-            super(RGB565 ? 5 : 8, RGB565 ? 6 : 8, RGB565 ? 5 : 8, 0, withDepthBuffer ? 16 : 0, 0);
+            super(8, 8, 8, 0, withDepthBuffer ? 16 : 0, 0);
         }
     }
 
@@ -1447,6 +1445,7 @@ public class GLSurfaceView extends SurfaceView implements SurfaceHolder.Callback
                                 Log.i("GLThread", "waiting tid=" + getId()
                                     + " mHaveEglContext: " + mHaveEglContext
                                     + " mHaveEglSurface: " + mHaveEglSurface
+                                    + " mFinishedCreatingEglSurface: " + mFinishedCreatingEglSurface
                                     + " mPaused: " + mPaused
                                     + " mHasSurface: " + mHasSurface
                                     + " mSurfaceIsBad: " + mSurfaceIsBad
@@ -1470,8 +1469,14 @@ public class GLSurfaceView extends SurfaceView implements SurfaceHolder.Callback
                         if (LOG_SURFACE) {
                             Log.w("GLThread", "egl createSurface");
                         }
-                        if (!mEglHelper.createSurface()) {
+                        if (mEglHelper.createSurface()) {
                             synchronized(sGLThreadManager) {
+                                mFinishedCreatingEglSurface = true;
+                                sGLThreadManager.notifyAll();
+                            }
+                        } else {
+                            synchronized(sGLThreadManager) {
+                                mFinishedCreatingEglSurface = true;
                                 mSurfaceIsBad = true;
                                 sGLThreadManager.notifyAll();
                             }
@@ -1597,8 +1602,11 @@ public class GLSurfaceView extends SurfaceView implements SurfaceHolder.Callback
                     Log.i("GLThread", "surfaceCreated tid=" + getId());
                 }
                 mHasSurface = true;
+                mFinishedCreatingEglSurface = false;
                 sGLThreadManager.notifyAll();
-                while((mWaitingForSurface) && (!mExited)) {
+                while (mWaitingForSurface
+                       && !mFinishedCreatingEglSurface
+                       && !mExited) {
                     try {
                         sGLThreadManager.wait();
                     } catch (InterruptedException e) {
@@ -1737,6 +1745,7 @@ public class GLSurfaceView extends SurfaceView implements SurfaceHolder.Callback
         private boolean mWaitingForSurface;
         private boolean mHaveEglContext;
         private boolean mHaveEglSurface;
+        private boolean mFinishedCreatingEglSurface;
         private boolean mShouldReleaseEglContext;
         private int mWidth;
         private int mHeight;

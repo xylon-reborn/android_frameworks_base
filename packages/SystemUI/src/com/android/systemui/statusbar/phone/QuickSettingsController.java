@@ -45,6 +45,7 @@ import java.util.Map;
 
 public class QuickSettingsController {
     private static String TAG = "QuickSettingsController";
+
     public HashMap<String, QuickSettingsTile> allTilesMap;
 
     // Stores the broadcast receivers and content observers
@@ -95,7 +96,6 @@ public class QuickSettingsController {
     public static final String TILE_WIFI = "toggleWifi";
     public static final String TILE_WIFIAP = "toggleWifiAp";
     public static final String TILE_WIFIDISPLAY = "toggleWifiDisplay";
-
     // not yet supported
     public static final String TILE_WIMAX = "toggleWimax";
 
@@ -268,6 +268,7 @@ public class QuickSettingsController {
                 allTilesMap.put(tile, qs);
             }
         }
+        Log.e("\r\n\r\n"+TAG, "All tiles sucessfully created");
         updateTilesContent();
     }
 
@@ -338,10 +339,8 @@ public class QuickSettingsController {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            if (mObserverMap != null && mObserverMap.get(uri) != null) {
-                for (QuickSettingsTile tile : mObserverMap.get(uri)) {
-                     tile.onChangeUri(resolver, uri);
-                }
+            for (QuickSettingsTile tile : mObserverMap.get(uri)) {
+                tile.onChangeUri(resolver, uri);
             }
         }
     }

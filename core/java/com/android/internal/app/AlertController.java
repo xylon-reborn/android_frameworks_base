@@ -572,7 +572,7 @@ public class AlertController {
             if (whichButtons == BIT_BUTTON_POSITIVE) {
                 centerButton(mButtonPositive);
             } else if (whichButtons == BIT_BUTTON_NEGATIVE) {
-                centerButton(mButtonNegative);
+                centerButton(mButtonNeutral);
             } else if (whichButtons == BIT_BUTTON_NEUTRAL) {
                 centerButton(mButtonNeutral);
             }

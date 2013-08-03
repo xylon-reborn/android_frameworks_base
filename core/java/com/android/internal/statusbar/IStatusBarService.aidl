@@ -19,7 +19,7 @@ package com.android.internal.statusbar;
 import com.android.internal.statusbar.IStatusBar;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
-import com.android.internal.statusbar.StatusBarNotification;
+import android.service.notification.StatusBarNotification;
 
 /** @hide */
 interface IStatusBarService
@@ -50,7 +50,11 @@ interface IStatusBarService
     void setHardKeyboardEnabled(boolean enabled);
     void toggleNotificationShade();
     void toggleQSShade();
+    void toggleStatusBar(boolean enable);
     void toggleWidgets();
+    void toggleScreenshot();
+    void toggleLastApp();
+    void toggleKillApp();
     void toggleRecentApps();
     void preloadRecentApps();
     void cancelPreloadRecentApps();

@@ -109,6 +109,7 @@ public final class ConnectionSettings implements Parcelable {
         try {
             nfcAdapter = NfcAdapter.getNfcAdapter(context);
         } catch (UnsupportedOperationException e) {
+            //Nfc not available
         }
 
         boolean forcedState = getValue() == 1;
@@ -178,7 +179,8 @@ public final class ConnectionSettings implements Parcelable {
                 currentState = wm.isWifiApEnabled();
                 if (currentState != forcedState) {
                     // Disable wifi
-                    if (forcedState && (wifiState == WifiManager.WIFI_STATE_ENABLING) || (wifiState == WifiManager.WIFI_STATE_ENABLED)) {
+                    if (forcedState && (wifiState == WifiManager.WIFI_STATE_ENABLING) ||
+                            (wifiState == WifiManager.WIFI_STATE_ENABLED)) {
                         wm.setWifiEnabled(false);
                     }
                     wm.setWifiApEnabled(null, forcedState);
@@ -195,9 +197,10 @@ public final class ConnectionSettings implements Parcelable {
             case PROFILE_CONNECTION_NFC:
                 if (nfcAdapter != null) {
                     int adapterState = nfcAdapter.getAdapterState();
-                    currentState = (adapterState == NfcAdapter.STATE_ON);
+                    currentState = (adapterState == NfcAdapter.STATE_ON ||
+                            adapterState == NfcAdapter.STATE_TURNING_ON);
                     if (currentState != forcedState) {
-                        if (forcedState && (adapterState != NfcAdapter.STATE_TURNING_ON)) {
+                        if (forcedState) {
                             nfcAdapter.enable();
                         } else if (!forcedState && adapterState != NfcAdapter.STATE_TURNING_OFF) {
                             nfcAdapter.disable();

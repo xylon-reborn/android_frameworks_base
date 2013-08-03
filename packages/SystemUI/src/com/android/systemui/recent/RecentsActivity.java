@@ -48,7 +48,6 @@ public class RecentsActivity extends Activity {
     private IntentFilter mIntentFilter;
     private boolean mShowing;
     private boolean mForeground;
-    protected boolean mBackPressed;
 
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
@@ -128,6 +127,9 @@ public class RecentsActivity extends Activity {
         }
         mShowing = true;
         if (mRecentsPanel != null) {
+            // Call and refresh the recent tasks list in case we didn't preload tasks
+            // or in case we don't get an onNewIntent
+            mRecentsPanel.refreshRecentTasksList();
             mRecentsPanel.refreshViews();
         }
         super.onStart();
@@ -141,12 +143,7 @@ public class RecentsActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        mBackPressed = true;
-        try {
-            dismissAndGoBack();
-        } finally {
-            mBackPressed = false;
-        }
+        dismissAndGoBack();
     }
 
     public void dismissAndGoHome() {
@@ -170,7 +167,6 @@ public class RecentsActivity extends Activity {
                             ActivityManager.RECENT_IGNORE_UNAVAILABLE);
             if (recentTasks.size() > 1 &&
                     mRecentsPanel.simulateClick(recentTasks.get(1).persistentId)) {
-                finish();
                 // recents panel will take care of calling show(false) through simulateClick
                 return;
             }
@@ -184,6 +180,7 @@ public class RecentsActivity extends Activity {
         setContentView(R.layout.status_bar_recent_panel);
         mRecentsPanel = (RecentsPanelView) findViewById(R.id.recents_root);
         mRecentsPanel.setOnTouchListener(new TouchOutsideListener(mRecentsPanel));
+        mRecentsPanel.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         final RecentTasksLoader recentTasksLoader = RecentTasksLoader.getInstance(this);
         recentTasksLoader.setRecentsPanel(mRecentsPanel, mRecentsPanel);

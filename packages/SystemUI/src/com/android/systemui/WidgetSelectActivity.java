@@ -35,6 +35,7 @@ public class WidgetSelectActivity extends Activity {
     private static final int REQUEST_CREATE_APPWIDGET = 5;
     private static final int REQUEST_PICK_APPWIDGET = 9;
     public static final int APP_WIDGET_HOST_ID = 2112;
+
     public static final String ACTION_SEND_ID = "com.android.systemui.ACTION_SEND_ID";
 
     AppWidgetManager mAppWidgetManager;
@@ -121,6 +122,7 @@ public class WidgetSelectActivity extends Activity {
         sendBroadcast(send);
         Log.i(TAG, "ACTION_SEND_ID sent ID:"+ appWidgetId + " Label:"+getWidgetSummary(appWidgetId) );
         finish();
+
     }
 
     private String getWidgetSummary(int appWidgetId) {
@@ -134,5 +136,7 @@ public class WidgetSelectActivity extends Activity {
                 return appWPI.label;
             }
         }
+
     }
+
 }

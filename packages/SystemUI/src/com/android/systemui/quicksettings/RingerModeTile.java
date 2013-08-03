@@ -103,7 +103,6 @@ public class RingerModeTile extends QuickSettingsTile {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (DBG) Log.e("\r\n\r\nRingerModeTile","RINGER_MODE_CHANGED_ACTION\r\n");
-
         applyVibrationChanges();
     }
 
@@ -189,11 +188,9 @@ public class RingerModeTile extends QuickSettingsTile {
         ContentResolver resolver = mContext.getContentResolver();
         boolean vibrateWhenRinging = Settings.System.getInt(resolver,
                 Settings.System.VIBRATE_WHEN_RINGING, 0) == 1;
-
         if (DBG) Log.e("\r\n\r\nRingerModeTile","vibrateWhenRinging = "+vibrateWhenRinging);
         int ringerMode = mAudioManager.getRingerMode();
         if (DBG) Log.e("RingerModeTile","ringerMode = "+ringerMode+"\r\n");
-
         Ringer ringer = new Ringer(ringerMode, vibrateWhenRinging);
         for (int i = 0; i < mRingers.length; i++) {
             if (mRingers[i].equals(ringer)) {

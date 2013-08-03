@@ -17,6 +17,7 @@
 package com.android.server;
 
 import android.app.StatusBarManager;
+import android.service.notification.StatusBarNotification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +34,6 @@ import com.android.internal.statusbar.IStatusBar;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
-import com.android.internal.statusbar.StatusBarNotification;
 import com.android.server.wm.WindowManagerService;
 
 import java.io.FileDescriptor;
@@ -385,10 +385,46 @@ public class StatusBarManagerService extends IStatusBarService.Stub
     }
 
     @Override
+    public void toggleStatusBar(boolean enable) {
+        if (mBar != null) {
+            try {
+                mBar.toggleStatusBar(enable);
+            } catch (RemoteException ex) {}
+        }
+    }
+
+    @Override
     public void toggleWidgets() {
         if (mBar != null) {
             try {
                 mBar.toggleWidgets();
+            } catch (RemoteException ex) {}
+        }
+    }
+
+    @Override
+    public void toggleScreenshot() {
+        if (mBar != null) {
+            try {
+                mBar.toggleScreenshot();
+            } catch (RemoteException ex) {}
+        }
+    }
+
+    @Override
+    public void toggleLastApp() {
+        if (mBar != null) {
+            try {
+                mBar.toggleLastApp();
+            } catch (RemoteException ex) {}
+        }
+    }
+
+    @Override
+    public void toggleKillApp() {
+        if (mBar != null) {
+            try {
+                mBar.toggleKillApp();
             } catch (RemoteException ex) {}
         }
     }

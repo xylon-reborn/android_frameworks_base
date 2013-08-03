@@ -896,6 +896,4 @@ public final class PowerManager {
         } catch (RemoteException e) {
         }
     }
-
-
 }

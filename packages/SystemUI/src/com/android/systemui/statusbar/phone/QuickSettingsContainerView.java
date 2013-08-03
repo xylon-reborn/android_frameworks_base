@@ -199,5 +199,4 @@ public class QuickSettingsContainerView extends FrameLayout {
 
         return tileTextColor;
     }
-
 }

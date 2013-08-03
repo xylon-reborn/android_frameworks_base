@@ -2,6 +2,7 @@
 <!--
 /**
  * Copyright (c) 2009, The Android Open Source Project
+ * This code has been modified. Portions copyright (C) 2012, ParanoidAndroid Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -308,6 +309,9 @@
     <!-- Content description of the data connection type GPRS for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_data_connection_gprs">GPRS</string>
 
+    <!-- Content description of the data connection type DC-HSPA+ for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_data_connection_DC">DCHSPAP</string>
+
     <!-- Content description of the data connection type 1x for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_data_connection_1x">1 X</string>
 
@@ -323,11 +327,11 @@
     <!-- Content description of the data connection type HSPA+ for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_data_connection_HP">HSPA+</string>
 
-    <!-- Content description of the data connection type DC-HSPA+ for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <string name="accessibility_data_connection_DC">DCHSPAP</string>
-
     <!-- Content description of the data connection type 4G for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_data_connection_4g">4G</string>
+
+    <!-- Content description of the data connection type LTE for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_data_connection_lte">LTE</string>
 
     <!-- Content description of the data connection type CDMA for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_data_connection_cdma">CDMA</string>
@@ -562,6 +566,7 @@
     <string name="quick_settings_lte">LTE</string>
     <string name="quick_settings_lte_off">LTE off</string>
     <string name="quick_settings_volume">Volume</string>
+    <!-- Expanded desktop strings break the rules a bit - the icon identifies the feature, the string indicates current state -->
     <string name="quick_settings_expanded_desktop">Expanded</string>
     <string name="quick_settings_expanded_desktop_off">Normal</string>
     <string name="quick_settings_expanded_desktop_disabled">Disabled</string>
@@ -577,24 +582,7 @@
         <xliff:g id="number">%d</xliff:g>
     </string>
 
-    <!--  Target/Action Strings -->
-    <string name="action_home">Home</string>
-    <string name="action_back">Back</string>
-    <string name="action_recents">Recents</string>
-    <string name="action_screenshot">Screenshot</string>
-    <string name="action_menu">Menu</string>
-    <string name="action_ime">Open IME Switcher</string>
-    <string name="action_kill">Kill task</string>
-    <string name="action_power">Power</string>
-    <string name="action_notifications">Notifications</string>
-    <string name="action_qs">Quicksettings</string>
-    <string name="action_lastapp">Last App</string>
-    <string name="action_none">Empty</string>
-
-    <string name="toggle_ring_vib">Ring/Vib - Toggle</string>
-    <string name="toggle_ring_silent">Ring/Silent - Toggle</string>
-    <string name="toggle_ring_vib_silent">Ring/Vib/Silent - Toggle</string>
-    <string name="toggle_widgets">Widgets - Toggle</string>
+    <!--  General action Strings -->
     <string name="widgets">Widgets</string>
     <string name="app_killed_message">App Killed</string>
 
@@ -699,12 +687,13 @@
     <string name="pie_phone_status_airplane_mode">Airplane mode on</string>
     <string name="pie_phone_status_emergency_only">Emergency calls only</string>
 
+    <!-- Halo strings -->
     <string name="halo_dismiss">Dismiss notification</string>
     <string name="halo_hide">Hide</string>
     <string name="halo_clear_all">Clear all notifications</string>
     <string name="halo_silence">Hide and silence until woken</string>
-    <string name="halo_tutorial1">I am HALO.</string>
-    <string name="halo_tutorial2">Double-tap-drag to move me around, drag to task.</string>
-    <string name="halo_tutorial3">Change my behavior in the settings.</string>
+    <string name="halo_tutorial1">I am HALO</string>
+    <string name="halo_tutorial2">Double-tap-drag to move me around, drag to switch tasks</string>
+    <string name="halo_tutorial3">Change my behavior in the settings</string>
 
 </resources>

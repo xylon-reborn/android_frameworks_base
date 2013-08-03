@@ -104,8 +104,8 @@ public class FChargeButton extends PowerButton {
             Log.e("FChargeToggle", "Couldn't read fast_charge file");
             Settings.System.putInt(mContext.getContentResolver(),
                  Settings.System.FCHARGE_ENABLED, 0);
-            return false;
         }
+        return false;
     }
 
     @Override

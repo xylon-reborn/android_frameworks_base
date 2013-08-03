@@ -435,7 +435,6 @@ public class WebSettingsClassic extends WebSettings {
             buffer.append(" Build/");
             buffer.append(id);
         }
-
         String mobile = context.getResources().getText(
             com.android.internal.R.string.web_user_agent_target_content).toString();
         final String base = context.getResources().getText(
@@ -661,10 +660,6 @@ public class WebSettingsClassic extends WebSettings {
     @Override
     public synchronized void setTextZoom(int textZoom) {
         if (mTextSize != textZoom) {
-            if (WebViewClassic.mLogEvent) {
-                EventLog.writeEvent(EventLogTags.BROWSER_TEXT_SIZE_CHANGE,
-                        mTextSize, textZoom);
-            }
             mTextSize = textZoom;
             postSync();
         }
@@ -834,6 +829,10 @@ public class WebSettingsClassic extends WebSettings {
      */
     @Override
     public synchronized void setLayoutAlgorithm(LayoutAlgorithm l) {
+        if (l == LayoutAlgorithm.TEXT_AUTOSIZING) {
+            throw new IllegalArgumentException(
+                    "WebViewClassic does not support TEXT_AUTOSIZING layout mode");
+        }
         // XXX: This will only be affective if libwebcore was built with
         // ANDROID_LAYOUT defined.
         if (mLayoutAlgorithm != l) {

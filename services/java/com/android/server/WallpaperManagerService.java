@@ -643,12 +643,6 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
                 throw new IllegalArgumentException("width and height must be > 0");
             }
 
-            int maxWidth = mContext.getResources().getInteger(
-                    com.android.internal.R.integer.config_wallpaperMaxWidth);
-            if (maxWidth != -1 && width > maxWidth) {
-                  width = maxWidth;
-            }
-
             if (width != wallpaper.width || height != wallpaper.height) {
                 wallpaper.width = width;
                 wallpaper.height = height;
@@ -895,7 +889,8 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
                     Intent.createChooser(new Intent(Intent.ACTION_SET_WALLPAPER),
                             mContext.getText(com.android.internal.R.string.chooser_wallpaper)),
                     0, null, new UserHandle(serviceUserId)));
-            if (!mContext.bindService(intent, newConn, Context.BIND_AUTO_CREATE, serviceUserId)) {
+            if (!mContext.bindServiceAsUser(intent, newConn, Context.BIND_AUTO_CREATE,
+                    new UserHandle(serviceUserId))) {
                 String msg = "Unable to bind service: "
                         + componentName;
                 if (fromUser) {

@@ -43,7 +43,6 @@ public class FChargeTile extends QuickSettingsTile {
 
     public static final String FAST_CHARGE_DIR = "/sys/kernel/fast_charge";
     public static final String FAST_CHARGE_FILE = "force_fast_charge";
-
     protected boolean enabled = false;
 
     public static QuickSettingsTile getInstance(Context context, LayoutInflater inflater,
@@ -105,8 +104,8 @@ public class FChargeTile extends QuickSettingsTile {
             if (DBG) Log.e("FChargeToggle", "Couldn't read fast_charge file");
             Settings.System.putInt(mContext.getContentResolver(),
                  Settings.System.FCHARGE_ENABLED, 0);
-            return false;
         }
+        return false;
     }
 
     private void updateTileState() {

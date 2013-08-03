@@ -232,6 +232,7 @@ public class WidgetView extends LinearLayout {
                 return false;
             }
         });
+
     }
 
     public OnPageChangeListener mNewPageListener = new OnPageChangeListener() {
@@ -339,4 +340,5 @@ public class WidgetView extends LinearLayout {
             }
         }
     }
+
 }

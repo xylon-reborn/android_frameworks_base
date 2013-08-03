@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
+ * This code has been modified. Portions copyright (C) 2012, ParanoidAndroid Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +48,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -56,9 +58,9 @@ import android.text.TextUtils;
 import android.text.method.TextKeyListener;
 import android.util.AttributeSet;
 import android.util.EventLog;
-import android.util.DisplayMetrics; 
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue; 
+import android.util.TypedValue;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.view.ActionMode;
@@ -83,6 +85,8 @@ import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.AdapterView;
+
+import com.android.internal.statusbar.IStatusBarService;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -699,6 +703,9 @@ public class Activity extends ContextThemeWrapper
     /*package*/ Configuration mCurrentConfig;
     private SearchManager mSearchManager;
     private MenuInflater mMenuInflater;
+
+    private IStatusBarService mStatusBarService;
+    private Object mServiceAquireLock = new Object();
 
     static final class NonConfigurationInstances {
         Object activity;
@@ -1355,6 +1362,20 @@ public class Activity extends ContextThemeWrapper
     }
 
     /**
+     * This is called when the user is requesting an assist, to build a full
+     * {@link Intent#ACTION_ASSIST} Intent with all of the context of the current
+     * application.  You can override this method to place into the bundle anything
+     * you would like to appear in the {@link Intent#EXTRA_ASSIST_CONTEXT} part
+     * of the assist Intent.  The default implementation does nothing.
+     *
+     * <p>This function will be called after any global assist callbacks that had
+     * been registered with {@link Application#registerOnProvideAssistDataListener
+     * Application.registerOnProvideAssistDataListener}.
+     */
+    public void onProvideAssistData(Bundle data) {
+    }
+
+    /**
      * Called when you are no longer visible to the user.  You will next
      * receive either {@link #onRestart}, {@link #onDestroy}, or nothing,
      * depending on later user activity.
@@ -1468,8 +1489,8 @@ public class Activity extends ContextThemeWrapper
         if (mWindow != null) {
             // Pass the configuration changed event to the window
             mWindow.onConfigurationChanged(newConfig);
-            if (mWindow.mIsFloatingWindow) {  
-                scaleFloatingWindow(null);  
+            if (mWindow.mIsFloatingWindow) {
+                scaleFloatingWindow(null);
             }
         }
 
@@ -2425,9 +2446,16 @@ public class Activity extends ContextThemeWrapper
                         mQuickPeekInitialY = ev.getY();
                         mQuickPeekAction = true;
                     } else if (mNtQsShadeActive) {
-                        Settings.System.putInt(getContentResolver(),
-                                Settings.System.TOGGLE_NOTIFICATION_AND_QS_SHADE, 0);
-                        mNtQsShadeActive = false;
+                        try {
+                            IStatusBarService statusbar = getStatusBarService();
+                            if (statusbar != null) {
+                                statusbar.toggleStatusBar(false);
+                            }
+                            mNtQsShadeActive = false;
+                        } catch (RemoteException e) {
+                            Slog.e(TAG, "RemoteException during toggle statusbar", e);
+                            mStatusBarService = null;
+                        }
                     }
                 }
                 onUserInteraction();
@@ -2437,10 +2465,17 @@ public class Activity extends ContextThemeWrapper
                     break;
                 }
                 if (Math.abs(ev.getY() - mQuickPeekInitialY) > getStatusBarHeight()) {
-                    Settings.System.putInt(getContentResolver(),
-                            Settings.System.TOGGLE_NOTIFICATION_AND_QS_SHADE, 1);
+                    try {
+                        IStatusBarService statusbar = getStatusBarService();
+                        if (statusbar != null) {
+                            statusbar.toggleStatusBar(true);
+                        }
                         mNtQsShadeActive = true;
                         mQuickPeekAction = false;
+                    } catch (RemoteException e) {
+                        Slog.e(TAG, "RemoteException during toggle statusbar", e);
+                        mStatusBarService = null;
+                    }
                 }
                 break;
             default:
@@ -2456,6 +2491,16 @@ public class Activity extends ContextThemeWrapper
 
     private int getStatusBarHeight() {
         return getResources().getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
+    }
+
+    IStatusBarService getStatusBarService() {
+        synchronized (mServiceAquireLock) {
+            if (mStatusBarService == null) {
+                mStatusBarService = IStatusBarService.Stub.asInterface(
+                        ServiceManager.getService("statusbar"));
+            }
+            return mStatusBarService;
+        }
     }
 
     /**
@@ -3544,7 +3589,8 @@ public class Activity extends ContextThemeWrapper
         try {
             String resolvedType = null;
             if (fillInIntent != null) {
-                fillInIntent.setAllowFds(false);
+                fillInIntent.migrateExtraStreamToClipData();
+                fillInIntent.prepareToLeaveProcess();
                 resolvedType = fillInIntent.resolveTypeIfNeeded(getContentResolver());
             }
             int result = ActivityManagerNative.getDefault()
@@ -3769,9 +3815,10 @@ public class Activity extends ContextThemeWrapper
         if (mParent == null) {
             int result = ActivityManager.START_RETURN_INTENT_TO_CALLER;
             try {
-                intent.setAllowFds(false);
+                intent.migrateExtraStreamToClipData();
+                intent.prepareToLeaveProcess();
                 result = ActivityManagerNative.getDefault()
-                    .startActivity(mMainThread.getApplicationThread(),
+                    .startActivity(mMainThread.getApplicationThread(), getBasePackageName(),
                             intent, intent.resolveTypeIfNeeded(getContentResolver()),
                             mToken, mEmbeddedID, requestCode,
                             ActivityManager.START_FLAG_ONLY_IF_NEEDED, null, null,
@@ -3839,7 +3886,8 @@ public class Activity extends ContextThemeWrapper
     public boolean startNextMatchingActivity(Intent intent, Bundle options) {
         if (mParent == null) {
             try {
-                intent.setAllowFds(false);
+                intent.migrateExtraStreamToClipData();
+                intent.prepareToLeaveProcess();
                 return ActivityManagerNative.getDefault()
                     .startNextMatchingActivity(mToken, intent, options);
             } catch (RemoteException e) {
@@ -4058,10 +4106,16 @@ public class Activity extends ContextThemeWrapper
      * use this information to validate that the recipient is allowed to
      * receive the data.
      * 
-     * <p>Note: if the calling activity is not expecting a result (that is it
+     * <p class="note">Note: if the calling activity is not expecting a result (that is it
      * did not use the {@link #startActivityForResult} 
      * form that includes a request code), then the calling package will be 
-     * null. 
+     * null.</p>
+     *
+     * <p class="note">Note: prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR2},
+     * the result from this method was unstable.  If the process hosting the calling
+     * package was no longer running, it would return null instead of the proper package
+     * name.  You can use {@link #getCallingActivity()} and retrieve the package name
+     * from that instead.</p>
      * 
      * @return The package of the activity that will receive your
      *         reply, or null if none.
@@ -4080,12 +4134,12 @@ public class Activity extends ContextThemeWrapper
      * can use this information to validate that the recipient is allowed to
      * receive the data.
      * 
-     * <p>Note: if the calling activity is not expecting a result (that is it
+     * <p class="note">Note: if the calling activity is not expecting a result (that is it
      * did not use the {@link #startActivityForResult} 
      * form that includes a request code), then the calling package will be 
      * null. 
      * 
-     * @return String The full name of the activity that will receive your
+     * @return The ComponentName of the activity that will receive your
      *         reply, or null if none.
      */
     public ComponentName getCallingActivity() {
@@ -4193,7 +4247,7 @@ public class Activity extends ContextThemeWrapper
             if (false) Log.v(TAG, "Finishing self: token=" + mToken);
             try {
                 if (resultData != null) {
-                    resultData.setAllowFds(false);
+                    resultData.prepareToLeaveProcess();
                 }
                 if (ActivityManagerNative.getDefault()
                     .finishActivity(mToken, resultCode, resultData)) {
@@ -4349,7 +4403,7 @@ public class Activity extends ContextThemeWrapper
             int flags) {
         String packageName = getPackageName();
         try {
-            data.setAllowFds(false);
+            data.prepareToLeaveProcess();
             IIntentSender target =
                 ActivityManagerNative.getDefault().getIntentSender(
                         ActivityManager.INTENT_SENDER_ACTIVITY_RESULT, packageName,
@@ -4873,8 +4927,8 @@ public class Activity extends ContextThemeWrapper
      * <code>android:immersive</code> but may be changed at runtime by
      * {@link #setImmersive}.
      *
+     * @see #setImmersive(boolean)
      * @see android.content.pm.ActivityInfo#FLAG_IMMERSIVE
-     * @hide
      */
     public boolean isImmersive() {
         try {
@@ -4886,7 +4940,7 @@ public class Activity extends ContextThemeWrapper
 
     /**
      * Adjust the current immersive mode setting.
-     * 
+     *
      * Note that changing this value will have no effect on the activity's
      * {@link android.content.pm.ActivityInfo} structure; that is, if
      * <code>android:immersive</code> is set to <code>true</code>
@@ -4895,9 +4949,8 @@ public class Activity extends ContextThemeWrapper
      * always have its {@link android.content.pm.ActivityInfo#FLAG_IMMERSIVE
      * FLAG_IMMERSIVE} bit set.
      *
-     * @see #isImmersive
+     * @see #isImmersive()
      * @see android.content.pm.ActivityInfo#FLAG_IMMERSIVE
-     * @hide
      */
     public void setImmersive(boolean i) {
         try {
@@ -5029,9 +5082,10 @@ public class Activity extends ContextThemeWrapper
                 resultData = mResultData;
             }
             if (resultData != null) {
-                resultData.setAllowFds(false);
+                resultData.prepareToLeaveProcess();
             }
             try {
+                upIntent.prepareToLeaveProcess();
                 return ActivityManagerNative.getDefault().navigateUpTo(mToken, upIntent,
                         resultCode, resultData);
             } catch (RemoteException e) {
@@ -5111,7 +5165,6 @@ public class Activity extends ContextThemeWrapper
             CharSequence title, Activity parent, String id,
             NonConfigurationInstances lastNonConfigurationInstances,
             Configuration config) {
-			
         attachBaseContext(context);
 
         mFragments.attachActivity(this, mContainer, null);
@@ -5189,25 +5242,25 @@ public class Activity extends ContextThemeWrapper
         mCurrentConfig = config;
     }
 
-    private void scaleFloatingWindow(Context context) {  
-        if (!mWindow.mIsFloatingWindow) {  
-            return;  
-        }  
-        WindowManager wm = null;  
-        if (context != null) {  
-            wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);  
-        } else {  
-            wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);  
-        }  
-        Display display = wm.getDefaultDisplay();  
-        DisplayMetrics metrics = new DisplayMetrics();  
-        display.getMetrics(metrics);  
-        if (metrics.heightPixels > metrics.widthPixels) {  
-            mWindow.setLayout((int)(metrics.widthPixels * 0.9f), (int)(metrics.heightPixels * 0.7f));  
-        } else {  
-            mWindow.setLayout((int)(metrics.widthPixels * 0.7f), (int)(metrics.heightPixels * 0.8f));  
-        }  
-    }     
+    private void scaleFloatingWindow(Context context) {
+        if (!mWindow.mIsFloatingWindow) {
+            return;
+        }
+        WindowManager wm = null;
+        if (context != null) {
+            wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        } else {
+            wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        }
+        Display display = wm.getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        if (metrics.heightPixels > metrics.widthPixels) {
+            mWindow.setLayout((int)(metrics.widthPixels * 0.9f), (int)(metrics.heightPixels * 0.7f));
+        } else {
+            mWindow.setLayout((int)(metrics.widthPixels * 0.7f), (int)(metrics.heightPixels * 0.8f));
+        }
+    }
 
     /** @hide */
     public final IBinder getActivityToken() {
@@ -5332,7 +5385,7 @@ public class Activity extends ContextThemeWrapper
         onUserInteraction();
         onUserLeaveHint();
     }
-    
+
     final void performStop() {
         if (mLoadersStarted) {
             mLoadersStarted = false;
@@ -5421,4 +5474,3 @@ public class Activity extends ContextThemeWrapper
         }
     }
 }
-

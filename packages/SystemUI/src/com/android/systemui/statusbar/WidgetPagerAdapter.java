@@ -173,4 +173,5 @@ public class WidgetPagerAdapter extends PagerAdapter {
             mAppWidgetHost.stopListening();
         }
     }
+
 }

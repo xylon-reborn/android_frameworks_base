@@ -613,8 +613,12 @@ public class SpannableStringBuilder implements CharSequence, GetChars, Spannable
 
         // 0-length Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         if (flagsStart == POINT && flagsEnd == MARK && start == end) {
-    		return;
-        	// Silently ignore invalid spans when they are found, because honey badger doesn't currrrrr.
+            if (send) Log.e("SpannableStringBuilder",
+                    "SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length");
+            // Silently ignore invalid spans when they are created from this class.
+            // This avoids the duplication of the above test code before all the
+            // calls to setSpan that are done in this class
+            return;
         }
 
         int nstart = start;
@@ -1215,35 +1219,6 @@ public class SpannableStringBuilder implements CharSequence, GetChars, Spannable
             getChars(contextStart, contextEnd, buf, 0);
             ret = p.getTextRunAdvances(buf, start - contextStart, len,
                     0, contextLen, flags, advances, advancesPos);
-            TextUtils.recycle(buf);
-        }
-
-        return ret;
-    }
-
-    /**
-     * Don't call this yourself -- exists for Paint to use internally.
-     * {@hide}
-     */
-    public float getTextRunAdvances(int start, int end, int contextStart, int contextEnd, int flags,
-            float[] advances, int advancesPos, Paint p, int reserved) {
-
-        float ret;
-
-        int contextLen = contextEnd - contextStart;
-        int len = end - start;
-
-        if (end <= mGapStart) {
-            ret = p.getTextRunAdvances(mText, start, len, contextStart, contextLen,
-                    flags, advances, advancesPos, reserved);
-        } else if (start >= mGapStart) {
-            ret = p.getTextRunAdvances(mText, start + mGapLength, len,
-                    contextStart + mGapLength, contextLen, flags, advances, advancesPos, reserved);
-        } else {
-            char[] buf = TextUtils.obtain(contextLen);
-            getChars(contextStart, contextEnd, buf, 0);
-            ret = p.getTextRunAdvances(buf, start - contextStart, len,
-                    0, contextLen, flags, advances, advancesPos, reserved);
             TextUtils.recycle(buf);
         }
 

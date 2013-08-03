@@ -107,9 +107,9 @@
     <!-- Minimum final velocity of gestures interpreted as collapse requests -->
     <dimen name="fling_collapse_min_velocity">100dp</dimen>
     <!-- Cap on contribution of x dimension of gesture to overall velocity -->
-    <dimen name="fling_gesture_max_x_velocity">400dp</dimen>
+    <dimen name="fling_gesture_max_x_velocity">300dp</dimen>
     <!-- Cap on overall resulting fling speed (s^-1) -->
-    <dimen name="fling_gesture_max_output_velocity">3000dp</dimen>
+    <dimen name="fling_gesture_max_output_velocity">4000dp</dimen>
 
     <!-- Minimum distance a fling must travel (anti-jitter) -->
     <dimen name="fling_gesture_min_dist">30dp</dimen>
@@ -212,6 +212,13 @@
     <!-- For phones, this is close_handle_height + header_height -->
     <dimen name="peek_height">84dp</dimen>
 
+    <!-- Quick Settings tile geometry: top interior margin, above icon -->
+    <dimen name="qs_tile_margin_above_icon">27dp</dimen>
+    <!-- Quick Settings tile geometry: gap between icon and text -->
+    <dimen name="qs_tile_margin_below_icon">17dp</dimen>
+    <!-- Quick Settings tile geometry: icon size -->
+    <dimen name="qs_tile_icon_size">32dp</dimen>
+
     <!-- Notification Shortcuts -->
     <dimen name="notification_shortcuts_close_handle_height">28dp</dimen>
     <dimen name="notification_shortcuts_spacing_height">88dp</dimen>
@@ -220,32 +227,6 @@
     <!-- QS shortcut picker -->
     <dimen name="shortcut_picker_left_padding">70dp</dimen>
     <dimen name="shortcut_picker_default_icon_size">32dp</dimen>
-
-    <!-- Tablet UI Stuff -->
-    <!-- The minimum height of the notification panel window -->
-    <dimen name="notification_panel_min_height">300dp</dimen>
-    <!-- Bottom margin (from display edge) for status bar panels -->
-    <dimen name="panel_float">10dp</dimen>
-    <!-- The width of the ticker, including the icon -->
-    <dimen name="notification_ticker_width">280dp</dimen>
-    <!-- The width of the notification panel window -->
-    <dimen name="notification_panel_width">300dp</dimen>
-    <!-- The height of the notification panel title -->
-    <dimen name="notification_panel_title_height">130dp</dimen>
-    <!--  Amount of Margin to offset NavRing in Portrait Mode -->
-    <dimen name="navring_left_margin_port">-600dp</dimen>
-    <!--  Amount of Margin to offset NavRing in Landscape Mode -->
-    <dimen name="navring_left_margin_land">-800dp</dimen>
-    <!--  Height of NavRing in Tablet Mode Landscape -->
-    <dimen name="navring_height_tablet_landscape">300dp</dimen>
-    <!--  Height of NavRing in Tablet Mode Portrait -->
-    <dimen name="navring_height_tablet_portrait">250dp</dimen>
-    <!--  Radius of NavRing in Tablet Mode Landscape -->
-    <dimen name="navring_radius_tablet_landscape">300dp</dimen>
-    <!--  Radius of NavRing in Tablet Mode Landscape -->
-    <dimen name="navring_radius_tablet_portrait">300dp</dimen>
-    <!-- Constant for hidden navbar drag handle -->
-    <dimen name="drag_handle_height">10dp</dimen>
 
     <!-- ==================== pie controls ==================== -->
     <!-- Actual width/height of the trigger views placed on the UI -->
@@ -263,6 +244,7 @@
     <dimen name="pie_snap_radius">45dp</dimen>
     <!-- Stroke width of the snap points -->
     <dimen name="pie_snap_outline">4dp</dimen>
+
     <dimen name="pie_outline">2dp</dimen>
     <!-- Text size of "normal" / small text on the pie control -->
     <dimen name="pie_textsize">12sp</dimen>
@@ -277,15 +259,16 @@
     <dimen name="pie_sysinfo_second_layer_radius">255dp</dimen>
     <dimen name="pie_sysinfo_height">85sp</dimen>
 
+    <!-- Halo dimensions -->
     <dimen name="halo_bubble_size">75dp</dimen>
     <dimen name="halo_number_size">24dp</dimen>
     <dimen name="halo_number_icon_size">18dp</dimen>
     <dimen name="halo_number_text_size">14sp</dimen>
-
-    <dimen name="halo_speech_text_size">15sp</dimen>
+    <dimen name="halo_speech_text_size">14sp</dimen>
     <dimen name="halo_speech_hpadding_short">10dp</dimen>
     <dimen name="halo_speech_hpadding_wide">18dp</dimen>
     <dimen name="halo_speech_vpadding_top">7dp</dimen>
     <dimen name="halo_speech_vpadding_bottom">7dp</dimen>
     <dimen name="halo_content_max_width">250dp</dimen>
+
 </resources>

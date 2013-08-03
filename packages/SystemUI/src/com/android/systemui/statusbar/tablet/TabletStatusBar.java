@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
+ * This code has been modified. Portions copyright (C) 2012, ParanoidAndroid Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +24,7 @@ import android.app.ActivityManagerNative;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.StatusBarManager;
+import android.service.notification.StatusBarNotification;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -64,7 +66,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.internal.statusbar.StatusBarIcon;
-import com.android.internal.statusbar.StatusBarNotification;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.CommandQueue;
@@ -82,7 +83,6 @@ import com.android.systemui.statusbar.policy.NotificationRowLayout;
 import com.android.systemui.statusbar.policy.Prefs;
 
 import java.io.FileDescriptor;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
@@ -130,7 +130,6 @@ public class TabletStatusBar extends BaseStatusBar implements
     View mNotificationTrigger;
     NotificationIconArea mNotificationIconArea;
     ViewGroup mNavigationArea;
-    ViewGroup mNotificationHolder;
 
     boolean mNotificationDNDMode;
     NotificationData.Entry mNotificationDNDDummyEntry;
@@ -169,6 +168,8 @@ public class TabletStatusBar extends BaseStatusBar implements
 
     NotificationIconArea.IconLayout mIconLayout;
 
+    TabletTicker mTicker;
+
     View mFakeSpaceBar;
     KeyEvent mSpaceBarKeyEvent = null;
 
@@ -191,6 +192,31 @@ public class TabletStatusBar extends BaseStatusBar implements
 
     public Context getContext() { return mContext; }
 
+    private Runnable mShowSearchPanel = new Runnable() {
+        public void run() {
+            showSearchPanel();
+        }
+    };
+
+    private View.OnTouchListener mHomeSearchActionListener = new View.OnTouchListener() {
+        public boolean onTouch(View v, MotionEvent event) {
+            switch(event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (!shouldDisableNavbarGestures() && !inKeyguardRestrictedInputMode()) {
+                        mHandler.removeCallbacks(mShowSearchPanel);
+                        mHandler.postDelayed(mShowSearchPanel, mShowSearchHoldoff);
+                    }
+                break;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    mHandler.removeCallbacks(mShowSearchPanel);
+                break;
+            }
+            return false;
+        }
+    };
+
     @Override
     protected void createAndAddWindows() {
         addStatusBarWindow();
@@ -207,12 +233,11 @@ public class TabletStatusBar extends BaseStatusBar implements
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                     | WindowManager.LayoutParams.FLAG_TOUCHABLE_WHEN_WAKING
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
-                PixelFormat.OPAQUE);
+                PixelFormat.TRANSLUCENT);
 
-        // We explicitly leave FLAG_HARDWARE_ACCELERATED out of the flags.  The status bar occupies
-        // very little screen real-estate and is updated fairly frequently.  By using CPU rendering
-        // for the status bar, we prevent the GPU from having to wake up just to do these small
-        // updates, which should help keep power consumption down.
+        if (ActivityManager.isHighEndGfx()) {
+            lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
+        }
 
         lp.gravity = getStatusBarGravity();
         lp.setTitle("SystemBar");
@@ -288,7 +313,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
                     | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 PixelFormat.TRANSLUCENT);
-        lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp.gravity = Gravity.BOTTOM | Gravity.END;
         lp.setTitle("NotificationPanel");
         lp.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
@@ -299,7 +324,8 @@ public class TabletStatusBar extends BaseStatusBar implements
 
         // Search Panel
         mStatusBarView.setBar(this);
-		      updateSearchPanel();
+        mHomeButton.setOnTouchListener(mHomeSearchActionListener);
+        updateSearchPanel();
 
         // Input methods Panel
         mInputMethodsPanel = (InputMethodsPanel) View.inflate(context,
@@ -318,7 +344,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
                     | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 PixelFormat.TRANSLUCENT);
-        lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp.gravity = Gravity.BOTTOM | Gravity.END;
         lp.setTitle("InputMethodsPanel");
         lp.windowAnimations = R.style.Animation_RecentPanel;
 
@@ -341,7 +367,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
                     | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 PixelFormat.TRANSLUCENT);
-        lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        lp.gravity = Gravity.BOTTOM | Gravity.END;
         lp.setTitle("CompatModePanel");
         lp.windowAnimations = android.R.style.Animation_Dialog;
 
@@ -370,6 +396,11 @@ public class TabletStatusBar extends BaseStatusBar implements
     @Override
     protected int getExpandedViewMaxHeight() {
         return getNotificationPanelHeight();
+    }
+
+    @Override
+    protected boolean isNotificationPanelFullyVisible() {
+        return mNotificationPanel.getVisibility() == View.VISIBLE;
     }
 
     private int getNotificationPanelHeight() {
@@ -420,17 +451,14 @@ public class TabletStatusBar extends BaseStatusBar implements
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
         // detect theme change.
         CustomTheme newTheme = mContext.getResources().getConfiguration().customTheme;
         if (newTheme != null &&
                 (mCurrentTheme == null || !mCurrentTheme.equals(newTheme))) {
             mCurrentTheme = (CustomTheme)newTheme.clone();
-            // restart systemui
-            try {
-                Runtime.getRuntime().exec("pkill -TERM -f com.android.systemui");
-            } catch (IOException e) {
-                // we're screwed here fellas
-            }
+            recreateStatusBar();
         }
         loadDimens();
         mNotificationPanelParams.height = getNotificationPanelHeight();
@@ -438,6 +466,11 @@ public class TabletStatusBar extends BaseStatusBar implements
         mShowSearchHoldoff = mContext.getResources().getInteger(
                 R.integer.config_show_search_delay);
         updateSearchPanel();
+    }
+
+    @Override
+    protected void refreshLayout(int layoutDirection) {
+        mNotificationPanel.refreshLayout(layoutDirection);
     }
 
     protected void loadDimens() {
@@ -453,7 +486,26 @@ public class TabletStatusBar extends BaseStatusBar implements
         int newNavIconWidth = res.getDimensionPixelSize(R.dimen.navigation_key_width);
         int newMenuNavIconWidth = res.getDimensionPixelSize(R.dimen.navigation_menu_key_width);
 
+        if (mNavigationArea != null && newNavIconWidth != mNavIconWidth) {
+            mNavIconWidth = newNavIconWidth;
+
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                     mNavIconWidth, ViewGroup.LayoutParams.MATCH_PARENT);
+            mBackButton.setLayoutParams(lp);
+            mHomeButton.setLayoutParams(lp);
+            mRecentButton.setLayoutParams(lp);
+        }
+
+        if (mNavigationArea != null && newMenuNavIconWidth != mMenuNavIconWidth) {
+            mMenuNavIconWidth = newMenuNavIconWidth;
+
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                     mMenuNavIconWidth, ViewGroup.LayoutParams.MATCH_PARENT);
+            mMenuButton.setLayoutParams(lp);
+        }
+
         if (newIconHPadding != mIconHPadding || newIconSize != mIconSize) {
+//            Slog.d(TAG, "size=" + newIconSize + " padding=" + newIconHPadding);
             mIconHPadding = newIconHPadding;
             mIconSize = newIconSize;
             reloadAllNotificationIcons(); // reload the tray
@@ -493,7 +545,6 @@ public class TabletStatusBar extends BaseStatusBar implements
         // the whole right-hand side of the bar
         mNotificationArea = sb.findViewById(R.id.notificationArea);
         mNotificationArea.setOnTouchListener(new NotificationTriggerTouchListener());
-        mNotificationHolder = (ViewGroup) sb.findViewById(R.id.notificationHolder);
 
         // the button to open the notification area
         mNotificationTrigger = sb.findViewById(R.id.notificationTrigger);
@@ -507,7 +558,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         mNotificationPeekTapDuration = ViewConfiguration.getTapTimeout();
         mNotificationFlingVelocity = 300; // px/s
 
-        mTabletTicker = new TabletTicker(this);
+        mTicker = new TabletTicker(this);
 
         // The icons
         mLocationController = new LocationController(mContext); // will post a notification
@@ -593,6 +644,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         final int LIGHTS_GOING_OUT_SHADOW_DELAY    = 0;
 
         final int LIGHTS_COMING_UP_SYSBAR_DURATION = 200;
+//        final int LIGHTS_COMING_UP_SYSBAR_DELAY    = 50;
         final int LIGHTS_COMING_UP_SHADOW_DURATION = 0;
 
         LayoutTransition xition = new LayoutTransition();
@@ -604,7 +656,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                ObjectAnimator.ofFloat(null, "alpha", 1f, 0f));
         xition.setDuration(LayoutTransition.DISAPPEARING, LIGHTS_GOING_OUT_SYSBAR_DURATION);
         xition.setStartDelay(LayoutTransition.DISAPPEARING, 0);
-        ((ViewGroup)sb.findViewById(R.id.bar_contents)).setLayoutTransition(xition);
+        ((ViewGroup)sb.findViewById(R.id.bar_contents_holder)).setLayoutTransition(xition);
 
         xition = new LayoutTransition();
         xition.setAnimator(LayoutTransition.APPEARING,
@@ -640,7 +692,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                 | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
                 | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 PixelFormat.TRANSLUCENT);
-        lp.gravity = Gravity.BOTTOM | Gravity.LEFT;
+        lp.gravity = Gravity.BOTTOM | Gravity.START;
         lp.setTitle("RecentsPanel");
         lp.windowAnimations = com.android.internal.R.style.Animation_RecentApplications;
         lp.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED
@@ -666,7 +718,7 @@ public class TabletStatusBar extends BaseStatusBar implements
             lp.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
             lp.dimAmount = 0.7f;
         }
-        lp.gravity = Gravity.BOTTOM | Gravity.LEFT;
+        lp.gravity = Gravity.BOTTOM | Gravity.START;
         lp.setTitle("SearchPanel");
         // TODO: Define custom animation for Search panel
         lp.windowAnimations = com.android.internal.R.style.Animation_RecentApplications;
@@ -688,9 +740,14 @@ public class TabletStatusBar extends BaseStatusBar implements
     }
 
     @Override
+    public void toggleStatusBar(boolean enable) {
+    }
+
+    @Override
     protected void updateSearchPanel() {
         super.updateSearchPanel();
         mSearchPanelView.setStatusBarView(mStatusBarView);
+        mStatusBarView.setDelegateView(mSearchPanelView);
     }
 
     @Override
@@ -731,7 +788,6 @@ public class TabletStatusBar extends BaseStatusBar implements
         if (lp.height != height) {
             lp.height = height;
             mWindowManager.updateViewLayout(mStatusBarContainer, lp);
-            mStatusBarContainer.invalidate();
         }
     }
 
@@ -786,6 +842,11 @@ public class TabletStatusBar extends BaseStatusBar implements
 
                             entry.icon.setBackgroundColor(0x20FFFFFF);
 
+//                          mNotificationPeekRow.setLayoutTransition(
+//                              peekIndex < mNotificationPeekIndex
+//                                  ? mNotificationPeekScrubLeft
+//                                  : mNotificationPeekScrubRight);
+
                             mNotificationPeekRow.removeAllViews();
                             mNotificationPeekRow.addView(copy.row);
 
@@ -819,7 +880,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                     if (!mNotificationPanel.isShowing()) {
                         mNotificationPanel.show(true, true);
                         mNotificationArea.setVisibility(View.INVISIBLE);
-                        mTabletTicker.halt();
+                        mTicker.halt();
                     }
                     break;
                 case MSG_CLOSE_NOTIFICATION_PANEL:
@@ -862,7 +923,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                     notifyUiVisibilityChanged();
                     break;
                 case MSG_STOP_TICKER:
-                    mTabletTicker.halt();
+                    mTicker.halt();
                     break;
             }
         }
@@ -888,12 +949,12 @@ public class TabletStatusBar extends BaseStatusBar implements
         final boolean immersive = isImmersive();
         if (false && immersive) {
             // TODO: immersive mode popups for tablet
-        } else if (notification.notification.fullScreenIntent != null) {
+        } else if (notification.getNotification().fullScreenIntent != null) {
             // not immersive & a full-screen alert should be shown
             Slog.w(TAG, "Notification has fullScreenIntent and activity is not immersive;"
                     + " sending fullScreenIntent");
             try {
-                notification.notification.fullScreenIntent.send();
+                notification.getNotification().fullScreenIntent.send();
             } catch (PendingIntent.CanceledException e) {
             }
         } else if (!mRecreating) {
@@ -906,7 +967,7 @@ public class TabletStatusBar extends BaseStatusBar implements
     public void removeNotification(IBinder key) {
         if (DEBUG) Slog.d(TAG, "removeNotification(" + key + ")");
         removeNotificationViews(key);
-        mTabletTicker.remove(key);
+        mTicker.remove(key);
         setAreThereNotifications();
     }
 
@@ -953,7 +1014,7 @@ public class TabletStatusBar extends BaseStatusBar implements
 
             if ((state & StatusBarManager.DISABLE_NOTIFICATION_ICONS) != 0) {
                 Slog.i(TAG, "DISABLE_NOTIFICATION_ICONS: yes" + (mNotificationDNDMode?" (DND)":""));
-                mTabletTicker.halt();
+                mTicker.halt();
             } else {
                 Slog.i(TAG, "DISABLE_NOTIFICATION_ICONS: no" + (mNotificationDNDMode?" (DND)":""));
             }
@@ -962,7 +1023,7 @@ public class TabletStatusBar extends BaseStatusBar implements
             reloadAllNotificationIcons();
         } else if ((diff & StatusBarManager.DISABLE_NOTIFICATION_TICKER) != 0) {
             if ((state & StatusBarManager.DISABLE_NOTIFICATION_TICKER) != 0) {
-                mTabletTicker.halt();
+                mTicker.halt();
             }
         }
         if ((diff & (StatusBarManager.DISABLE_RECENT
@@ -1011,17 +1072,17 @@ public class TabletStatusBar extends BaseStatusBar implements
         }
         // If they asked for FLAG_ONLY_ALERT_ONCE, then only show this notification
         // if it's a new notification.
-        if (!firstTime && (n.notification.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0) {
+        if (!firstTime && (n.getNotification().flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0) {
             return;
         }
         // Show the ticker if one is requested. Also don't do this
         // until status bar window is attached to the window manager,
         // because...  well, what's the point otherwise?  And trying to
         // run a ticker without being attached will crash!
-         if (n.notification.tickerText != null && mStatusBarView.getWindowToken() != null) {
+        if (hasTicker(n.getNotification()) && mStatusBarView.getWindowToken() != null) {
             if (0 == (mDisabled & (StatusBarManager.DISABLE_NOTIFICATION_ICONS
                             | StatusBarManager.DISABLE_NOTIFICATION_TICKER))) {
-                mTabletTicker.add(key, n);
+                mTicker.add(key, n);
                 mFeedbackIconArea.setVisibility(View.GONE);
             }
         }
@@ -1063,11 +1124,12 @@ public class TabletStatusBar extends BaseStatusBar implements
             mHandler.removeMessages(MSG_CLOSE_COMPAT_MODE_PANEL);
             mHandler.sendEmptyMessage(MSG_CLOSE_COMPAT_MODE_PANEL);
         }
+
     }
 
     @Override
     public void animateExpandSettingsPanel(boolean flip) {
-        mNotificationPanel.animateExpandSettingsPanel();
+        // TODO: Implement when TabletStatusBar begins to be used.
     }
 
     @Override // CommandQueue
@@ -1315,6 +1377,12 @@ public class TabletStatusBar extends BaseStatusBar implements
         }
 
         public boolean onTouch(View v, MotionEvent event) {
+//            Slog.d(TAG, String.format("touch: (%.1f, %.1f) initial: (%.1f, %.1f)",
+//                        event.getX(),
+//                        event.getY(),
+//                        mInitialTouchX,
+//                        mInitialTouchY));
+
             if ((mDisabled & StatusBarManager.DISABLE_EXPAND) != 0) {
                 return true;
             }
@@ -1447,7 +1515,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         for (int i=0; toShow.size()< maxNotificationIconsCount; i++) {
             if (i >= N) break;
             Entry ent = mNotificationData.get(N-i-1);
-            if ((provisioned && ent.notification.score >= HIDE_ICONS_BELOW_SCORE)
+            if ((provisioned && ent.notification.getScore() >= HIDE_ICONS_BELOW_SCORE)
                     || showNotificationEvenIfUnprovisioned(ent.notification) || mHaloTaskerActive) {
                 toShow.add(ent.icon);
             }
@@ -1483,7 +1551,8 @@ public class TabletStatusBar extends BaseStatusBar implements
         // If the device hasn't been through Setup, we only show system notifications
         for (int i=0; i<N; i++) {
             Entry ent = mNotificationData.get(N-i-1);
-            if (provisioned || showNotificationEvenIfUnprovisioned(ent.notification)) {
+            if (provisioned || showNotificationEvenIfUnprovisioned(ent.notification)
+                && !notificationIsForCurrentUser(ent.notification)) {
                 toShow.add(ent.row);
             }
         }
@@ -1565,7 +1634,7 @@ public class TabletStatusBar extends BaseStatusBar implements
 
     @Override
     protected void haltTicker() {
-        mTabletTicker.halt();
+        mTicker.halt();
     }
 
     @Override
@@ -1578,4 +1647,3 @@ public class TabletStatusBar extends BaseStatusBar implements
                 || (mDisabled & StatusBarManager.DISABLE_HOME) != 0;
     }
 }
-
