@@ -2783,6 +2783,12 @@ public final class Settings {
          */
         public static final String PIE_TEXT_COLOR = "pie_text_color";
 
+	/**
+         * Do you want popups/floating windows?
+         * @hide
+         */
+        public static final String WE_WANT_POPUPS = "we_want_popups"; 
+
         /**
          * Pie icon color
          * @hide
