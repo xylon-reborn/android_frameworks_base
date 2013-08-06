@@ -1886,11 +1886,6 @@
   <java-symbol type="bool" name="config_noDelayInATwoDP" />
   <java-symbol type="string" name="config_deviceKeyHandlerLib" />
   <java-symbol type="string" name="config_deviceKeyHandlerClass" />
-
-  <!-- Config Power Menu -->
-  <java-symbol type="drawable" name="ic_lock_profile" />
-  <java-symbol type="drawable" name="ic_lock_reboot" />
-  <java-symbol type="drawable" name="ic_lock_screenshot" />
   <java-symbol type="string" name="config_legacyUmsLunFile" />
 
   <!-- Telephony -->
@@ -1904,16 +1899,22 @@
   <!-- Notification vibrate alert during call -->
   <java-symbol type="array" name="config_notificationNoAlertsVibePattern" />
 
-  <!-- Power menu -->
+  <!-- Power Menu -->
+  <java-symbol type="drawable" name="ic_lock_profile" />
+  <java-symbol type="drawable" name="ic_lock_reboot" />
+  <java-symbol type="drawable" name="ic_lock_screenshot" />
+  <java-symbol type="drawable" name="ic_lock_torch" />
+  <java-symbol type="drawable" name="ic_lock_expanded_desktop" />
+  <java-symbol type="drawable" name="ic_lock_expanded_desktop_off" />
+
   <java-symbol type="string" name="global_action_screenshot" />
+  <java-symbol type="string" name="global_action_torch" />
   <java-symbol type="string" name="global_action_choose_profile" />
   <java-symbol type="string" name="global_action_reboot" />
   <java-symbol type="string" name="global_actions" />
   <java-symbol type="string" name="global_actions_toggle_expanded_desktop_mode" />
   <java-symbol type="string" name="global_actions_expanded_desktop_mode_off_status" />
   <java-symbol type="string" name="global_actions_expanded_desktop_mode_on_status" />
-  <java-symbol type="drawable" name="ic_lock_expanded_desktop" />
-  <java-symbol type="drawable" name="ic_lock_expanded_desktop_off" />
 
   <java-symbol type="array" name="notification_light_package_mapping" />
   <java-symbol type="array" name="shutdown_reboot_actions" />
@@ -1934,26 +1935,21 @@
   <java-symbol type="string" name="second" />
   <java-symbol type="string" name="seconds" />
 
-  <!-- Developer settings - Kill app back press -->
+  <!-- Developer settings -->
   <java-symbol type="string" name="app_killed_message" />
 
-  <!-- Expanded desktop default set -->
+  <!-- Expanded desktop -->
   <java-symbol type="string" name="expanded_mode_default_set" />
   <java-symbol type="string" name="expanded_mode_default_with_navbar_set" />
 
   <!-- Lockscreen -->
   <java-symbol type="bool" name="config_disableHomeUnlockSetting" />
   <java-symbol type="id" name="expand_challenge_handle" />
-
-  <!-- Lock screen always show battery -->
   <java-symbol type="string" name="lockscreen_discharging" />
 
   <!-- HW rotation lock -->
   <java-symbol type="string" name="toast_rotation_unlocked" />
   <java-symbol type="string" name="toast_rotation_locked" />
-
-  <!-- Wifi -->
-  <java-symbol type="bool" name="config_wifiApStartInterface" />
 
   <!-- Wifi -->
   <java-symbol type="bool" name="config_wifiApStartInterface" />
