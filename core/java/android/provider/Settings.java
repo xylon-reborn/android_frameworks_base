@@ -284,6 +284,7 @@ public final class Settings {
      * Input: Nothing.
      * <p>
      * Output: Nothing.
+     * @hide
      */
     @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
     public static final String ACTION_NOTIFICATION_SHORTCUTS_SETTINGS =
@@ -5161,11 +5162,13 @@ public final class Settings {
 
         /**
          * Whether lock pattern will show dots (0 = false, 1 = true)
+         * @hide
          */
         public static final String LOCK_DOTS_VISIBLE = "lock_pattern_dotsvisible";
 
         /**
          * Whether lockscreen error pattern is visible (0 = false, 1 = true)
+         * @hide
          */
         public static final String LOCK_SHOW_ERROR_PATH = "lock_pattern_show_error_path";
 

@@ -114,6 +114,7 @@ public class Build {
         /**
          * The current version string that defines the liquid version
          * the device is on
+         * @hide
          */
         public static final String LIQUID = getString("ro.liquid.version");
 
