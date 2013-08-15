@@ -61,7 +61,6 @@ import android.os.Vibrator;
 import android.os.ServiceManager;
 import android.provider.Settings;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -996,23 +995,8 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
                 return;
             }
 
-            int shrt = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 
-                    18, getResources().getDisplayMetrics());
-            int wide = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                    24, getResources().getDisplayMetrics());
-            int top = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 
-                    10, getResources().getDisplayMetrics());
-            int bttm = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                    10, getResources().getDisplayMetrics());
-
             mHaloTextViewR.setText(tickerText);
-            mHaloTextViewR.setPadding(shrt, top, wide, bttm);
-            mHaloTextViewR.setGravity(Gravity.CENTER_HORIZONTAL);
-            mHaloTextViewR.setMaxLines(2);
             mHaloTextViewL.setText(tickerText);
-            mHaloTextViewL.setPadding(wide, top, shrt, bttm);
-            mHaloTextViewL.setGravity(Gravity.CENTER_HORIZONTAL);
-            mHaloTextViewL.setMaxLines(2);
 
             float total = TICKER_HIDE_TIME + startDuration + 1000;
             PropertyValuesHolder tickerUpFrames = PropertyValuesHolder.ofKeyframe("haloContentAlpha",
