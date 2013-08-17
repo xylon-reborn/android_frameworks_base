@@ -1258,7 +1258,6 @@ class WifiConfigStore {
         boolean ipChanged = false;
         boolean proxyChanged = false;
         boolean autoConnectChanged = false;
-        LinkProperties linkProperties = new LinkProperties();
         LinkProperties linkProperties = null;
 
         switch (newConfig.ipAssignment) {

@@ -131,13 +131,10 @@ public class LockPatternUtils {
      */
     public static final int ID_DEFAULT_STATUS_WIDGET = -2;
 
-    protected final static String LOCKOUT_PERMANENT_KEY = "lockscreen.lockedoutpermanently";
-    protected final static String LOCKOUT_ATTEMPT_DEADLINE = "lockscreen.lockoutattemptdeadline";
-    protected final static String PATTERN_EVER_CHOSEN_KEY = "lockscreen.patterneverchosen";
-    protected final static String GESTURE_EVER_CHOSEN_KEY = "lockscreen.gestureeverchosen";
     public final static String LOCKOUT_PERMANENT_KEY = "lockscreen.lockedoutpermanently";
     public final static String LOCKOUT_ATTEMPT_DEADLINE = "lockscreen.lockoutattemptdeadline";
     public final static String PATTERN_EVER_CHOSEN_KEY = "lockscreen.patterneverchosen";
+    public final static String GESTURE_EVER_CHOSEN_KEY = "lockscreen.gestureeverchosen";
     public final static String PASSWORD_TYPE_KEY = "lockscreen.password_type";
     public static final String PASSWORD_TYPE_ALTERNATE_KEY = "lockscreen.password_type_alternate";
     public final static String LOCK_PASSWORD_SALT_KEY = "lockscreen.password_salt";
@@ -1425,8 +1422,8 @@ public class LockPatternUtils {
                 || mode == DevicePolicyManager.PASSWORD_QUALITY_COMPLEX;
         final boolean isProfileSecure = mProfileManager.getActiveProfile().getScreenLockModeWithDPM(mContext) == Profile.LockMode.DEFAULT;
         final boolean secure = (isPattern && isLockPatternEnabled() && savedPatternExists()
-                || isGesture && isLockGestureEnabled() && savedGestureExists()
-                || isPassword && savedPasswordExists()) && isProfileSecure;
+                || isPassword && savedPasswordExists()) && isProfileSecure
+                || isGesture && isLockGestureEnabled() && savedGestureExists();
         return secure;
     }
 

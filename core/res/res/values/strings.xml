@@ -4140,6 +4140,10 @@
         You have incorrectly drawn your unlock pattern <xliff:g id="number">%d</xliff:g> times.
         \n\nTry again in <xliff:g id="number">%d</xliff:g> seconds.
     </string>
+    <string name="kg_too_many_failed_gesture_attempts_dialog_message">
+        You have incorrectly drawn your unlock gesture <xliff:g id="number">%d</xliff:g> times.
+        \n\nTry again in <xliff:g id="number">%d</xliff:g> seconds.
+    </string>
     <!-- Message shown when user is almost at the limit of password attempts where the device will be wiped. -->
     <string name="kg_failed_attempts_almost_at_wipe" product="tablet">
        You have incorrectly attempted to unlock the tablet <xliff:g id="number">%d</xliff:g> times.
