@@ -29,8 +29,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import com.android.internal.util.slim.ButtonsConstants;
-import com.android.internal.util.slim.SlimActions;
+import com.android.internal.util.liquid.ButtonsConstants;
+import com.android.internal.util.liquid.LiquidActions;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 
@@ -125,7 +125,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
         @Override
         public void onClick(View v) {
             // the other consts were handled by keycode.
-            SlimActions.processAction(mContext, mClickAction);
+            LiquidActions.processAction(mContext, mClickAction);
             return;
         }
     };
@@ -147,7 +147,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
                 injectKeyDelayed(KeyEvent.KEYCODE_MENU);
                 return true;
             } else {
-                SlimActions.processAction(mContext, mLongpressAction);
+                LiquidActions.processAction(mContext, mLongpressAction);
                 return true;
             }
         }

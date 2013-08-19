@@ -250,7 +250,6 @@ public class TabletStatusBar extends BaseStatusBar implements
     CustomTheme mCurrentTheme;
     private boolean mRecreating = false;
 
-
     protected void addPanelWindows() {
         final Context context = mContext;
         final Resources res = mContext.getResources();

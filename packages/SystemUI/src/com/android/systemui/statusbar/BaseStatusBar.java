@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
+ * This code has been modified. Portions copyright (C) 2012, ParanoidAndroid Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +47,7 @@ import android.app.ActivityOptions;
 import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.app.Notification;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -132,9 +134,9 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected static final int MSG_TOGGLE_LAST_APP = 1030;
     protected static final int MSG_TOGGLE_KILL_APP = 1031;
 
-    protected static final boolean ENABLE_INTRUDERS = false;
-
     private WidgetView mWidgetView;
+
+    protected static final boolean ENABLE_INTRUDERS = false;
 
     private boolean mPieShowTrigger = false;
     private boolean mDisableTriggers = false;
@@ -325,6 +327,35 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     private boolean mDeviceProvisioned = false;
 
+    public Ticker getTicker() {
+        return mTicker;
+    }
+
+    public TabletTicker getTabletTicker() {
+        return mTabletTicker;
+    }
+
+    public void collapse() {
+    }
+
+    private boolean mShowNotificationCounts;
+
+    public Handler getHandler() {
+        return mHandler;
+    }
+
+    public IStatusBarService getService() {
+        return mBarService;
+    }
+
+    public NotificationData getNotificationData() {
+        return mNotificationData;
+    }
+
+    public NotificationRowLayout getNotificationRowLayout() {
+        return mPile;
+    }
+
     public IStatusBarService getStatusBarService() {
         return mBarService;
     }
@@ -403,6 +434,9 @@ public abstract class BaseStatusBar extends SystemUI implements
         mBarService = IStatusBarService.Stub.asInterface(
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
 
+        mShowNotificationCounts = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_NOTIFICATION_COUNT, 0) == 1;
+
         mStatusBarContainer = new FrameLayout(mContext);
 
         mLocale = mContext.getResources().getConfiguration().locale;
@@ -425,6 +459,7 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ENABLED, 0) == 1;
+
         mHaloActive = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ACTIVE, 0) == 1;
 
@@ -484,8 +519,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                     if (true) Slog.v(TAG, "userId " + mCurrentUserId + " is in the house");
                     userSwitched(mCurrentUserId);
                 }
-            }
-        }, filter);
+            }}, filter);
 
         mSettingsObserver = new PieSettingsObserver(new Handler());
 
@@ -516,6 +550,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             }});
 
         updateHalo();
+
         mSettingsObserver.observe();
     }
 
@@ -870,6 +905,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                         throw new RuntimeException("Recents thumbnail is null");
                     }
                 }
+
 
                 DisplayMetrics dm = new DisplayMetrics();
                 mDisplay.getMetrics(dm);
@@ -1238,11 +1274,13 @@ public abstract class BaseStatusBar extends SystemUI implements
             }
 
             if (mIntent != null) {
+
                 if (mFloat && !"android".equals(mPkg)) {
                     Intent transparent = new Intent(mContext, com.android.systemui.Transparent.class);
                     transparent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_FLOATING_WINDOW);
                     mContext.startActivity(transparent);
                 }
+
                 int[] pos = new int[2];
                 v.getLocationOnScreen(pos);
                 Intent overlay = new Intent();
@@ -1268,7 +1306,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             visibilityChanged(false);
 
             // If this click was on the intruder alert, hide that instead
-//            mHandler.sendEmptyMessage(MSG_HIDE_INTRUDER);
+            // mHandler.sendEmptyMessage(MSG_HIDE_INTRUDER);
         }
     }
     /**
@@ -1409,7 +1447,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
 
         // Construct the expanded view.
-        NotificationData.Entry entry = new NotificationData.Entry(key, notification, iconView);
         if (!inflateViews(entry, mPile)) {
             handleNotificationError(key, notification, "Couldn't expand RemoteViews for: "
                     + notification);
@@ -1544,8 +1581,10 @@ public abstract class BaseStatusBar extends SystemUI implements
                 if (bigContentView != null && oldEntry.getLargeView() != null) {
                     bigContentView.reapply(mContext, oldEntry.getLargeView(), mOnClickHandler);
                 }
+
                 // update the contentIntent
                 final PendingIntent contentIntent = notification.getNotification().contentIntent;
+
                 if (contentIntent != null) {
                     final View.OnClickListener listener = makeClicker(contentIntent,
                             notification.getPackageName(), notification.getTag(), notification.getId());
@@ -1559,6 +1598,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                 }
                 // Update the roundIcon
                 oldEntry.roundIcon = createRoundIcon(notification);
+
                 // Update the icon.
                 final StatusBarIcon ic = new StatusBarIcon(notification.getPackageName(),
                         notification.getUser(),
@@ -1760,6 +1800,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                 lp.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND;
 
                 mWindowManager.addView(mPieContainer, lp);
+
                 // once we need a pie controller, we create one and keep it forever ...
                 if (mPieController == null) {
                     mPieController = new PieController(mContext);

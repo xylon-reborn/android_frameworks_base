@@ -1261,7 +1261,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback, TabletTi
         mEffect.invalidate();
 
         // Set Number
-        mEffect.setHaloMessageNumber(n.number, alwaysFlip, delay);
+        mEffect.setHaloMessageNumber(n.number, alwaysFlip);
     }
 
     public void updateTicker(StatusBarNotification notification) {

@@ -215,39 +215,35 @@ public class HaloProperties extends FrameLayout {
 
     protected CustomObjectAnimator msgNumberFlipAnimator = new CustomObjectAnimator(this);
     protected CustomObjectAnimator msgNumberAlphaAnimator = new CustomObjectAnimator(this);
-    public void setHaloMessageNumber(final int value, final boolean alwaysFlip, int delay) {
+    public void setHaloMessageNumber(int value, boolean alwaysFlip) {
 
-        mAnimQueue.removeCallbacksAndMessages(null);
-        mAnimQueue.postDelayed(new Runnable() {
-            public void run() {
-                // Allow transitions only if no overlay is set
-                if (mHaloCurrentOverlay == null) {
-                    msgNumberAlphaAnimator.cancel(true);
-                    float oldAlpha = mHaloNumberContainer.getAlpha();
+        // Allow transitions only if no overlay is set
+        if (mHaloCurrentOverlay == null) {
+            msgNumberAlphaAnimator.cancel(true);
+            float oldAlpha = mHaloNumberContainer.getAlpha();
 
-                    mHaloNumberContainer.setAlpha(1f);
-                    mHaloNumber.setAlpha(1f);
-                    mHaloNumberIcon.setAlpha(0f);
-                    if (value < 1) {
-                        mHaloNumber.setText("");
-                        mHaloNumberIcon.setAlpha(1f);                
-                    } else if (value < 100) {
-                        mHaloNumber.setText(String.valueOf(value));
-                    } else {
-                        mHaloNumber.setText("+");
-                    }
-                    
-                    if (value < 1) {
-                        msgNumberAlphaAnimator.animate(ObjectAnimator.ofFloat(mHaloNumberContainer, "alpha", 0f).setDuration(1000),
-                                new DecelerateInterpolator(), null, 1500, null);
-                    }
+            mHaloNumberContainer.setAlpha(1f);
+            mHaloNumber.setAlpha(1f);
+            mHaloNumberIcon.setAlpha(0f);
+            if (value < 1) {
+                mHaloNumber.setText("");
+                mHaloNumberIcon.setAlpha(1f);                
+            } else if (value < 100) {
+                mHaloNumber.setText(String.valueOf(value));
+            } else {
+                mHaloNumber.setText("+");
+            }
+            
+            if (value < 1) {
+                msgNumberAlphaAnimator.animate(ObjectAnimator.ofFloat(mHaloNumberContainer, "alpha", 0f).setDuration(1000),
+                        new DecelerateInterpolator(), null, 1500, null);
+            }
 
-                    if (!alwaysFlip && oldAlpha == 1f && (value == mHaloMessageNumber || (value > 99 && mHaloMessageNumber > 99))) return;
-                    msgNumberFlipAnimator.animate(ObjectAnimator.ofFloat(mHaloNumberContainer, "rotationY", -180, 0).setDuration(500),
-                                new DecelerateInterpolator(), null);
-                }
-                mHaloMessageNumber = value;
-            }}, delay);
+            if (!alwaysFlip && oldAlpha == 1f && (value == mHaloMessageNumber || (value > 99 && mHaloMessageNumber > 99))) return;
+            msgNumberFlipAnimator.animate(ObjectAnimator.ofFloat(mHaloNumberContainer, "rotationY", -180, 0).setDuration(500),
+                        new DecelerateInterpolator(), null);
+        }
+        mHaloMessageNumber = value;
     }
 
     public void setHaloContentAlpha(float value) {

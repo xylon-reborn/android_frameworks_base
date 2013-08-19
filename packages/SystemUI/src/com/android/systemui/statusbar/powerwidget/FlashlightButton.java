@@ -22,7 +22,7 @@ import android.content.IntentFilter;
 import android.os.UserHandle;
 import android.provider.Settings;
 
-import com.android.internal.util.slim.TorchConstants;
+import com.android.internal.util.liquid.TorchConstants;
 import com.android.systemui.R;
 
 import java.util.ArrayList;
