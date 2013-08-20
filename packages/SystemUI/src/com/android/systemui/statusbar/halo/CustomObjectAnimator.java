@@ -64,9 +64,13 @@ public class CustomObjectAnimator {
         // Invalidate
         if (update == null) {
             animator.addUpdateListener(new AnimatorUpdateListener() {
+                float oldValue = -1f;
+
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    rootView.invalidate();
+                    final float value = animation.getAnimatedFraction();
+                    if (value != oldValue) rootView.postInvalidate();
+                    oldValue = value;
                 }});
         } else {
             animator.addUpdateListener(update);
