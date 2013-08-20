@@ -36,7 +36,7 @@ public class SleepButton extends PowerButton {
 
     @Override
     protected void toggleState(Context context) {
-        PowerManager pm = (PowerManager)
+       PowerManager pm = (PowerManager)
                 context.getSystemService(Context.POWER_SERVICE);
         pm.goToSleep(SystemClock.uptimeMillis());
     }
