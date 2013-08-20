@@ -4257,4 +4257,11 @@
     <!-- Description of policy access to start enforcing MMAC policy [CHAR LIMIT=110]-->
     <string name="policydesc_enforceMmac">Toggle MMAC policy enforcing or permissive mode.</string>
 
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_sendMockSms">Send mock SMS messages</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_sendMockSms">Allows the app to send mock SMS messages.
+        This allows an app send SMS to trusted applications. Malicious apps could send messages
+        continuously, blocking the device notification system and disrupting the user.</string>
+
 </resources>
