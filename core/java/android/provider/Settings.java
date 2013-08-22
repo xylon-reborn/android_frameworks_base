@@ -1817,6 +1817,28 @@ public final class Settings {
         public static final String ELECTRON_BEAM_ANIMATION_ON = "electron_beam_animation_on";
 
         /**
+         * The keyboard brightness to be used while the screen is on.
+         * Valid value range is between 0 and {@link PowerManager#getMaximumKeyboardBrightness()}
+         * @hide
+         */
+        public static final String KEYBOARD_BRIGHTNESS = "keyboard_brightness";
+
+        /**
+         * The button brightness to be used while the screen is on or after a button press,
+         * depending on the value of {@link BUTTON_BACKLIGHT_TIMEOUT}.
+         * Valid value range is between 0 and {@link PowerManager#getMaximumButtonBrightness()}
+         * @hide
+         */
+        public static final String BUTTON_BRIGHTNESS = "button_brightness";
+
+        /**
+         * The time in ms to keep the button backlight on after pressing a button.
+         * A value of 0 will keep the buttons on for as long as the screen is on.
+         * @hide
+         */
+        public static final String BUTTON_BACKLIGHT_TIMEOUT = "button_backlight_timeout";
+
+        /**
          * Whether to enable the electron beam animation when turning screen off
          *
          * @hide */
@@ -2735,18 +2757,6 @@ public final class Settings {
          */
 
         /**
-         * User selected UI Mode
-         * @hide
-         */
-        public static final String USER_UI_MODE = "user_ui_mode";
-
-        /**
-         * Current UI Mode
-         * @hide
-         */
-        public static final String CURRENT_UI_MODE = "current_ui_mode";
-
-        /**
          * Whether the UI is in tablet UI
          * @hide
          */
@@ -3129,12 +3139,6 @@ public final class Settings {
         public static final String MENU_VISIBILITY = "menu_visibility";
 
         /**
-         * If checked hide extra system bar stuff
-         * ie compatmode button and extra ime switcher.
-         */
-        public static final String HIDE_EXTRAS_SYSTEM_BAR = "hide_extras_system_bar";
-
-        /**
          * User configurable flag for determining if NavBar is enabled
          * @hide
          */
@@ -3192,16 +3196,6 @@ public final class Settings {
          * @hide
          */
         public static final String NAVIGATION_BAR_WIDTH = "navigation_bar_width";
-
-        /**
-         * @hide
-         */
-        public static final String NAVIGATION_BAR_WIDTH_PORT = "navigation_bar_width_port";
-
-        /**
-         * @hide
-         */
-        public static final String NAVIGATION_BAR_WIDTH_LAND = "navigation_bar_width_land";
 
         /**
          * @hide
