@@ -354,7 +354,7 @@ public class CircleBattery extends ImageView {
         color = Settings.System.getInt(resolver,
                 Settings.System.STATUS_ICON_COLOR, 0);
         customColor = Settings.System.getInt(resolver,
-                Settings.System.ICON_COLOR_BEHAVIOR, 0);
+                Settings.System.ICON_COLOR_BEHAVIOR, 0) == 1;
 
         int defaultColor = res.getColor(R.color.holo_blue_dark);
 
