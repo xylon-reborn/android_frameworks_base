@@ -293,10 +293,10 @@ public class CircleBattery extends ImageView {
             } else if (mIsCharging) {
                 mPaintFont.setColor(mCircleTextChargingColor);
             } else {
-                if (customColor == 0) {
-                    mPaintFont.setColor(mCircleTextColor);
-                } else if (customColor == 1) {
+                if (customColor) {
                     mPaintFont.setColor(color);
+                } else {
+                    mPaintFont.setColor(mCircleTextColor);
                 }
             }
             canvas.drawText(Integer.toString(level), textX, mTextY, mPaintFont);
@@ -411,12 +411,12 @@ public class CircleBattery extends ImageView {
         mPaintSystem = new Paint(mPaintFont);
         mPaintRed = new Paint(mPaintFont);
 
-        if (customColor == 0) {
-            mPaintSystem.setColor(mCircleColor);
-            mPaintGray.setColor(res.getColor(R.color.darker_gray));
-        } else if (customColor == 1) {
+        if (customColor) {
             mPaintSystem.setColor(color);
             mPaintGray.setColor(color);
+        } else {
+            mPaintSystem.setColor(mCircleColor);
+            mPaintGray.setColor(res.getColor(R.color.darker_gray));
         }
         // could not find the darker definition anywhere in resources
         // do not want to use static 0x404040 color value. would break theming.
