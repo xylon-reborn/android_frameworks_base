@@ -2975,7 +2975,8 @@ public final class Settings {
         public static final String LOCKSCREEN_BACKGROUND = "lockscreen_background";
 
         /**
-         * Sets the lockscreen background style value
+         * Sets the lockscreen background style array helper
+         * if other then default backgroun the default wallpaper will be removed
          * @hide
          */
         public static final String LOCKSCREEN_BACKGROUND_VALUE = "lockscreen_background_value";
