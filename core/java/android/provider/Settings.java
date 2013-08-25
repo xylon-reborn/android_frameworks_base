@@ -2753,12 +2753,6 @@ public final class Settings {
         public static final String TABLET_UI = "tablet_ui";
 
         /**
-         * Is current activity launcher or not
-         * @hide
-         */
-        public static final String IS_HOME = "is_home";
-
-        /**
          * Override and forcefully disable the fullscreen keyboard
          * @hide
          */
@@ -3806,9 +3800,17 @@ public final class Settings {
 
         /**
          * Sets transparency mode of status and navigation bar
+         * 0 = only home, 1 = keyguard and home (default)
          * @hide
          */
         public static final String STATUS_NAV_BAR_ALPHA_MODE = "status_nav_bar_alpha_mode";
+
+        /**
+         * Sets color mode of status and navigation bar
+         * 0 = colorize always, 1 = colorize on keyguard and home (default)
+         * @hide
+         */
+        public static final String STATUS_NAV_BAR_COLOR_MODE = "status_nav_bar_color_mode";
 
         /**
          * Sets color of statusbar

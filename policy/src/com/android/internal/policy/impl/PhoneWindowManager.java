@@ -363,6 +363,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mExpandedMode;
 
     boolean mHideStatusBar;
+    boolean mToggleNotificationAndQSShade;
 
     private static final class PointerLocationInputEventReceiver extends InputEventReceiver {
         private final PointerLocationView mView;
@@ -664,7 +665,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_SHOW), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_CAN_MOVE), false, this);
+                    Settings.System.NAVIGATION_BAR_CAN_MOVE), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.KEY_HOME_ACTION), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -1355,8 +1357,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (mShortSizeDp < 600) {
             // 0-599dp: "phone" UI with a separate status & navigation bar
             mHasSystemNavBar = false;
-            if (Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 1) {
+            if (Settings.System.getIntForUser(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1, UserHandle.USER_CURRENT) == 1) {
                 mNavigationBarCanMove = true;
             } else {
                 mNavigationBarCanMove = false;
@@ -1448,10 +1450,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         boolean updateRotation = false, updateDisplayMetrics = false;
         ContentResolver resolver = mContext.getContentResolver();
 
-        mExpandedMode = Settings.System.getInt(mContext.getContentResolver(),
-                                Settings.System.EXPANDED_DESKTOP_MODE, 0);
-        mExpandedState = Settings.System.getInt(mContext.getContentResolver(),
-                                Settings.System.EXPANDED_DESKTOP_STATE, 0);
+        mExpandedMode = Settings.System.getInt(resolver,
+                Settings.System.EXPANDED_DESKTOP_MODE, 0);
+        mExpandedState = Settings.System.getInt(resolver,
+                Settings.System.EXPANDED_DESKTOP_STATE, 0);
+        mHideStatusBar = Settings.System.getInt(resolver,
+                Settings.System.HIDE_STATUSBAR, 0) == 1;
+        mToggleNotificationAndQSShade = Settings.System.getInt(resolver,
+                Settings.System.TOGGLE_NOTIFICATION_AND_QS_SHADE, 0) == 1;
 
         synchronized (mLock) {
             mEndcallBehavior = Settings.System.getIntForUser(resolver,
@@ -1491,8 +1497,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     Settings.System.VOLBTN_MUSIC_CONTROLS, 1, UserHandle.USER_CURRENT) == 1);
 
             if (mShortSizeDp < 600) {
-                mNavigationBarCanMove = (Settings.System.getInt(resolver,
-                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 1);
+                mNavigationBarCanMove = (Settings.System.getIntForUser(resolver,
+                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1, UserHandle.USER_CURRENT) == 1);
             }
 
             boolean keyRebindingEnabled = Settings.System.getInt(resolver,
@@ -4049,7 +4055,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (DEBUG_LAYOUT) Log.i(TAG, "force=" + mForceStatusBar
                     + " forcefkg=" + mForceStatusBarFromKeyguard
                     + " top=" + mTopFullscreenOpaqueWindowState);
-            if (mForceStatusBar || mForceStatusBarFromKeyguard) {
+            if (mForceStatusBar || (mForceStatusBarFromKeyguard
+                    && !mHideStatusBar
+                    && (mExpandedState == 0
+                    || mExpandedState == 1 && mExpandedMode < 2))) {
                 if (DEBUG_LAYOUT) Log.v(TAG, "Showing status bar: forced");
                 if (mStatusBar.showLw(true)) changes |= FINISH_LAYOUT_REDO_LAYOUT;
             } else if (mTopFullscreenOpaqueWindowState != null) {
@@ -4065,14 +4074,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // and mTopIsFullscreen is that that mTopIsFullscreen is set only if the window
                 // has the FLAG_FULLSCREEN set.  Not sure if there is another way that to be the
                 // case though.
-                mHideStatusBar = Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.HIDE_STATUSBAR, 0) == 1;
-                boolean toggleNotificationAndQSShade = Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.TOGGLE_NOTIFICATION_AND_QS_SHADE, 0) == 1;
-                if ((topIsFullscreen && !toggleNotificationAndQSShade)
-                        || (mExpandedState == 1 &&
-                        (mExpandedMode == 2 || mExpandedMode == 3) && !toggleNotificationAndQSShade)
-                        || (mHideStatusBar && !toggleNotificationAndQSShade)) {
+                if ((topIsFullscreen
+                        || mExpandedState == 1 && mExpandedMode > 1
+                        || mHideStatusBar) && !mToggleNotificationAndQSShade) {
                     if (DEBUG_LAYOUT) Log.v(TAG, "** HIDING status bar");
                     if (mStatusBar.hideLw(true)) {
                         changes |= FINISH_LAYOUT_REDO_LAYOUT;
