@@ -68,7 +68,6 @@ public class BrightnessTile extends QuickSettingsTile implements BrightnessState
         mBrightnessDialogShortTimeout = mContext.getResources().getInteger(R.integer.quick_settings_brightness_dialog_short_timeout);
 
         mOnClick = new OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 qsc.mBar.collapseAllPanels(true);

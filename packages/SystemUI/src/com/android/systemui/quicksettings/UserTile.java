@@ -85,6 +85,9 @@ public class UserTile extends QuickSettingsTile {
                     Intent intent = new Intent(Intent.ACTION_VIEW, ContactsContract.Profile.CONTENT_URI);
                     startSettingsActivity(intent);
                 }
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
             }
         };
         qsc.registerAction(Intent.ACTION_USER_SWITCHED, this);
@@ -142,7 +145,6 @@ public class UserTile extends QuickSettingsTile {
                     // The system needs some time to change the picture, if we try to load it when we receive the broadcast, we will load the old one
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 final UserManager um =
@@ -201,5 +203,4 @@ public class UserTile extends QuickSettingsTile {
             mUserInfoTask = null;
         }
     }
-
 }

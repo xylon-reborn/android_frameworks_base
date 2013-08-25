@@ -58,7 +58,6 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
         mTileLayout = R.layout.quick_settings_tile_rssi;
 
         mOnClick = new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
             }
@@ -93,7 +92,6 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
     public void onWifiSignalChanged(boolean enabled, int wifiSignalIconId,
             String wifitSignalContentDescriptionId, String description) {
         wifiOn = enabled;
-
     }
 
     @Override
@@ -125,8 +123,6 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
 
     @Override
     public void onAirplaneModeChanged(boolean enabled) {
-        // TODO Auto-generated method stub
-
     }
 
     boolean deviceSupportsTelephony() {
@@ -164,7 +160,7 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
                 mLabel));
     }
 
- // Remove the period from the network name
+    // Remove the period from the network name
     public static String removeTrailingPeriod(String string) {
         if (string == null) return null;
         final int length = string.length();
@@ -173,5 +169,4 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
         }
         return string;
     }
-
 }

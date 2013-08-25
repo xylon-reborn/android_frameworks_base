@@ -126,5 +126,4 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
             iv.setImageLevel(batteryLevel);
         }
     }
-
 }

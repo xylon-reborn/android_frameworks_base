@@ -27,7 +27,6 @@ import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 import com.android.systemui.statusbar.phone.QuickSettingsController;
 
-
 public class NfcTile extends QuickSettingsTile {
 
     private static String TAG = "NfcTile";
@@ -54,6 +53,9 @@ public class NfcTile extends QuickSettingsTile {
             public void onClick(View v) {
                 toggleState();
                 applyNfcChanges();
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
             }
         };
 
@@ -122,5 +124,4 @@ public class NfcTile extends QuickSettingsTile {
         }
         return mNfcAdapter.getAdapterState();
     }
-
 }

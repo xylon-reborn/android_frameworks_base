@@ -76,6 +76,9 @@ public class FChargeTile extends QuickSettingsTile {
                         Settings.System.putInt(mContext.getContentResolver(),
                              Settings.System.FCHARGE_ENABLED, 0);
                     }
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
             }
         };
 

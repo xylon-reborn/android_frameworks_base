@@ -54,6 +54,9 @@ public class UsbTetherTile extends QuickSettingsTile {
             public void onClick(View v) {
                 if (mUsbConnected) {
                     setUsbTethering(!mUsbTethered);
+                    if (isFlipTilesEnabled()) {
+                        flipTile(0);
+                    }
                 }
             }
         };
@@ -136,7 +139,6 @@ public class UsbTetherTile extends QuickSettingsTile {
         updateUsbState(available, tethered, errored);
     }
 
-
     private void updateUsbState(String[] available, String[] tethered,
             String[] errored) {
 
@@ -146,7 +148,6 @@ public class UsbTetherTile extends QuickSettingsTile {
                 if (s.matches(regex)) mUsbTethered = true;
             }
         }
-
     }
 
     private void setUsbTethering(boolean enabled) {
@@ -155,6 +156,4 @@ public class UsbTetherTile extends QuickSettingsTile {
             return;
         }
     }
-
 }
-

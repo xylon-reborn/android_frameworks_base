@@ -61,6 +61,9 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
                 Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
                 intent.putExtra("state", !enabled);
                 mContext.sendBroadcast(intent);
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
             }
         };
         mOnLongClick = new OnLongClickListener() {
@@ -95,8 +98,6 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
             int mobileSignalIconId, String mobileSignalContentDescriptionId,
             int dataTypeIconId, String dataTypeContentDescriptionId,
             String description) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -109,5 +110,4 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
         }
         updateQuickSettings();
     }
-
 }

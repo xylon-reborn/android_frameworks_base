@@ -101,5 +101,4 @@ public class MobileDataTile extends QuickSettingsTile {
         updateTileState();
         updateQuickSettings();
     }
-
 }

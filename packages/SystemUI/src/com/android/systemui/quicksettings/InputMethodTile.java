@@ -166,5 +166,4 @@ public class InputMethodTile extends QuickSettingsTile {
         mTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
         super.updateQuickSettings();
     }
-
 }

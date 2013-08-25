@@ -65,7 +65,6 @@ public class BugReportTile extends QuickSettingsTile{
         }
 
         mOnClick = new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 mQsc.mBar.collapseAllPanels(true);
@@ -127,5 +126,4 @@ public class BugReportTile extends QuickSettingsTile{
         }
         dialog.show();
     }
-
 }

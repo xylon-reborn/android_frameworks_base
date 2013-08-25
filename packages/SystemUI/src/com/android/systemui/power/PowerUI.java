@@ -128,7 +128,6 @@ public class PowerUI extends SystemUI {
      * 5 = none
      *
      */
-
     private void setPreferences() {
         int currentPref = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.POWER_UI_LOW_BATTERY_WARNING_POLICY, 0);
@@ -258,7 +257,6 @@ public class PowerUI extends SystemUI {
                     if (mPlayLowBatterySound && (bucket != oldBucket || oldPlugged)) {
                         playLowBatterySound();
                     }
-
                 } else if (plugged || (bucket > oldBucket && bucket > 0)) {
                     dismissLowBatteryWarning();
                     dismissLowBatteryNotificationWarning();
@@ -488,4 +486,3 @@ public class PowerUI extends SystemUI {
         pw.println(Integer.toString(findBatteryLevelBucket(mBatteryLevel)));
     }
 }
-

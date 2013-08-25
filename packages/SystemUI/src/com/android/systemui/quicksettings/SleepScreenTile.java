@@ -80,5 +80,4 @@ public class SleepScreenTile extends QuickSettingsTile {
             }
         }).start();
     }
-
 }
