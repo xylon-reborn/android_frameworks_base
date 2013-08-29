@@ -55,7 +55,7 @@ public class LiquidActions {
     private LiquidActions() {
     }
 
-    public static void processAction(Context context, String action) {
+    public static void processAction(Context context, String action, boolean isLongpress) {
             if (action == null || action.equals(ButtonsConstants.ACTION_NULL)) {
                 return;
             }
@@ -88,17 +88,19 @@ public class LiquidActions {
 
             // process the actions
             if (action.equals(ButtonsConstants.ACTION_HOME)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_HOME, false);
+                injectKeyDelayed(KeyEvent.KEYCODE_HOME, isLongpress, false);
                 return;
             } else if (action.equals(ButtonsConstants.ACTION_BACK)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_BACK, false);
+                injectKeyDelayed(KeyEvent.KEYCODE_BACK, isLongpress, false);
                 return;
             } else if (action.equals(ButtonsConstants.ACTION_SEARCH)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_SEARCH, false);
+                injectKeyDelayed(KeyEvent.KEYCODE_SEARCH, isLongpress, false);
                 return;
             } else if (action.equals(ButtonsConstants.ACTION_MENU)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_MENU, false);
+                injectKeyDelayed(KeyEvent.KEYCODE_MENU, isLongpress, false);
                 return;
+            } else if (action.equals(ButtonsConstants.ACTION_POWER_MENU)) {
+                injectKeyDelayed(KeyEvent.KEYCODE_POWER, isLongpress, true);
             } else if (action.equals(ButtonsConstants.ACTION_POWER)) {
                 PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
                 pm.goToSleep(SystemClock.uptimeMillis());
