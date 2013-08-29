@@ -299,6 +299,7 @@ public class LiquidActions {
                 || action.equals(ButtonsConstants.ACTION_BACK)
                 || action.equals(ButtonsConstants.ACTION_SEARCH)
                 || action.equals(ButtonsConstants.ACTION_MENU)
+                || action.equals(ButtonsConstants.ACTION_POWER_MENU)
                 || action.equals(ButtonsConstants.ACTION_NULL)) {
             return true;
         }
@@ -322,7 +323,7 @@ public class LiquidActions {
     }
     private static H mHandler = new H();
 
-    private static void injectKeyDelayed(int keyCode, boolean longpress) {
+    private static void injectKeyDelayed(int keyCode, boolean longpress, boolean sendOnlyDownMessage) {
         long when = SystemClock.uptimeMillis();
         int downflags = KeyEvent.FLAG_FROM_SYSTEM | KeyEvent.FLAG_VIRTUAL_HARD_KEY;
         if (longpress) {
@@ -335,12 +336,15 @@ public class LiquidActions {
                 KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
                 downflags,
                 InputDevice.SOURCE_KEYBOARD);
+        mHandler.sendMessageDelayed(Message.obtain(mHandler, MSG_INJECT_KEY_DOWN, down), 10);
+
+        if (sendOnlyDownMessage) {
+            return;
+        }
         KeyEvent up = new KeyEvent(when, when + 30, KeyEvent.ACTION_UP, keyCode, 0, 0,
                 KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
                 KeyEvent.FLAG_FROM_SYSTEM | KeyEvent.FLAG_VIRTUAL_HARD_KEY,
                 InputDevice.SOURCE_KEYBOARD);
-
-        mHandler.sendMessageDelayed(Message.obtain(mHandler, MSG_INJECT_KEY_DOWN, down), 10);
         mHandler.sendMessageDelayed(Message.obtain(mHandler, MSG_INJECT_KEY_UP, up), 30);
     }
 }
