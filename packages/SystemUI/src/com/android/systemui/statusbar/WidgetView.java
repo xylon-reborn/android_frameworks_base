@@ -51,6 +51,7 @@ public class WidgetView extends LinearLayout {
 
     private Context mContext;
     private Handler mHandler;
+    private SettingsObserver mSettingsObserver;
     public FrameLayout mPopupView;
     public WindowManager mWindowManager;
     int originalHeight = 0;
@@ -83,9 +84,18 @@ public class WidgetView extends LinearLayout {
         filter.addAction(WidgetReceiver.ACTION_DELETE_WIDGETS);
         filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
         mContext.registerReceiver(new WidgetReceiver(), filter);
+
         mHandler = new Handler();
-        SettingsObserver settingsObserver = new SettingsObserver(mHandler);
-        settingsObserver.observe();
+        mSettingsObserver = new SettingsObserver(mHandler);
+        mSettingsObserver.observe();
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        if (mSettingsObserver != null) {
+            mSettingsObserver.unobserve();
+            mHandler = null;
+        }
     }
 
     public void toggleWidgetView() {
@@ -283,6 +293,9 @@ public class WidgetView extends LinearLayout {
                 this);
             createWidgetView();
         }
+        void unobserve() {
+            mContext.getContentResolver().unregisterContentObserver(this);
+        }
 
         @Override
         public void onChange(boolean selfChange) {
@@ -340,5 +353,4 @@ public class WidgetView extends LinearLayout {
             }
         }
     }
-
 }
