@@ -52,7 +52,6 @@ public class QuickSettingsContainerView extends FrameLayout {
         mContext = context;
         mResources = getContext().getResources();
 
-        a.recycle();
         updateResources();
     }
 
