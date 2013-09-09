@@ -225,7 +225,6 @@ public class WifiNative {
         return doBooleanCommand("DRIVER STOP");
     }
 
-
     /**
      * Start filtering out Multicast V4 packets
      * @return {@code true} if the operation succeeded, {@code false} otherwise
@@ -414,7 +413,6 @@ public class WifiNative {
         if (TextUtils.isEmpty(pin)) return false;
         return doBooleanCommand("WPS_PIN interface=" + iface + " any " + pin);
     }
-
 
     public String startWpsPinDisplay(String bssid) {
         if (TextUtils.isEmpty(bssid)) {
@@ -804,6 +802,7 @@ public class WifiNative {
                     return true;
             }
         }
+
         return false;
     }
 
@@ -848,6 +847,4 @@ public class WifiNative {
         // Note: optional feature on the driver. It is ok for this to fail.
         doBooleanCommand("DRIVER MIRACAST " + mode);
     }
-
-    public native static boolean setMode(int mode);
 }
