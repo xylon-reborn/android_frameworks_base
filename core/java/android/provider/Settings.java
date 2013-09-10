@@ -3452,6 +3452,12 @@ public final class Settings {
         public static final String PIE_BUTTONS_CONFIG_SECOND_LAYER = "pie_buttons_config_second_layer";
 
         /**
+         * Whether dynamic menu button is shown or not or dynamic (default)
+         * @hide
+         */
+        public static final String PIE_MENU = "pie_menu";
+
+        /**
          * LiquidSmooth Settings (Powermenu)
          */
 
