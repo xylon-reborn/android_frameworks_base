@@ -35,9 +35,9 @@ public class GlowPadTorchHelper {
     private GlowPadTorchHelper() {
     }
 
-    public static boolean torchActive(Context mContext) {
-        boolean torchActive = Settings.System.getBoolean(mContext.getContentResolver(),
-                Settings.System.TORCH_STATE, false);
+    public static int torchActive(Context mContext) {
+        int torchActive = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.TORCH_STATE, 0);
         return torchActive;
     }
 
@@ -47,7 +47,7 @@ public class GlowPadTorchHelper {
     }
 
     public static boolean startTorch(Context mContext) {
-        if (!torchActive(mContext)) {
+        if (torchActive(mContext) == 0) {
             vibrate(mContext);
             Intent intent = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
             intent.putExtra("bright", false);

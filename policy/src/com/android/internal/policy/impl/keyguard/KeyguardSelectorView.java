@@ -34,6 +34,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
+import android.os.Handler;
+import android.os.Message;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -44,6 +46,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.Gravity;
 import android.widget.FrameLayout;
+import android.view.ViewConfiguration;
 import android.widget.LinearLayout;
 
 import com.android.internal.R;
@@ -86,6 +89,14 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
 
     private IntentFilter filter;
     private boolean mReceiverRegistered = false;
+
+    private class H extends Handler {
+        public void handleMessage(Message m) {
+            switch (m.what) {
+            }
+        }
+    }
+    private H mHandler = new H();
 
     OnTriggerListener mOnTriggerListener = new OnTriggerListener() {
 
@@ -153,16 +164,16 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         }
 
         public void onReleased(View v, int handle) {
+            fireTorch();
             if (!mIsBouncing) {
                 doTransition(mFadeView, 1.0f);
             }
             if (!mGlowPadLock && mLongPress) {
                 mGlowPadLock = true;
                 if (mReceiverRegistered) {
-                    mContext.unregisterReceiver(receiver);
+                    mContext.unregisterReceiver(mUnlockReceiver);
                     mReceiverRegistered = false;
                 }
-                launchAction(longActivities[mTarget]);
             }
         }
 
@@ -176,11 +187,21 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         }
 
         public void onGrabbedStateChange(View v, int handle) {
-
+            mHandler.removeCallbacks(SetLongPress);
+            mLongPress = false;
         }
 
         public void onTargetChange(View v, int target) {
-
+            if (target == -1) {
+                mHandler.removeCallbacks(SetLongPress);
+                mLongPress = false;
+                if (mGlowTorchOn) {
+                    mCallback.userActivity(0);
+                }
+            } else {
+                fireTorch();
+                mHandler.postDelayed(SetLongPress, ViewConfiguration.getLongPressTimeout());
+            }
         }
 
         public void onFinishFinalAnimation() {
@@ -278,13 +299,14 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         mGlowPadView.setOnTriggerListener(mOnTriggerListener);
         updateTargets();
 
-        mGlowTorch = Settings.System.getInt(cr,
+        mGlowTorch = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_GLOW_TORCH, 0);
         mGlowTorchOn = false;
 
         mSecurityMessageDisplay = new KeyguardMessageArea.Helper(this);
         View bouncerFrameView = findViewById(R.id.keyguard_selector_view_frame);
         mBouncerFrame = bouncerFrameView.getBackground();
+
         mUnlockBroadcasted = false;
         filter = new IntentFilter();
         filter.addAction(UnlockReceiver.ACTION_UNLOCK_RECEIVER);
@@ -356,7 +378,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
 
     final Runnable checkTorch = new Runnable () {
         public void run() {
-            if (GlowPadTorchHelper.torchActive(mContext)) {
+            if (GlowPadTorchHelper.torchActive(mContext) == 1) {
                 GlowPadTorchHelper.torchOff(mContext, true);
             }
         }
@@ -376,6 +398,8 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
         boolean searchTargetPresent =
                 isTargetPresent(com.android.internal.R.drawable.ic_action_assist_generic);
+        mLongPress = false;
+        mGlowPadLock = false;
 
         if (cameraDisabledByAdmin) {
             Log.v(TAG, "Camera disabled by Device Policy");
@@ -518,7 +542,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                     storedDrawables.add(new TargetDrawable(res, 0));
                 }
             }
-
             mGlowPadView.setTargetResources(storedDrawables);
         }
     }
