@@ -41,6 +41,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.Vibrator;
@@ -93,7 +94,7 @@ public class SearchPanelView extends FrameLayout implements
     private final Context mContext;
     private BaseStatusBar mBar;
     private StatusBarTouchProxy mStatusBarTouchProxy;
-    private SettingsObserver mObserver;
+    private SettingsObserver mSettingsObserver;
 
     private boolean mShowing;
     private View mSearchTargetsContainer;
@@ -128,7 +129,6 @@ public class SearchPanelView extends FrameLayout implements
         mResources = mContext.getResources();
 
         mContentResolver = mContext.getContentResolver();
-        mObserver = new SettingsObserver(new Handler());
         mSettingsObserver = new SettingsObserver(new Handler());
         updateSettings();
     }
@@ -286,20 +286,6 @@ public class SearchPanelView extends FrameLayout implements
 
         updateSettings();
         setDrawables();
-    }
-
-
-    private boolean shouldUnlock(String action) {
-        if (action.equals(AwesomeConstant.ACTION_SILENT_VIB.value()) ||
-            action.equals(AwesomeConstant.ACTION_VIB.value()) ||
-            action.equals(AwesomeConstant.ACTION_POWER.value()) ||
-            action.equals(AwesomeConstant.ACTION_TORCH.value()) ||
-            action.equals(AwesomeConstant.ACTION_NOTIFICATIONS.value()) ||
-            action.equals(AwesomeConstant.ACTION_SILENT.value())) {
-            return false;
-        }
-
-        return true;
     }
 
     private void maybeSkipKeyguard() {
@@ -585,38 +571,6 @@ public class SearchPanelView extends FrameLayout implements
             return super.dispatchHoverEvent(event);
         }
         return true;
-    }
-
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        if (!mAttached) {
-            mAttached = true;
-            // add intent actions to listen on it
-            // apps available to check if apps on external sdcard
-            // are available and reconstruct the button icons
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE);
-            filter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
-            mContext.registerReceiver(mBroadcastReceiver, filter);
-
-            // start observing settings
-            mObserver.observe();
-            updateSettings();
-            setDrawables();
-        }
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (mAttached) {
-            mAttached = false;
-            // unregister receiver and observer
-            mContext.unregisterReceiver(mBroadcastReceiver);
-            mObserver.unobserve();
-        }
     }
 
     /**

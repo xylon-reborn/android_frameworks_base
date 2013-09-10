@@ -747,6 +747,14 @@ public class GlowPadView extends View {
         }
     }
 
+    public boolean getMagneticTargets() {
+        return mMagneticTargets;
+    }
+
+    public void setMagneticTargets(boolean enabled) {
+        mMagneticTargets = enabled;
+    }
+
     /**
      * Starts wave animation.
      *
@@ -956,11 +964,6 @@ public class GlowPadView extends View {
                         if (angleMatches && (dist2(tx, ty) > snapDistance2)) {
                             activeTarget = i;
                             activeAngle = (float) -angleRad;
-                            break;
-                        } else if (dist2(tx, ty) > snapDistance2 &&
-                            mMagneticTargets && activeTarget == -1) {
-                            activeTarget = 0;
-                            activeAngle = (float) -angleRad;
                         }
                     }
                 }
@@ -998,7 +1001,7 @@ public class GlowPadView extends View {
                     target.setState(TargetDrawable.STATE_FOCUSED);
                     vibrate();
                 }
-                if (mMagneticTargets && activeTarget <= 0) {
+                if (mMagneticTargets) {
                     updateTargetPosition(activeTarget, mWaveCenterX, mWaveCenterY, activeAngle);
                 }
                 if (AccessibilityManager.getInstance(mContext).isEnabled()) {

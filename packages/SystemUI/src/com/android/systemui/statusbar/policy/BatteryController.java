@@ -188,10 +188,13 @@ public class BatteryController extends BroadcastReceiver {
                     break;
             }
 
+            final int batteryIcon = mBatteryPlugged ? R.drawable.stat_sys_battery_charge
+                    : R.drawable.stat_sys_battery;
+
             int N = mIconViews.size();
             for (int i=0; i<N; i++) {
                 ImageView v = mIconViews.get(i);
-                Drawable batteryBitmap = mContext.getResources().getDrawable(icon);
+                Drawable batteryBitmap = mContext.getResources().getDrawable(batteryIcon);
                 if (customColor) {
                     batteryBitmap.setColorFilter(color, PorterDuff.Mode.SRC_IN);
                 } else {
