@@ -12,6 +12,7 @@ package android {
     field public static final java.lang.String ACCESS_LOCATION_EXTRA_COMMANDS = "android.permission.ACCESS_LOCATION_EXTRA_COMMANDS";
     field public static final java.lang.String ACCESS_MOCK_LOCATION = "android.permission.ACCESS_MOCK_LOCATION";
     field public static final java.lang.String ACCESS_NETWORK_STATE = "android.permission.ACCESS_NETWORK_STATE";
+    field public static final java.lang.String ACCESS_SUPERUSER = "android.permission.ACCESS_SUPERUSER";
     field public static final java.lang.String ACCESS_SURFACE_FLINGER = "android.permission.ACCESS_SURFACE_FLINGER";
     field public static final java.lang.String ACCESS_WIFI_STATE = "android.permission.ACCESS_WIFI_STATE";
     field public static final java.lang.String ACCOUNT_MANAGER = "android.permission.ACCOUNT_MANAGER";
@@ -2699,6 +2700,7 @@ package android.app {
     method public void finishActivity(int);
     method public void finishActivityFromChild(android.app.Activity, int);
     method public void finishAffinity();
+    method public void finishFloating();
     method public void finishFromChild(android.app.Activity);
     method public android.app.ActionBar getActionBar();
     method public final android.app.Application getApplication();
@@ -3738,6 +3740,15 @@ package android.app {
     field public android.content.pm.ResolveInfo resolveInfo;
   }
 
+  public class LayerActivity extends android.app.Activity {
+    ctor public LayerActivity();
+    method public void onCreate(android.os.Bundle);
+    method public void onRestart();
+    method public void onResume();
+    method public void onStart();
+    method public void onStop();
+  }
+
   public class ListActivity extends android.app.Activity {
     ctor public ListActivity();
     method public android.widget.ListAdapter getListAdapter();
@@ -4175,6 +4186,7 @@ package android.app {
     method public android.content.Intent[] getIntents();
     method public android.app.PendingIntent getPendingIntent(int, int);
     method public android.app.PendingIntent getPendingIntent(int, int, android.os.Bundle);
+    method public void setTaskOnHome(boolean);
     method public void startActivities();
     method public void startActivities(android.os.Bundle);
   }
@@ -4398,6 +4410,7 @@ package android.app.admin {
     field public static final int PASSWORD_QUALITY_ALPHANUMERIC = 327680; // 0x50000
     field public static final int PASSWORD_QUALITY_BIOMETRIC_WEAK = 32768; // 0x8000
     field public static final int PASSWORD_QUALITY_COMPLEX = 393216; // 0x60000
+    field public static final int PASSWORD_QUALITY_GESTURE_WEAK = 524288; // 0x80000
     field public static final int PASSWORD_QUALITY_NUMERIC = 131072; // 0x20000
     field public static final int PASSWORD_QUALITY_SOMETHING = 65536; // 0x10000
     field public static final int PASSWORD_QUALITY_UNSPECIFIED = 0; // 0x0
@@ -6240,6 +6253,7 @@ package android.content {
     field public static final int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
     field public static final int FLAG_DEBUG_LOG_RESOLUTION = 8; // 0x8
     field public static final int FLAG_EXCLUDE_STOPPED_PACKAGES = 16; // 0x10
+    field public static final int FLAG_FLOATING_WINDOW = 8192; // 0x2000
     field public static final int FLAG_FROM_BACKGROUND = 4; // 0x4
     field public static final int FLAG_GRANT_READ_URI_PERMISSION = 1; // 0x1
     field public static final int FLAG_GRANT_WRITE_URI_PERMISSION = 2; // 0x2
@@ -8451,6 +8465,8 @@ package android.gesture {
     field public static final int GESTURE_STROKE_TYPE_SINGLE = 0; // 0x0
     field public static final int ORIENTATION_HORIZONTAL = 0; // 0x0
     field public static final int ORIENTATION_VERTICAL = 1; // 0x1
+    field protected boolean mClearPerformedGesture;
+    field protected boolean mInputEnabled;
   }
 
   public static abstract interface GestureOverlayView.OnGestureListener {
@@ -8843,6 +8859,14 @@ package android.graphics {
 
   public class ColorFilter {
     ctor public ColorFilter();
+  }
+
+  public class ColorFilterMaker {
+    ctor public ColorFilterMaker();
+    method public static android.graphics.ColorFilter changeBWColor(int, float);
+    method public static android.graphics.ColorFilter changeColor(int, float);
+    method public static android.graphics.ColorFilter changeColorAlpha(int, float, float);
+    method public static android.graphics.ColorFilter changeHue(int, int);
   }
 
   public class ColorMatrix {
@@ -10130,7 +10154,6 @@ package android.hardware {
     method public int getJpegQuality();
     method public int getJpegThumbnailQuality();
     method public android.hardware.Camera.Size getJpegThumbnailSize();
-    method public java.lang.String getPowerMode();
     method public int getMaxExposureCompensation();
     method public int getMaxNumDetectedFaces();
     method public int getMaxNumFocusAreas();
@@ -10140,6 +10163,7 @@ package android.hardware {
     method public int getMinExposureCompensation();
     method public int getPictureFormat();
     method public android.hardware.Camera.Size getPictureSize();
+    method public java.lang.String getPowerMode();
     method public android.hardware.Camera.Size getPreferredPreviewSizeForVideo();
     method public int getPreviewFormat();
     method public void getPreviewFpsRange(int[]);
@@ -18803,6 +18827,7 @@ package android.provider {
   }
 
   protected static abstract interface ContactsContract.BaseSyncColumns {
+    field public static final java.lang.String IS_RESTRICTED = "is_restricted";
     field public static final java.lang.String SYNC1 = "sync1";
     field public static final java.lang.String SYNC2 = "sync2";
     field public static final java.lang.String SYNC3 = "sync3";
@@ -20071,6 +20096,8 @@ package android.provider {
     field public static final java.lang.String ALARM_ALERT = "alarm_alert";
     field public static final deprecated java.lang.String ALWAYS_FINISH_ACTIVITIES = "always_finish_activities";
     field public static final deprecated java.lang.String ANDROID_ID = "android_id";
+    field public static final java.lang.String ANIMATION_CONTROLS_DURATION = "animation_controls_duration";
+    field public static final java.lang.String ANIMATION_CONTROLS_NO_OVERRIDE = "animation_controls_no_override";
     field public static final deprecated java.lang.String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
     field public static final java.lang.String APPEND_FOR_LAST_AUDIBLE = "_last_audible";
     field public static final deprecated java.lang.String AUTO_TIME = "auto_time";
@@ -22039,23 +22066,6 @@ package android.telephony.gsm {
     method public void setStateInvalid();
   }
 
-  public final deprecated class SmsManager {
-    method public final deprecated java.util.ArrayList<java.lang.String> divideMessage(java.lang.String);
-    method public static final deprecated android.telephony.gsm.SmsManager getDefault();
-    method public final deprecated void sendDataMessage(java.lang.String, java.lang.String, short, byte[], android.app.PendingIntent, android.app.PendingIntent);
-    method public final deprecated void sendMultipartTextMessage(java.lang.String, java.lang.String, java.util.ArrayList<java.lang.String>, java.util.ArrayList<android.app.PendingIntent>, java.util.ArrayList<android.app.PendingIntent>);
-    method public final deprecated void sendTextMessage(java.lang.String, java.lang.String, java.lang.String, android.app.PendingIntent, android.app.PendingIntent);
-    field public static final deprecated int RESULT_ERROR_GENERIC_FAILURE = 1; // 0x1
-    field public static final deprecated int RESULT_ERROR_NO_SERVICE = 4; // 0x4
-    field public static final deprecated int RESULT_ERROR_NULL_PDU = 3; // 0x3
-    field public static final deprecated int RESULT_ERROR_RADIO_OFF = 2; // 0x2
-    field public static final deprecated int STATUS_ON_SIM_FREE = 0; // 0x0
-    field public static final deprecated int STATUS_ON_SIM_READ = 1; // 0x1
-    field public static final deprecated int STATUS_ON_SIM_SENT = 5; // 0x5
-    field public static final deprecated int STATUS_ON_SIM_UNREAD = 3; // 0x3
-    field public static final deprecated int STATUS_ON_SIM_UNSENT = 7; // 0x7
-  }
-
   public deprecated class SmsMessage {
     ctor public deprecated SmsMessage();
     method public static deprecated int[] calculateLength(java.lang.CharSequence, boolean);
@@ -22095,6 +22105,9 @@ package android.telephony.gsm {
     field public static final deprecated int MAX_USER_DATA_BYTES = 140; // 0x8c
     field public static final deprecated int MAX_USER_DATA_SEPTETS = 160; // 0xa0
     field public static final deprecated int MAX_USER_DATA_SEPTETS_WITH_HEADER = 153; // 0x99
+  }
+
+  public static deprecated class SmsMessage {
   }
 
   public static final deprecated class SmsMessage.MessageClass extends java.lang.Enum {
@@ -26987,6 +27000,7 @@ package android.view {
     field public static final int PROGRESS_START = 0; // 0x0
     field public static final int PROGRESS_VISIBILITY_OFF = -2; // 0xfffffffe
     field public static final int PROGRESS_VISIBILITY_ON = -1; // 0xffffffff
+    field public boolean mIsFloatingWindow;
   }
 
   public static abstract interface Window.Callback {
@@ -28685,6 +28699,7 @@ package android.widget {
     method public void setFastScrollEnabled(boolean);
     method public void setFilterText(java.lang.String);
     method public void setFriction(float);
+    method public void setGridView(boolean);
     method public void setItemChecked(int, boolean);
     method public void setMultiChoiceModeListener(android.widget.AbsListView.MultiChoiceModeListener);
     method public void setOnScrollListener(android.widget.AbsListView.OnScrollListener);
