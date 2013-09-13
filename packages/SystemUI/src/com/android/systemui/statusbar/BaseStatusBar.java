@@ -558,8 +558,7 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         updateHalo();
 
-	SettingsObserver settingsObserver = new SettingsObserver(new Handler());
-        settingsObserver.observe();
+        mSettingsObserver.observe();
     }
 
     public void setHaloTaskerActive(boolean haloTaskerActive, boolean updateNotificationIcons) {
