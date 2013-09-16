@@ -569,10 +569,13 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     protected void updateHaloButton() {
-        mHaloButtonVisible = mHaloButtonVisible && mHaloEnabled ? true : false;
+        if (!mHaloEnabled) {
+            mHaloButtonVisible = false;
+        } else {
+            mHaloButtonVisible = true;
+        }
         if (mHaloButton != null) {
             mHaloButton.setVisibility(mHaloButtonVisible && !mHaloActive ? View.VISIBLE : View.GONE);
-            mHaloButton.setAlpha(mHaloButtonVisible && !mHaloActive ? 1f : 0f);
         }
     }
 
@@ -586,16 +589,11 @@ public abstract class BaseStatusBar extends SystemUI implements
         updateHalo();
     }
 
-        protected void updateHaloButton() {
-        if (!mHaloEnabled) {
-            mHaloButtonVisible = false;
-        } else {
-            mHaloButtonVisible = true;
-        }
-        if (mHaloButton != null) {
-            mHaloButton.setVisibility(mHaloButtonVisible && !mHaloActive ? View.VISIBLE : View.GONE);
-        }
-    }
+    public void updateHalo() {
+        mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.HALO_ENABLED, 0) == 1;
+        mHaloActive = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.HALO_ACTIVE, 0) == 1;
 
         updateHaloButton();
 
@@ -619,7 +617,8 @@ public abstract class BaseStatusBar extends SystemUI implements
                 mWindowManager.removeView(mHalo);
                 mHalo = null;
             }
-        }
+        } 
+
         mLocale = mContext.getResources().getConfiguration().locale;
     }
 
@@ -677,7 +676,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         vetoButton.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         return vetoButton;
     }
-
 
     protected void applyLegacyRowBackground(StatusBarNotification sbn, View content) {
         if (sbn.getNotification().contentView.getLayoutId() !=
@@ -825,16 +823,16 @@ public abstract class BaseStatusBar extends SystemUI implements
         // Provide SearchPanel with a temporary parent to allow layout params to work.
         LinearLayout tmpRoot = new LinearLayout(mContext);
 
-         boolean navbarCanMove = Settings.System.getIntForUser(mContext.getContentResolver(),
-                        Settings.System.NAVIGATION_BAR_CAN_MOVE, 1, UserHandle.USER_CURRENT) == 1;
+        boolean navbarCanMove = Settings.System.getIntForUser(mContext.getContentResolver(),
+                       Settings.System.NAVIGATION_BAR_CAN_MOVE, 1, UserHandle.USER_CURRENT) == 1;
 
-         if (screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE && !isScreenPortrait() && !navbarCanMove) {
-                mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
-                         R.layout.status_bar_search_panel_real_landscape, tmpRoot, false);
-         } else {
-                mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
-                         R.layout.status_bar_search_panel, tmpRoot, false);
-         }
+        if (screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE && !isScreenPortrait() && !navbarCanMove) {
+               mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                        R.layout.status_bar_search_panel_real_landscape, tmpRoot, false);
+        } else {
+               mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                        R.layout.status_bar_search_panel, tmpRoot, false);
+        }
 
         mSearchPanelView.setOnTouchListener(
                  new TouchOutsideListener(MSG_CLOSE_SEARCH_PANEL, mSearchPanelView));
@@ -916,7 +914,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                         throw new RuntimeException("Recents thumbnail is null");
                     }
                 }
-
 
                 DisplayMetrics dm = new DisplayMetrics();
                 mDisplay.getMetrics(dm);
@@ -1081,11 +1078,11 @@ public abstract class BaseStatusBar extends SystemUI implements
                  mContext.sendBroadcastAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
                  break;
              case MSG_PRELOAD_RECENT_APPS:
-                  preloadRecentTasksList();
-                  break;
+                 preloadRecentTasksList();
+                 break;
              case MSG_CANCEL_PRELOAD_RECENT_APPS:
-                  cancelPreloadingRecentTasksList();
-                  break;
+                 cancelPreloadingRecentTasksList();
+                 break;
              case MSG_TOGGLE_WIDGETS:
                  if (DEBUG) Slog.d(TAG, "toggle navbar widgets");
                  Intent toggleWidgets = new Intent(
@@ -1391,7 +1388,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         // Get the remote view
         try {
-
             if (!update) {
                 ViewGroup mainView = (ViewGroup)notif.contentView.apply(mContext, null, mOnClickHandler);
 
@@ -1404,12 +1400,10 @@ public abstract class BaseStatusBar extends SystemUI implements
             } else {
                 notif.contentView.reapply(mContext, entry.haloContent, mOnClickHandler);
             }
-
         } catch (Exception e) {
             // Non uniform content?
             android.util.Log.d("PARANOID", "   Non uniform content?");
         }
-
 
         // Construct the round icon
         final float haloSize = Settings.System.getFloat(mContext.getContentResolver(),
@@ -1750,7 +1744,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     // Pie Controls
-
     private final class PieSettingsObserver extends ContentObserver {
         PieSettingsObserver(Handler handler) {
             super(handler);
@@ -1862,7 +1855,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                 Slog.d(TAG, "AttachPie with trigger position flags: "
                         + mPieTriggerSlots + " masked: " + (mPieTriggerSlots & mPieTriggerMask));
             }
-
         } else {
             for (int i = 0; i < mPieTrigger.length; i++) {
                 if (mPieTrigger[i] != null) {
@@ -2237,7 +2229,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     private Handler HDL = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
-
             }
         }
     };
