@@ -471,7 +471,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                 }
             }
 
-            if (mLastNotificationEntry.notification != null
+           if (mLastNotificationEntry.notification != null
                     && mLastNotificationEntry.notification.getNotification() != null
                     && mLastNotificationEntry.notification.getNotification().tickerText != null) {
                 mNotificationText = mLastNotificationEntry.notification.getNotification().tickerText.toString();
