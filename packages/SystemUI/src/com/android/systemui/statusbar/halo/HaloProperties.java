@@ -90,7 +90,7 @@ public class HaloProperties extends FrameLayout implements BatteryStateChangeCal
     protected int mHaloContentY = 0;
     protected float mHaloContentAlpha = 0;
     private int mHaloContentHeight = 0;
-	private int mMsgCount, mValue;
+    private int mMsgCount, mValue;
     private int mBatteryLevel = 0;
     private boolean mCharging = false;
     private boolean airPlaneMode;
@@ -333,7 +333,7 @@ public class HaloProperties extends FrameLayout implements BatteryStateChangeCal
                         mHaloNumber.setAlpha(1f);
                     } else if (mValue >= 100) {
                         mHaloNumber.setText("+");
-						mHaloNumberContainer.setAlpha(1f);
+                        mHaloNumberContainer.setAlpha(1f);
                         mHaloNumber.setAlpha(1f);
                     }
                     
