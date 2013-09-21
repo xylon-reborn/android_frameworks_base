@@ -592,16 +592,10 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     protected void updateHalo() {
-        mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HALO_ENABLED, 0) == 1;
         mHaloActive = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ACTIVE, 0) == 1;
 
         updateHaloButton();
-
-        if (!mHaloEnabled) {
-            mHaloActive = false;
-        }
 
         if (mHaloActive) {
             if (mHalo == null) {
@@ -619,9 +613,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                 mWindowManager.removeView(mHalo);
                 mHalo = null;
             }
-        } 
-
-        mLocale = mContext.getResources().getConfiguration().locale;
+        }
     }
 
     public void userSwitched(int newUserId) {
