@@ -2572,31 +2572,31 @@ public final class Settings {
          * Whether to display notification messages around ring
          * @hide
          */
-        public static final String ACTIVE_DISPLAY_TEXT = "active_display_text";
+        public static final String ACTIVE_DISPLAY_TEXT = "active_displaytext";
 
         /**
          * Time to redisplay notifications on screen from when screen turns off, 0 = never redisplay
          * @hide
          */
-        public static final String ACTIVE_DISPLAY_REDISPLAY = "active_display_redisplay";
+        public static final String ACTIVE_DISPLAY_REDISPLAY = "active_displayredisplay";
 
         /**
          * Brightness of the display when displaying the active display view
          * @hide
          */
-        public static final String ACTIVE_DISPLAY_BRIGHTNESS = "active_display_brightness";
+        public static final String ACTIVE_DISPLAY_BRIGHTNESS = "active_displaybrightness";
 
         /**
          * Display active display view when device comes out of the user's pocket, etc...
          * @hide
          */
-        public static final String ACTIVE_DISPLAY_POCKET_MODE = "active_display_pocket_mode";
+        public static final String ACTIVE_DISPLAY_POCKET_MODE = "active_displaypocket_mode";
 
         /**
          * Whether to include ongoing/non-clearable notifications
          * @hide
          */
-        public static final String ACTIVE_DISPLAY_ALL_NOTIFICATIONS = "active_display_all_notifications";
+        public static final String ACTIVE_DISPLAY_ALL_NOTIFICATIONS = "active_displayall_notifications";
 
         /**
          * @deprecated Use {@link android.provider.Settings.Global#LOW_BATTERY_SOUND}
