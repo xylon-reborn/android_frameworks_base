@@ -614,6 +614,8 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
 
         if (mRecreating) {
+            // placeholder
+        } else {
             addActiveDisplayView();
         }
 
