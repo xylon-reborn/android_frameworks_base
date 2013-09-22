@@ -640,6 +640,7 @@ public class ActiveDisplayView extends FrameLayout {
                     mNotification.getPackageName(), mNotification.getTag(),
                     mNotification.getId());
         } catch (RemoteException e) {
+	    // placeholder to see the method constructure
         }
         mNotification = getNextAvailableNotification();
         if (mNotification != null) {
