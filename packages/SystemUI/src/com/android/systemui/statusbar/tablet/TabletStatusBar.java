@@ -677,6 +677,8 @@ public class TabletStatusBar extends BaseStatusBar implements
         context.registerReceiver(mBroadcastReceiver, filter);
 
         if (mRecreating) {
+            // placeholder
+        } else {
             addActiveDisplayView();
         }
 
