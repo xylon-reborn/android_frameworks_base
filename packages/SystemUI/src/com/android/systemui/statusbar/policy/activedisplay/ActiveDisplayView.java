@@ -515,7 +515,7 @@ public class ActiveDisplayView extends FrameLayout {
             storedDraw.add(new TargetDrawable(res, getLayeredDrawable(activeBack,
                     mNotificationDrawable, targetInset, false)));
             storedDraw.add(new TargetDrawable(res, null));
-            if (mNotification.isClearable()) {
+            if (mNotification != null && mNotification.isClearable()) {
                 storedDraw.add(new TargetDrawable(res, res.getDrawable(R.drawable.ic_ad_dismiss_notification)));
             } else {
                 storedDraw.add(new TargetDrawable(res, null));
@@ -912,18 +912,19 @@ public class ActiveDisplayView extends FrameLayout {
         try {
             Context pkgContext = mContext.createPackageContext(sbn.getPackageName(), Context.CONTEXT_RESTRICTED);
             mNotificationDrawable = pkgContext.getResources().getDrawable(sbn.getNotification().icon);
-	    if (mNotificationDrawable != null) {
-            	mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
-	    }
-            	setHandleText(sbn);
-            	mGlowPadView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                    	updateResources();
-                    	mGlowPadView.invalidate();
-                    	if (updateOthers) updateOtherNotifications();
-                    }
-               	});
+            if (mNotificationDrawable != null) {
+                mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
+            }
+            setHandleText(sbn);
+            mNotification = sbn;
+            mGlowPadView.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateResources();
+                    mGlowPadView.invalidate();
+                    if (updateOthers) updateOtherNotifications();
+                }
+            });
         } catch (NameNotFoundException e) {
         }
     }
