@@ -912,16 +912,18 @@ public class ActiveDisplayView extends FrameLayout {
         try {
             Context pkgContext = mContext.createPackageContext(sbn.getPackageName(), Context.CONTEXT_RESTRICTED);
             mNotificationDrawable = pkgContext.getResources().getDrawable(sbn.getNotification().icon);
-            mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
-            setHandleText(sbn);
-            mGlowPadView.post(new Runnable() {
-                @Override
-                public void run() {
-                    updateResources();
-                    mGlowPadView.invalidate();
-                    if (updateOthers) updateOtherNotifications();
-                }
-            });
+	    if (mNotificationDrawable != null) {
+            	mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
+	    }
+            	setHandleText(sbn);
+            	mGlowPadView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                    	updateResources();
+                    	mGlowPadView.invalidate();
+                    	if (updateOthers) updateOtherNotifications();
+                    }
+               	});
         } catch (NameNotFoundException e) {
         }
     }
