@@ -113,39 +113,23 @@
                     android:layout_gravity="center"
                     android:visibility="invisible" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="43dp"
+                <ImageView
+                    android:id="@+id/recents_clear_left"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="center"
                     android:layout_gravity="bottom|left"
-                    android:orientation="horizontal">
+                    android:src="@drawable/ic_recents_clear" />
 
-                    <ImageView
-                        android:id="@+id/recents_clear_left"
-                        android:clickable="true"
-                        android:layout_width="43dp"
-                        android:layout_height="43dp"
-                        android:scaleType="center"
-                        android:layout_gravity="bottom|left"
-                        android:src="@drawable/ic_recents_clear" />
-
-                    <ImageView
-                        android:id="@+id/recents_clear_right"
-                        android:clickable="true"
-                        android:layout_width="43dp"
-                        android:layout_height="43dp"
-                        android:scaleType="center"
-                        android:layout_gravity="bottom|right"
-                        android:src="@drawable/ic_recents_clear" />
-
-                    <ImageView
-                        android:id="@+id/recents_google_assist"
-                        android:clickable="true"
-                        android:layout_width="43dp"
-                        android:layout_height="43dp"
-                        android:scaleType="center"
-                        android:src="@drawable/ic_recents_gassist" />
-
-                </LinearLayout>
+                <ImageView
+                    android:id="@+id/recents_clear_right"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="center"
+                    android:layout_gravity="bottom|right"
+                    android:src="@drawable/ic_recents_clear" />
 
             </FrameLayout>
 
