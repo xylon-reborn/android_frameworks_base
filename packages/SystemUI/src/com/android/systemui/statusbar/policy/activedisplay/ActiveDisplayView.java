@@ -139,7 +139,7 @@ public class ActiveDisplayView extends FrameLayout {
     private LinearLayout.LayoutParams mOverflowLayoutParams;
     private KeyguardManager mKeyguardManager;
     private KeyguardLock mKeyguardLock;
-    private boolean mRegistered = false;
+    private boolean mCallbacksRegistered = false;
 
     // user customizable settings
     private boolean mDisplayNotifications = false;
@@ -248,7 +248,7 @@ public class ActiveDisplayView extends FrameLayout {
     };
 
     /**
-     * Class used to listen for changes to P.O.R.N. related settings
+     * Class used to listen for changes to active display related settings
      */
     class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
@@ -280,11 +280,8 @@ public class ActiveDisplayView extends FrameLayout {
         void unobserve() {
             ActiveDisplayView.this.mContext.getContentResolver()
                     .unregisterContentObserver(this);
-            if (mDisplayNotifications && mRegistered) {
-                unregisterSensorListener();
-                unregisterNotificationListener();
-                unregisterBroadcastReceiver();
-                mRegistered = false;
+            if (mDisplayNotifications) {
+                unregisterCallbacks();
             }
         }
 
@@ -324,15 +321,9 @@ public class ActiveDisplayView extends FrameLayout {
             }
 
             if (mDisplayNotifications) {
-                registerNotificationListener();
-                registerSensorListener();
-                registerBroadcastReceiver();
-                mRegistered = true;
-            } else if (mRegistered) {
-                unregisterNotificationListener();
-                unregisterSensorListener();
-                unregisterBroadcastReceiver();
-                mRegistered = false;
+                registerCallbacks();
+            } else {
+                unregisterCallbacks();
             }
         }
     }
@@ -531,7 +522,7 @@ public class ActiveDisplayView extends FrameLayout {
             if (mNotification != null && mNotification.isClearable()) {
                 storedDraw.add(new TargetDrawable(res, res.getDrawable(R.drawable.ic_ad_dismiss_notification)));
             } else {
-                storedDraw.add(new TargetDrawable(res, res.getDrawable(R.drawable.ic_qs_power)));
+                storedDraw.add(new TargetDrawable(res, null));
             }
         }
         storedDraw.add(new TargetDrawable(res, null));
@@ -643,19 +634,17 @@ public class ActiveDisplayView extends FrameLayout {
     }
 
     private void handleDismissNotification() {
-        if (mNotification != null && mNotification.isClearable()) {
-           try {
-                mNM.cancelNotificationFromListener(mNotificationListener,
-                        mNotification.getPackageName(), mNotification.getTag(),
-                        mNotification.getId());
-            } catch (RemoteException e) {
-            }
-            mNotification = getNextAvailableNotification();
-            if (mNotification != null) {
-                setActiveNotification(mNotification, true);
-                userActivity();
-                return;
-            }
+        try {
+            mNM.cancelNotificationFromListener(mNotificationListener,
+                    mNotification.getPackageName(), mNotification.getTag(),
+                    mNotification.getId());
+        } catch (RemoteException e) {
+        }
+        mNotification = getNextAvailableNotification();
+        if (mNotification != null) {
+            setActiveNotification(mNotification, true);
+            userActivity();
+            return;
         }
 
         // no other notifications to display so turn screen off
@@ -769,6 +758,24 @@ public class ActiveDisplayView extends FrameLayout {
     private void unregisterSensorListener() {
         if (mProximitySensor != null)
             mSensorManager.unregisterListener(mSensorListener, mProximitySensor);
+    }
+
+    private void registerCallbacks() {
+        if (!mCallbacksRegistered) {
+            registerBroadcastReceiver();
+            registerNotificationListener();
+            registerSensorListener();
+            mCallbacksRegistered = true;
+        }
+    }
+
+    private void unregisterCallbacks() {
+        if (mCallbacksRegistered) {
+            unregisterBroadcastReceiver();
+            unregisterNotificationListener();
+            unregisterSensorListener();
+            mCallbacksRegistered = false;
+        }
     }
 
     private StatusBarNotification getNextAvailableNotification() {
@@ -927,9 +934,7 @@ public class ActiveDisplayView extends FrameLayout {
         try {
             Context pkgContext = mContext.createPackageContext(sbn.getPackageName(), Context.CONTEXT_RESTRICTED);
             mNotificationDrawable = pkgContext.getResources().getDrawable(sbn.getNotification().icon);
-            if (mNotificationDrawable != null) {
-                mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
-            }
+            mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
             setHandleText(sbn);
             mNotification = sbn;
             mGlowPadView.post(new Runnable() {
