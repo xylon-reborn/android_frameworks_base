@@ -244,11 +244,6 @@ public class ActiveDisplayView extends FrameLayout {
         public void onFinishFinalAnimation() {
 
         }
-
-        public void onTargetChange(View v, int whichHandle) {
-
-        }
-
     };
 
     /**
