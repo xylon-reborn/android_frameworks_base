@@ -99,6 +99,8 @@ public class ActiveDisplayView extends FrameLayout {
 
     private static final long DISPLAY_TIMEOUT = 8000L;
 
+    private static final int HIDE_NOTIFICATIONS_BELOW_SCORE = Notification.PRIORITY_LOW;
+
     // Targets
     private static final int UNLOCK_TARGET = 0;
     private static final int OPEN_APP_TARGET = 4;
@@ -145,6 +147,7 @@ public class ActiveDisplayView extends FrameLayout {
     private boolean mDisplayNotifications = false;
     private boolean mDisplayNotificationText = false;
     private boolean mShowAllNotifications = false;
+    private boolean mHideLowPriorityNotifications = false;
     private boolean mPocketModeEnabled = false;
     private long mRedisplayTimeout = 0;
     private float mInitialBrightness = 1f;
@@ -245,6 +248,7 @@ public class ActiveDisplayView extends FrameLayout {
         public void onFinishFinalAnimation() {
 
         }
+
     };
 
     /**
@@ -264,6 +268,8 @@ public class ActiveDisplayView extends FrameLayout {
                     Settings.System.ACTIVE_DISPLAY_TEXT), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.ACTIVE_DISPLAY_ALL_NOTIFICATIONS), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.ACTIVE_DISPLAY_HIDE_LOW_PRIORITY_NOTIFICATIONS), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.ACTIVE_DISPLAY_POCKET_MODE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -300,6 +306,8 @@ public class ActiveDisplayView extends FrameLayout {
                     resolver, Settings.System.ACTIVE_DISPLAY_TEXT, 0) == 1;
             mShowAllNotifications = Settings.System.getInt(
                     resolver, Settings.System.ACTIVE_DISPLAY_ALL_NOTIFICATIONS, 0) == 1;
+            mHideLowPriorityNotifications = Settings.System.getInt(
+                    resolver, Settings.System.ACTIVE_DISPLAY_HIDE_LOW_PRIORITY_NOTIFICATIONS, 0) == 1;
             mPocketModeEnabled = Settings.System.getInt(
                     resolver, Settings.System.ACTIVE_DISPLAY_POCKET_MODE, 0) == 1;
             mRedisplayTimeout = Settings.System.getLong(
@@ -677,7 +685,7 @@ public class ActiveDisplayView extends FrameLayout {
         return false;
     }
 
-     private void enableProximitySensor() {
+    private void enableProximitySensor() {
         if (mPocketModeEnabled && mDisplayNotifications) {
             mProximityIsFar = true;
             registerSensorListener(mProximitySensor);
@@ -822,10 +830,20 @@ public class ActiveDisplayView extends FrameLayout {
                                 && mOverflowNotifications.getChildCount() < MAX_OVERFLOW_ICONS) {
                             ImageView iv = new ImageView(mContext);
                             if (mOverflowNotifications.getChildCount() < (MAX_OVERFLOW_ICONS - 1)) {
-                                Context pkgContext = mContext.createPackageContext(
-                                        sbns[i].getPackageName(), Context.CONTEXT_RESTRICTED);
-                                iv.setImageDrawable(pkgContext.getResources()
-                                        .getDrawable(sbns[i].getNotification().icon));
+                                Drawable iconDrawable = null;
+                                try {
+                                    Context pkgContext = mContext.createPackageContext(
+                                            sbns[i].getPackageName(), Context.CONTEXT_RESTRICTED);
+                                    iconDrawable = pkgContext.getResources()
+                                            .getDrawable(sbns[i].getNotification().icon);
+                                } catch (NameNotFoundException nnfe) {
+                                    iconDrawable = mContext.getResources()
+                                            .getDrawable(R.drawable.ic_ad_unknown_icon);
+                                } catch (Resources.NotFoundException nfe) {
+                                    iconDrawable = mContext.getResources()
+                                            .getDrawable(R.drawable.ic_ad_unknown_icon);
+                                }
+                                iv.setImageDrawable(iconDrawable);
                                 iv.setTag(sbns[i]);
                                 if (sbns[i].getPackageName().equals(mNotification.getPackageName())
                                         && sbns[i].getId() == mNotification.getId()) {
@@ -842,8 +860,6 @@ public class ActiveDisplayView extends FrameLayout {
                         }
                     }
                 } catch (RemoteException re) {
-                } catch (NameNotFoundException nnfe) {
-                } catch (Resources.NotFoundException e) {
                 }
             }
         });
@@ -905,7 +921,8 @@ public class ActiveDisplayView extends FrameLayout {
      * @return True if it should be used, false otherwise.
      */
     private boolean isValidNotification(StatusBarNotification sbn) {
-        return (!isOnCall() && (sbn.isClearable() || mShowAllNotifications));
+        return (!isOnCall() && (sbn.isClearable() || mShowAllNotifications)
+                && !(mHideLowPriorityNotifications && sbn.getNotification().priority < HIDE_NOTIFICATIONS_BELOW_SCORE));
     }
 
     /**
@@ -945,20 +962,22 @@ public class ActiveDisplayView extends FrameLayout {
         try {
             Context pkgContext = mContext.createPackageContext(sbn.getPackageName(), Context.CONTEXT_RESTRICTED);
             mNotificationDrawable = pkgContext.getResources().getDrawable(sbn.getNotification().icon);
-            mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
-            setHandleText(sbn);
-            mNotification = sbn;
-            mGlowPadView.post(new Runnable() {
-                @Override
-                public void run() {
-                    updateResources();
-                    mGlowPadView.invalidate();
-                    if (updateOthers) updateOtherNotifications();
-                }
-            });
-        } catch (NameNotFoundException e) {
-        } catch (Resources.NotFoundException e) {
+        } catch (NameNotFoundException nnfe) {
+            mNotificationDrawable = mContext.getResources().getDrawable(R.drawable.ic_ad_unknown_icon);
+        } catch (Resources.NotFoundException nfe) {
+            mNotificationDrawable = mContext.getResources().getDrawable(R.drawable.ic_ad_unknown_icon);
         }
+        mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
+        setHandleText(sbn);
+        mNotification = sbn;
+        mGlowPadView.post(new Runnable() {
+            @Override
+            public void run() {
+                updateResources();
+                mGlowPadView.invalidate();
+                if (updateOthers) updateOtherNotifications();
+            }
+        });
     }
 
     /**
@@ -1019,7 +1038,7 @@ public class ActiveDisplayView extends FrameLayout {
         public void onSensorChanged(SensorEvent event) {
             float value = event.values[0];
             if (event.sensor.equals(mProximitySensor)) {
-                 boolean isFar = value >= mProximitySensor.getMaximumRange();
+                boolean isFar = value >= mProximitySensor.getMaximumRange();
                 if (isFar != mProximityIsFar) {
                     mProximityIsFar = isFar;
                     if (isFar) {
