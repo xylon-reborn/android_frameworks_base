@@ -384,7 +384,6 @@ final class WiredAccessoryManager implements WiredAccessoryCallbacks {
             try {
                 String devPath = event.get("DEVPATH");
                 String name = event.get("SWITCH_NAME");
-                int state = Integer.parseInt(event.get("SWITCH_STATE"));
                 synchronized (mLock) {
                     updateStateLocked(devPath, name, state);
                 }
