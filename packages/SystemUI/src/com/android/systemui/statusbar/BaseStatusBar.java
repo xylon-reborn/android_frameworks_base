@@ -420,14 +420,17 @@ public abstract class BaseStatusBar extends SystemUI implements
         mWindowManagerService = WindowManagerGlobal.getWindowManagerService();
         mDisplay = mWindowManager.getDefaultDisplay();
 
-        mProvisioningObserver.onChange(false); // set up
         SettingsObserver.onChange(false);
-        mContext.getContentResolver().registerContentObserver(
-                Settings.Global.getUriFor(Settings.Global.DEVICE_PROVISIONED), true,
-                mProvisioningObserver);
         mContext.getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(Settings.System.NOTIFICATIONS_BEHAVIOUR), true,
                 SettingsObserver);
+
+        if (!isDeviceProvisioned()) {
+            mProvisioningObserver.onChange(false); // set up
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.Global.getUriFor(Settings.Global.DEVICE_PROVISIONED), true,
+                    mProvisioningObserver);
+        }
 
         mBarService = IStatusBarService.Stub.asInterface(
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
@@ -454,19 +457,20 @@ public abstract class BaseStatusBar extends SystemUI implements
             // If the system process isn't there we're doomed anyway.
         }
 
-	    // HALO Listener
+        if (mTransparencyManager == null) {
+            mTransparencyManager = new TransparencyManager(mContext);
+        }
+
+	// HALO Listener
         mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ENABLED, 0) == 1;
 
         mHaloActive = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ACTIVE, 0) == 1;
 
-        if (mTransparencyManager == null) {
-            mTransparencyManager = new TransparencyManager(mContext);
-        }
-        mWidgetView = new WidgetView(mContext,null);
         createAndAddWindows();
-
+        // create WidgetView
+        mWidgetView = new WidgetView(mContext,null);
         disable(switches[0]);
         setSystemUiVisibility(switches[1], 0xffffffff);
         topAppWindowChanged(switches[2] != 0);
@@ -680,11 +684,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             } catch (NameNotFoundException ex) {
                 Slog.e(TAG, "Failed looking up ApplicationInfo for " + sbn.getPackageName(), ex);
             }
-            if (version > 0 && version < Build.VERSION_CODES.GINGERBREAD) {
-                content.setBackgroundResource(R.drawable.notification_row_legacy_bg);
-            } else {
-                content.setBackgroundResource(com.android.internal.R.drawable.notification_bg);
-            }
+            content.setBackgroundResource(com.android.internal.R.drawable.notification_bg);
         }
     }
 
