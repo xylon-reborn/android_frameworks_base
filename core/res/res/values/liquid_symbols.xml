@@ -187,6 +187,9 @@
   <!-- Screenshot Trash -->
   <java-symbol type="string" name="trash" />
 
+  <!-- Gesture Sensor -->
+  <java-symbol type="bool" name="config_enableGestureService" />
+
   <!-- Awesome Animations -->
   <java-symbol type="string" name="animation_fade"/>
   <java-symbol type="string" name="animation_slide_left"/>
