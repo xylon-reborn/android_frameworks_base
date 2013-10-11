@@ -3324,6 +3324,12 @@ public final class Settings {
         public static final String HALO_UNLOCK_PING = "halo_unlock_ping";
 
         /**
+         * HALO being minimal.
+         * @hide
+         */
+        public static final String HALO_STYLE = "halo_style";
+
+        /**
          * HALO pause activities?, defaults to 0 (no, do not pause) on devices which isLargeRAM() == true
          * otherwise it defaults to 1 (yes, do pause)
          * @hide
@@ -3365,6 +3371,13 @@ public final class Settings {
          * @hide
          */
         public static final String HALO_SIZE = "halo_size";
+
+         /**
+         * Do you want popups/floating windows?
+         * @hide
+         */
+        public static final String WE_WANT_POPUPS = "we_want_popups";
+
 
         /**
          * Whether Status bar should be hiidden when there are no notifications
