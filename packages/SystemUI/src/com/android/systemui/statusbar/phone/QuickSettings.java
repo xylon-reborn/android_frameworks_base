@@ -70,9 +70,18 @@ import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.internal.telephony.Phone;
+import com.vanir.util.CMDProcessor;
+import com.vanir.util.Helpers;
+import com.vanir.util.VanirAwesome;
+import static com.vanir.util.VanirConstants.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-
 
 /**
  *
@@ -307,52 +316,483 @@ class QuickSettings {
                             ContactsContract.QuickContact.MODE_LARGE, null);
                     mContext.startActivityAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
                 }
-            }
-        });
-        mModel.addUserTile(userTile, new QuickSettingsModel.RefreshCallback() {
-            @Override
-            public void refreshView(QuickSettingsTileView view, State state) {
-                UserState us = (UserState) state;
-                ImageView iv = (ImageView) view.findViewById(R.id.user_imageview);
-                TextView tv = (TextView) view.findViewById(R.id.user_textview);
-                tv.setText(state.label);
-                iv.setImageDrawable(us.avatar);
-                view.setContentDescription(mContext.getString(
-                        R.string.accessibility_quick_settings_user, state.label));
-            }
-        });
-        parent.addView(userTile);
-        mDynamicSpannedTiles.add(userTile);
 
-        // Brightness
-        final QuickSettingsBasicTile brightnessTile
-                = new QuickSettingsBasicTile(mContext);
-        brightnessTile.setImageResource(R.drawable.ic_qs_brightness_auto_off);
-        brightnessTile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                collapsePanels();
-                showBrightnessDialog();
-            }
-        });
-        mModel.addBrightnessTile(brightnessTile,
-                new QuickSettingsModel.BasicRefreshCallback(brightnessTile));
-        parent.addView(brightnessTile);
-        mDynamicSpannedTiles.add(brightnessTile);
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_fcharge, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setFastCharge(!Prefs.getLastFastChargeState(mContext));
+                    }
+                });
+                quick.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        // What do we put here?
+                        return true;
+                    }
+                });
+                mModel.addFChargeTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.fcharge_textview);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                restoreFChargeState();
+                break;
+            case WIFI_TETHER_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_wifi_tether, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mWifiApState = wifiManager.getWifiApState();
+                        if (mWifiApState == WifiManager.WIFI_AP_STATE_DISABLED
+                                || mWifiApState == WifiManager.WIFI_AP_STATE_DISABLING) {
+                            changeWifiApState(true);
+                        } else {
+                            changeWifiApState(false);
+                        }
+                        dothingsthewrongway();
+                    }
+                });
+                quick.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        startSettingsActivity(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+                        return true;
+                    }
+                });
+                mModel.addWifiTetherTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.wifi_tether_textview);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                break;
+            case USB_TETHER_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_usb_tether, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean enabled = updateUsbState() ? false : true;
+                        if (connManager.setUsbTethering(enabled) == ConnectivityManager.TETHER_ERROR_NO_ERROR) {
+                            Log.e(TAG, "Usb tether state setting failed! Is it plugged in?");
+                        }
+                        dothingsthewrongway();
+                    }
+                });
+                quick.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        startSettingsActivity(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+                        return true;
+                    }
+                });
+                mModel.addUSBTetherTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.usb_tether_textview);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                break;
+            case SYNC_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_sync, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean enabled = ContentResolver.getMasterSyncAutomatically();
+                        ContentResolver.setMasterSyncAutomatically(enabled ? false : true);
+                        mModel.refreshSyncTile();
+                    }
+                });
+                quick.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        startSettingsActivity(android.provider.Settings.ACTION_SYNC_SETTINGS);
+                        return true;
+                    }
+                });
+                mModel.addSyncTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.sync_textview);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                break;
+            case NFC_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_nfc, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean enabled = false;
+                        if (mModel.getNfcAdapter() != null) {
+                            try {
+                                enabled = mModel.getNfcAdapter().isEnabled();
+                                if (enabled) {
+                                    mModel.getNfcAdapter().disable();
+                                } else {
+                                    mModel.getNfcAdapter().enable();
+                                }
+                            } catch (NullPointerException ex) {
+                                // we'll ignore this click
+                                Log.e(TAG, "NFC QS Click Fail!\n"+ex);
+                            }
+                        }
+                    }
+                });
+                quick.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        startSettingsActivity(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+                        return true;
+                    }
+                });
+                mModel.addNFCTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.nfc_textview);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                break;
+            case ROTATE_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_rotation_lock, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean locked = RotationPolicy.isRotationLocked(mContext);
+                        RotationPolicy.setRotationLock(mContext, !locked);
+                    }
+                });
+                mModel.addRotationLockTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.rotation_lock_textview);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                break;
+            case BATTERY_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_battery, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startSettingsActivity(Intent.ACTION_POWER_USAGE_SUMMARY);
+                    }
+                });
+                mModel.addBatteryTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        QuickSettingsModel.BatteryState batteryState =
+                                (QuickSettingsModel.BatteryState) state;
+                        TextView tv = (TextView) view.findViewById(R.id.battery_textview);
+                        ImageView iv = (ImageView) view.findViewById(R.id.battery_image);
+                        Drawable d = batteryState.pluggedIn
+                                ? mChargingBatteryLevels
+                                : mBatteryLevels;
+                        String t;
+                        if (batteryState.batteryLevel == 100) {
+                            t = mContext.getString(R.string.quick_settings_battery_charged_label);
+                        } else {
+                            t = batteryState.pluggedIn
+                                    ? mContext.getString(R.string.quick_settings_battery_charging_label,
+                                            batteryState.batteryLevel)
+                                    : mContext.getString(R.string.status_bar_settings_battery_meter_format,
+                                            batteryState.batteryLevel);
+                        }
+                        iv.setImageDrawable(d);
+                        iv.setImageLevel(batteryState.batteryLevel);
+                        tv.setText(t);
+                        tv.setTextSize(1, mTileTextSize);
+                        view.setContentDescription(
+                                mContext.getString(R.string.accessibility_quick_settings_battery, t));
+                    }
+                });
+                break;
+            case AIRPLANE_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_airplane, inflater);
+                mModel.addAirplaneModeTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.airplane_mode_textview);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        String airplaneState = mContext.getString(
+                                (state.enabled) ? R.string.accessibility_desc_on
+                                        : R.string.accessibility_desc_off);
+                        view.setContentDescription(
+                                mContext.getString(R.string.accessibility_quick_settings_airplane, airplaneState));
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                break;
+            case BLUETOOTH_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_bluetooth, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+                        if (adapter.isEnabled()) {
+                            adapter.disable();
+                        } else {
+                            adapter.enable();
+                        }
+                        dothingsthewrongway();
+                    }
+                });
+                quick.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        startSettingsActivity(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                        return true;
+                    }
+                });
+                mModel.addBluetoothTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        BluetoothState bluetoothState = (BluetoothState) state;
+                        TextView tv = (TextView) view.findViewById(R.id.bluetooth_textview);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        Resources r = mContext.getResources();
+                        String label = state.label;
+                        /*
+                         * //TODO: Show connected bluetooth device label
+                         * Set<BluetoothDevice> btDevices =
+                         * mBluetoothController.getBondedBluetoothDevices(); if
+                         * (btDevices.size() == 1) { // Show the name of the
+                         * bluetooth device you are connected to label =
+                         * btDevices.iterator().next().getName(); } else if
+                         * (btDevices.size() > 1) { // Show a generic label
+                         * about the number of bluetooth devices label =
+                         * r.getString(R.string
+                         * .quick_settings_bluetooth_multiple_devices_label,
+                         * btDevices.size()); }
+                         */
+                        view.setContentDescription(mContext.getString(
+                                R.string.accessibility_quick_settings_bluetooth,
+                                bluetoothState.stateContentDescription));
+                        tv.setText(label);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                break;
+            case GPS_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_location, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(
+                                mContext.getContentResolver(), LocationManager.GPS_PROVIDER);
+                        Settings.Secure.setLocationProviderEnabled(mContext.getContentResolver(),
+                                LocationManager.GPS_PROVIDER, gpsEnabled ? false : true);
+                        TextView tv = (TextView) v.findViewById(R.id.location_textview);
+                        tv.setText(gpsEnabled ? R.string.quick_settings_gps_off_label
+                                : R.string.quick_settings_gps_on_label);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, gpsEnabled ?
+                                R.drawable.ic_qs_gps_off : R.drawable.ic_qs_gps_on, 0, 0);
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                quick.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        startSettingsActivity(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        return true;
+                    }
+                });
+                mModel.addLocationTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(
+                                mContext.getContentResolver(), LocationManager.GPS_PROVIDER);
+                        TextView tv = (TextView) view.findViewById(R.id.location_textview);
+                        tv.setText(gpsEnabled
+                                ? R.string.quick_settings_gps_on_label
+                                : R.string.quick_settings_gps_off_label);
+                        if (state.iconId == 0) {
+                            tv.setCompoundDrawablesWithIntrinsicBounds(0, gpsEnabled ?
+                                    R.drawable.ic_qs_gps_on : R.drawable.ic_qs_gps_off, 0, 0);
+                        }
+                        else {
+                            tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                        }
+                        tv.setTextSize(1, mTileTextSize);
+                    }
+                });
+                break;
+            case IME_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_ime, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            mBar.collapseAllPanels(true);
+                            Intent intent = new Intent(Settings.ACTION_SHOW_INPUT_METHOD_PICKER);
+                            PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, 0);
+                            pendingIntent.send();
+                        } catch (Exception e) {
+                        }
+                    }
+                });
+                mModel.addImeTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.ime_textview);
+                        if (state.label != null) {
+                            tv.setText(state.label);
+                            tv.setTextSize(1, mTileTextSize);
+                        }
+                    }
+                });
+                break;
+            case FAV_CONTACT_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_user, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String lookupKey = Settings.System.getString(mContext.getContentResolver(),
+                        Settings.System.QUICK_TOGGLE_FAV_CONTACT);
 
-        // Settings tile
-        final QuickSettingsBasicTile settingsTile = new QuickSettingsBasicTile(mContext);
-        settingsTile.setImageResource(R.drawable.ic_qs_settings);
-        settingsTile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startSettingsActivity(android.provider.Settings.ACTION_SETTINGS);
-            }
-        });
-        mModel.addSettingsTile(settingsTile,
-                new QuickSettingsModel.BasicRefreshCallback(settingsTile));
-        parent.addView(settingsTile);
-        mDynamicSpannedTiles.add(settingsTile);
+                        if (lookupKey != null && lookupKey.length() > 0) {
+                            mBar.collapseAllPanels(true);
+                            Uri lookupUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, lookupKey);
+                            Uri res = ContactsContract.Contacts.lookupContact(mContext.getContentResolver(), lookupUri);
+                            Intent intent = ContactsContract.QuickContact.composeQuickContactsIntent(
+                                    mContext, v, res,
+                                    ContactsContract.QuickContact.MODE_LARGE, null);
+                            mContext.startActivityAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
+                        }
+                    }
+                });
+                mModel.addFavContactTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        UserState us = (UserState) state;
+                        ImageView iv = (ImageView) view.findViewById(R.id.user_imageview);
+                        TextView tv = (TextView) view.findViewById(R.id.user_textview);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                        iv.setImageDrawable(us.avatar);
+                        view.setContentDescription(mContext.getString(
+                                R.string.accessibility_quick_settings_user, state.label));
+                    }
+                });
+                break;
+            case QUICKRECORD_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_quickrecord, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        File file = new File(mQuickAudio);
+                        if (!file.exists()) {
+                            mRecordingState = STATE_NO_RECORDING;
+                        }
+                        switch (mRecordingState) {
+                            case STATE_RECORDING:
+                                stopRecording();
+                                break;
+                            case STATE_NO_RECORDING:
+                                return;
+                            case STATE_IDLE:
+                            case STATE_JUST_RECORDED:
+                                startPlaying();
+                                break;
+                            case STATE_PLAYING:
+                                stopPlaying();
+                                break;
+                        }
+                    }
+                });
+                quick.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        switch (mRecordingState) {
+                            case STATE_NO_RECORDING:
+                            case STATE_IDLE:
+                            case STATE_JUST_RECORDED:
+                            startRecording();
+                            break;
+                        }
+                        return true;
+                    }
+                });
+                mModel.addQuickRecordTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.quickrecord_textview);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                    }
+                });
+                break;
+            case MEMORY_TILE:
+                quick = (QuickSettingsTileView)
+                        inflater.inflate(R.layout.quick_settings_tile, parent, false);
+                quick.setContent(R.layout.quick_settings_tile_memory, inflater);
+                quick.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent(Intent.ACTION_MAIN);
+                        i.setComponent(new ComponentName("com.android.settings","com.android.settings.RunningServices"));
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        mContext.startActivity(i);
+                        mBar.collapseAllPanels(true);
+                    }
+                });
+                mModel.addMemoryTile(quick, new QuickSettingsModel.RefreshCallback() {
+                    @Override
+                    public void refreshView(QuickSettingsTileView view, State state) {
+                        TextView tv = (TextView) view.findViewById(R.id.memory_textview);
+                        tv.setText(state.label);
+                        tv.setTextSize(1, mTileTextSize);
+                        tv.setCompoundDrawablesWithIntrinsicBounds(0, state.iconId, 0, 0);
+                    }
+                });
+                break;
+        }
+        return quick;
     }
 
     private void addSystemTiles(ViewGroup parent, LayoutInflater inflater) {
@@ -795,4 +1235,195 @@ class QuickSettings {
 
         }
     };
+
+    private void setFastCharge(final boolean on) {
+         mHandler.post(new Runnable() {
+            public void run() {
+                final String value = on ? "1" : "0";
+                new CMDProcessor().sh.run("echo " + value + " > " + mFastChargePath+" || echo "+value+" | sudo tee "+mFastChargePath);
+                mHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        mModel.refreshFChargeTile();
+                    }
+                }, 250);
+            }
+        });
+    }
+
+    private void changeWifiApState(final boolean desiredState) {
+        if (wifiManager == null) {
+            return;
+        }
+
+        AsyncTask.execute(new Runnable() {
+            public void run() {
+                int wifiState = wifiManager.getWifiState();
+                if (desiredState
+                        && ((wifiState == WifiManager.WIFI_STATE_ENABLING)
+                                || (wifiState == WifiManager.WIFI_STATE_ENABLED))) {
+                    wifiManager.setWifiEnabled(false);
+                }
+
+                wifiManager.setWifiApEnabled(null, desiredState);
+                return;
+            }
+        });
+    }
+
+    private void changeWifiState(final boolean desiredState) {
+        if (wifiManager == null) {
+            return;
+        }
+
+        AsyncTask.execute(new Runnable() {
+            public void run() {
+                int wifiApState = wifiManager.getWifiApState();
+                if (desiredState
+                        && ((wifiApState == WifiManager.WIFI_AP_STATE_ENABLING)
+                                || (wifiApState == WifiManager.WIFI_AP_STATE_ENABLED))) {
+                    wifiManager.setWifiApEnabled(null, false);
+                }
+
+                wifiManager.setWifiEnabled(desiredState);
+                return;
+            }
+        });
+    }
+
+    public boolean updateUsbState() {
+        String[] mUsbRegexs = connManager.getTetherableUsbRegexs();
+        String[] tethered = connManager.getTetheredIfaces();
+        usbTethered = false;
+        for (String s : tethered) {
+            for (String regex : mUsbRegexs) {
+                if (s.matches(regex)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+      return false;
+    }
+
+    void dothingsthewrongway() {
+        ticksleft = TICKS_UNTIL_CONFIDENT_QS_UPDATED;
+        mHandler.removeCallbacks(delayedRefresh);
+        mHandler.postDelayed(delayedRefresh, 250);
+    }
+
+    final Runnable delayedRefresh = new Runnable () {
+         public void run() {
+            mHandler.removeCallbacks(delayedRefresh);
+            mModel.refreshWifiTetherTile();
+            mModel.refreshUSBTetherTile();
+            mModel.refreshNFCTile();
+            if ((--ticksleft) > 0)
+                mHandler.postDelayed(delayedRefresh, 250);
+         }
+     };
+
+    private void restoreFChargeState() {
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... params) {
+                if(Prefs.getLastFastChargeState(mContext) && !mModel.isFastChargeOn()) {
+                    setFastCharge(true);
+                }
+                return null;
+            }
+        }.execute();
+    }
+
+    void updateTileTextSize(int colnum) {
+        // adjust Tile Text Size based on column count
+        switch (colnum) {
+            case 5:
+                mTileTextSize = 8;
+                break;
+            case 4:
+                mTileTextSize = 10;
+                break;
+            case 3:
+            default:
+                mTileTextSize = 12;
+                break;
+        }
+    }
+
+    private void updateSettings() {
+        ContentResolver resolver = mContext.getContentResolver();
+         userToggles = Settings.System.getString(resolver, Settings.System.QUICK_TOGGLES);
+         int columnCount = Settings.System.getInt(resolver, Settings.System.QUICK_TOGGLES_PER_ROW,
+                 mContext.getResources().getInteger(R.integer.quick_settings_num_columns));
+         ((QuickSettingsContainerView) mContainerView).setColumnCount(columnCount);
+         updateTileTextSize(columnCount);
+         setupQuickSettings();
+         updateWifiDisplayStatus();
+         updateResources();
+         reloadFavContactInfo();
+    }
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.QUICK_TOGGLES),
+                    false, this);
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.QUICK_TOGGLES_PER_ROW),
+                    false, this);
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.QUICK_TOGGLE_FAV_CONTACT),
+                    false, this);
+            updateSettings();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            updateSettings();
+        }
+    }
+
+    class SoundObserver extends ContentObserver {
+        SoundObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.Global
+                    .getUriFor(Settings.Global.MODE_RINGER),
+                    false, this);
+            mModel.refreshVibrateTile();
+            mModel.refreshSilentTile();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            mModel.refreshVibrateTile();
+            mModel.refreshSilentTile();
+        }
+    }
+
+    class TorchObserver extends ContentObserver {
+        TorchObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(Settings.System.TORCH_STATE), false, this);
+            mModel.refreshTorchTile();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            mModel.refreshTorchTile();
+        }
+    }
 }
