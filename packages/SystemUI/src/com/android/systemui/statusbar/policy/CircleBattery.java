@@ -83,6 +83,8 @@ public class CircleBattery extends ImageView {
     private Paint   mPaintGray;
     private Paint   mPaintSystem;
     private Paint   mPaintRed;
+    private Paint   mPaintGreen;
+
     private int mBatteryStyle;
 
     private int mCircleColor;
@@ -275,9 +277,12 @@ public class CircleBattery extends ImageView {
         // pad circle percentage to 100% once it reaches 97%
         // for one, the circle looks odd with a too small gap,
         // for another, some phones never reach 100% due to hardware design
-        int padLevel = level;
-        if (padLevel >= 97) {
-            padLevel = 100;
+        int padLevel = mLevel;
+        if (mLevel >= 97) {
+            padLevel=100;
+            if (mIsCharging) {
+                usePaint = mPaintGreen;
+            }
         }
 
         // draw thin gray ring first
@@ -408,6 +413,7 @@ public class CircleBattery extends ImageView {
         mPaintGray = new Paint(mPaintFont);
         mPaintSystem = new Paint(mPaintFont);
         mPaintRed = new Paint(mPaintFont);
+        mPaintGreen = new Paint(mPaintFont);
 
         if (customColor) {
             mPaintSystem.setColor(color);
@@ -420,6 +426,7 @@ public class CircleBattery extends ImageView {
         // do not want to use static 0x404040 color value. would break theming.
         mPaintGray.setColor(res.getColor(R.color.darker_gray));
         mPaintRed.setColor(res.getColor(R.color.holo_red_light));
+        mPaintGreen.setColor(res.getColor(R.color.holo_green_light));
 
         // font needs some extra settings
         mPaintFont.setTextAlign(Align.CENTER);
@@ -467,6 +474,7 @@ public class CircleBattery extends ImageView {
 
         float strokeWidth = mCircleSize / 7f;
         mPaintRed.setStrokeWidth(strokeWidth);
+        mPaintGreen.setStrokeWidth(strokeWidth);
         mPaintSystem.setStrokeWidth(strokeWidth);
         mPaintGray.setStrokeWidth(strokeWidth / 3.5f);
         // calculate rectangle for drawArc calls
