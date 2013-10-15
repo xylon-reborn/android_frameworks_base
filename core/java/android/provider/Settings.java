@@ -4141,6 +4141,12 @@ public final class Settings {
         public static final String LOCKSCREEN_SHORTCUTS_LONGPRESS = "lockscreen_shortcuts_longpress";
 
         /**
+         * Whether lid wakes the device
+         * @hide
+         */
+        public static final String LOCKSCREEN_LID_WAKE = "lockscreen_lid_wake";
+
+        /**
          * Whether music controls should be shown on the lockscreen if a supporting
          * music player is active.
          * @hide
