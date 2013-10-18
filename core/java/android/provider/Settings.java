@@ -4363,13 +4363,6 @@ public final class Settings {
          */
         public static final String ACTIVE_DISPLAY_SHOW_DATE = "active_display_show_date";
 
-	    /**
-         * Whether to hide low priority notifications like those from google now
-         * @hide
-         */
-        public static final String ACTIVE_DISPLAY_HIDE_LOW_PRIORITY_NOTIFICATIONS =
-                "active_display_hide_low_priority_notifications";
-
         /**
          * Whether to invert the colors when in bright light
          * @hide
