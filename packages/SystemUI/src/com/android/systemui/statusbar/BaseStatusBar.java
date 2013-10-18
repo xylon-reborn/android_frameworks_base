@@ -535,7 +535,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         // this calls attachPie() implicitly
         mSettingsObserver.onChange(true);
-        mSettingsObserver.observe();
 
         // Listen for HALO enabled switch
         mContext.getContentResolver().registerContentObserver(
@@ -561,6 +560,8 @@ public abstract class BaseStatusBar extends SystemUI implements
             }});
 
         updateHalo();
+
+        mSettingsObserver.observe();
     }
 
     public void setHaloTaskerActive(boolean haloTaskerActive, boolean updateNotificationIcons) {
