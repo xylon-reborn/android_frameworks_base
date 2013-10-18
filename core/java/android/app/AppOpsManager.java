@@ -97,7 +97,53 @@ public class AppOpsManager {
     public static final int OP_READ_CLIPBOARD = 29;
     public static final int OP_WRITE_CLIPBOARD = 30;
     /** @hide */
-    public static final int _NUM_OP = 31;
+    public static final int OP_BLUETOOTH_CHANGE = 31;
+    public static final int OP_DATA_CONNECT_CHANGE = 32;
+    public static final int OP_ALARM_WAKEUP = 33;
+    public static final int _NUM_OP = 34;
+
+    /**
+     * Map to check if each operation is strict or not, to determine default
+     * value of each operation.
+     * If strict then AppOpsService should assign MODE_ASK value to operation
+     * by default.
+     */
+    private static boolean[] sOpStrict = new boolean[] {
+        true,   //OP_COARSE_LOCATION
+        true,   //OP_FINE_LOCATION
+        true,   //OP_GPS
+        false,  //OP_VIBRATE
+        true,   //OP_READ_CONTACTS
+        true,   //OP_WRITE_CONTACTS
+        true,   //OP_READ_CALL_LOG
+        true,   //OP_WRITE_CALL_LOG
+        false,  //OP_READ_CALENDAR
+        false,  //OP_WRITE_CALENDAR
+        true,   //OP_WIFI_SCAN
+        false,  //OP_POST_NOTIFICATION
+        false,  //OP_NEIGHBORING_CELLS
+        true,   //OP_CALL_PHONE
+        true,   //OP_READ_SMS
+        true,   //OP_WRITE_SMS
+        true,   //OP_RECEIVE_SMS
+        false,  //OP_RECEIVE_EMERGECY_SMS
+        true,   //OP_RECEIVE_MMS
+        false,  //OP_RECEIVE_WAP_PUSH
+        true,   //OP_SEND_SMS
+        true,   //OP_READ_ICC_SMS
+        true,   //OP_WRITE_ICC_SMS
+        false,  //OP_WRITE_SETTINGS
+        false,  //OP_SYSTEM_ALERT_WINDOW
+        false,  //OP_ACCESS_NOTIFICATIONS
+        true,   //OP_CAMERA
+        true,   //OP_RECORD_AUDIO
+        true,   //OP_PLAY_AUDIO
+        false,  //OP_READ_CLIPBOARD
+        false,  //OP_WRITE_CLIPBOARD
+        true,   //OP_BLUETOOTH_CHANGE
+        true,   //OP_DATA_CONNECT_CHANGE
+        false,  //OP_ALARM_WAKEUP
+    };
 
     /**
      * This maps each operation to the operation that serves as the
@@ -139,6 +185,9 @@ public class AppOpsManager {
             OP_PLAY_AUDIO,
             OP_READ_CLIPBOARD,
             OP_WRITE_CLIPBOARD,
+            OP_BLUETOOTH_CHANGE,
+            OP_DATA_CONNECT_CHANGE,
+            OP_ALARM_WAKEUP,
     };
 
     /**
@@ -177,6 +226,9 @@ public class AppOpsManager {
             "PLAY_AUDIO",
             "READ_CLIPBOARD",
             "WRITE_CLIPBOARD",
+            "BLUETOOTH_CHANGE",
+            "DATA_CONNECT_CHANGE",
+            "ALARM_WAKEUP",
     };
 
     /**
@@ -215,6 +267,9 @@ public class AppOpsManager {
             null, // no permission for playing audio
             null, // no permission for reading clipboard
             null, // no permission for writing clipboard
+            android.Manifest.permission.BLUETOOTH,
+            android.Manifest.permission.CHANGE_NETWORK_STATE,
+            null, // no permission for alarm wakeups
     };
 
     /**
@@ -245,6 +300,9 @@ public class AppOpsManager {
             OP_WRITE_SMS,
             OP_READ_SMS,
             OP_WRITE_SMS,
+            OP_NONE,
+            OP_NONE,
+            OP_NONE,
             OP_NONE,
             OP_NONE,
             OP_NONE,
