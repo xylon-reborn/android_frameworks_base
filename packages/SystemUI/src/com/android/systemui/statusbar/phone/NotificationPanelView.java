@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.EventLog;
@@ -55,8 +56,11 @@ public class NotificationPanelView extends PanelView {
     PhoneStatusBar mStatusBar;
     boolean mOkToFlip;
 
+    private final PowerManager mPm;
+
     public NotificationPanelView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mPm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
     }
 
     public void setStatusBar(PhoneStatusBar bar) {
@@ -91,7 +95,6 @@ public class NotificationPanelView extends PanelView {
                     .add(getContext().getString(R.string.accessibility_desc_notification_shade));
             return true;
         }
-
         return super.dispatchPopulateAccessibilityEvent(event);
     }
 
@@ -157,6 +160,7 @@ public class NotificationPanelView extends PanelView {
                     if (mStatusBar.mHideSettingsPanel)
                         break;
 
+                    mPm.cpuBoost(1500000);
                     final float deltaX = Math.abs(event.getX(0) - mGestureStartX);
                     final float deltaY = Math.abs(event.getY(0) - mGestureStartY);
                     final float maxDeltaY = getHeight() * STATUS_BAR_SWIPE_VERTICAL_MAX_PERCENTAGE;
@@ -192,6 +196,7 @@ public class NotificationPanelView extends PanelView {
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                     if (!mStatusBar.mHideSettingsPanel)
+                        mPm.cpuBoost(1500000);
                         flip = true;
                     break;
                 case MotionEvent.ACTION_UP:
@@ -242,7 +247,6 @@ public class NotificationPanelView extends PanelView {
                     original.getEdgeFlags());
                 shouldRecycleEvent = true;
             }
-
         }
 
         final boolean result = mHandleView.dispatchTouchEvent(event);
