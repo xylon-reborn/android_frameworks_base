@@ -1330,7 +1330,7 @@ public class KeyguardHostView extends KeyguardViewBase {
     private void addDefaultWidgets() {
         if (!mSafeModeEnabled && !widgetsDisabledByDpm()
                 && Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_ALL_WIDGETS, 1) == 1) {
+                Settings.System.LOCKSCREEN_ALL_WIDGETS, 0) == 1) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
             View addWidget = inflater.inflate(R.layout.keyguard_add_widget, this, false);
             mAppWidgetContainer.addWidget(addWidget, 0);
@@ -1844,5 +1844,4 @@ public class KeyguardHostView extends KeyguardViewBase {
         mActivityLauncher.launchActivityWithAnimation(
                 intent, false, opts.toBundle(), null, null);
     }
-
 }
