@@ -29,7 +29,6 @@ import android.app.IActivityManager;
 import android.app.INotificationManager;
 import android.app.ITransientNotification;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProfileGroup;
 import android.app.ProfileManager;
@@ -55,7 +54,6 @@ import android.media.IAudioService;
 import android.media.IRingtonePlayer;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -69,7 +67,6 @@ import android.provider.Settings;
 import android.service.notification.INotificationListener;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import com.android.internal.util.FastXmlSerializer;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.AtomicFile;
@@ -80,6 +77,8 @@ import android.util.Xml;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
+
+import com.android.internal.util.FastXmlSerializer;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -409,6 +408,10 @@ public class NotificationManagerService extends INotificationManager.Stub
 
     Archive mArchive = new Archive();
 
+    private int readPolicy(AtomicFile file, String lookUpTag, HashSet<String> db) {
+        return readPolicy(file, lookUpTag, db, null, 0);
+    } 
+
     private int readPolicy(AtomicFile file, String lookUpTag, HashSet<String> db, String resultTag, int defaultResult) {
         int result = defaultResult;
         FileInputStream infile = null;
@@ -454,7 +457,7 @@ public class NotificationManagerService extends INotificationManager.Stub
             if (mPolicyFile == null) {
                 mPolicyFile = new AtomicFile(new File("/data/system", "notification_policy.xml"));
                 mBlockedPackages.clear();
-                readPolicy(mPolicyFile, TAG_BLOCKED_PKGS, mBlockedPackages, null, 0);
+                readPolicy(mPolicyFile, TAG_BLOCKED_PKGS, mBlockedPackages);
             }
         }
     }
@@ -465,41 +468,7 @@ public class NotificationManagerService extends INotificationManager.Stub
             mHaloBlacklist.clear();
             mHaloPolicyisBlack = readPolicy(mHaloPolicyFile, TAG_BLOCKED_PKGS, mHaloBlacklist, ATTR_HALO_POLICY_IS_BLACK, 1) == 1;
             mHaloWhitelist.clear();
-            readPolicy(mHaloPolicyFile, TAG_ALLOWED_PKGS, mHaloWhitelist, null, 0);
-        }
-    }
-
-    private void writeBlockDb() {
-        synchronized(mBlockedPackages) {
-            FileOutputStream outfile = null;
-            try {
-                outfile = mPolicyFile.startWrite();
-
-                XmlSerializer out = new FastXmlSerializer();
-                out.setOutput(outfile, "utf-8");
-
-                out.startDocument(null, true);
-
-                out.startTag(null, TAG_BODY); {
-                    out.attribute(null, ATTR_VERSION, String.valueOf(DB_VERSION));
-                    out.startTag(null, TAG_BLOCKED_PKGS); {
-                        // write all known network policies
-                        for (String pkg : mBlockedPackages) {
-                            out.startTag(null, TAG_PACKAGE); {
-                                out.attribute(null, ATTR_NAME, pkg);
-                            } out.endTag(null, TAG_PACKAGE);
-                        }
-                    } out.endTag(null, TAG_BLOCKED_PKGS);
-                } out.endTag(null, TAG_BODY);
-
-                out.endDocument();
-
-                mPolicyFile.finishWrite(outfile);
-            } catch (IOException e) {
-                if (outfile != null) {
-                    mPolicyFile.failWrite(outfile);
-                }
-            }
+            readPolicy(mHaloPolicyFile, TAG_ALLOWED_PKGS, mHaloWhitelist);
         }
     }
 
@@ -560,7 +529,7 @@ public class NotificationManagerService extends INotificationManager.Stub
 
     public void setHaloBlacklistStatus(String pkg, boolean status) {
         if (status) {
-            mHaloBlacklist.add(pkg);            
+            mHaloBlacklist.add(pkg);
         } else {
             mHaloBlacklist.remove(pkg);
         }
@@ -569,7 +538,7 @@ public class NotificationManagerService extends INotificationManager.Stub
 
     public void setHaloWhitelistStatus(String pkg, boolean status) {
         if (status) {
-            mHaloWhitelist.add(pkg);            
+            mHaloWhitelist.add(pkg);
         } else {
             mHaloWhitelist.remove(pkg);
         }
@@ -588,6 +557,9 @@ public class NotificationManagerService extends INotificationManager.Stub
         }
     }
 
+    /**
+     * Use this when you just want to know if notifications are OK for this package.
+     */
     public boolean areNotificationsEnabledForPackage(String pkg, int uid) {
         checkCallerIsSystem();
         return (mAppOps.checkOpNoThrow(AppOpsManager.OP_POST_NOTIFICATION, uid, pkg)
@@ -796,7 +768,8 @@ public class NotificationManagerService extends INotificationManager.Stub
             final ComponentName component = info.component;
             final int oldUser = info.userid;
             Slog.v(TAG, "disabling notification listener for user " + oldUser + ": " + component);
-            unregisterListenerService(component, info.userid);
+            // Do not un-register HALO, we un-register only when HALO is closed
+            if (!component.getPackageName().equals("HaloComponent")) unregisterListenerService(component, info.userid);
         }
 
         final int N = toAdd.size();
@@ -817,7 +790,7 @@ public class NotificationManagerService extends INotificationManager.Stub
     @Override
     public void registerListener(final INotificationListener listener,
             final ComponentName component, final int userid) {
-        checkCallerIsSystem();
+        if (!component.getPackageName().equals("HaloComponent")) checkCallerIsSystem();
 
         synchronized (mNotificationList) {
             try {
@@ -1303,7 +1276,9 @@ public class NotificationManagerService extends INotificationManager.Stub
             boolean queryRemove = false;
             boolean packageChanged = false;
             boolean cancelNotifications = true;
-            if (action.equals(Intent.ACTION_PACKAGE_REMOVED)         
+
+            if (action.equals(Intent.ACTION_PACKAGE_ADDED)
+                    || (queryRemove=action.equals(Intent.ACTION_PACKAGE_REMOVED))
                     || action.equals(Intent.ACTION_PACKAGE_RESTARTED)
                     || (packageChanged=action.equals(Intent.ACTION_PACKAGE_CHANGED))
                     || (queryRestart=action.equals(Intent.ACTION_QUERY_PACKAGE_RESTART))
@@ -1538,12 +1513,10 @@ public class NotificationManagerService extends INotificationManager.Stub
         mToastQueue = new ArrayList<ToastRecord>();
         mHandler = new WorkerHandler();
 
-        loadBlockDb();
-        loadHaloBlockDb();
-
         mAppOps = (AppOpsManager)context.getSystemService(Context.APP_OPS_SERVICE);
 
         importOldBlockDb();
+	    loadHaloBlockDb();
 
         mStatusBar = statusBar;
         statusBar.setNotificationCallbacks(mNotificationCallbacks);
