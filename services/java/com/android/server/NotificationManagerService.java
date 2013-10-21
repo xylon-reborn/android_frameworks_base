@@ -2141,7 +2141,6 @@ public class NotificationManagerService extends INotificationManager.Stub
                 // The DEFAULT_VIBRATE flag trumps any custom vibration AND the fallback.
                 final boolean useDefaultVibrate =
                         (notification.defaults & Notification.DEFAULT_VIBRATE) != 0;
-
                 if (!(inQuietHours && mQuietHoursStill)
                         && (useDefaultVibrate || convertSoundToVibration || hasCustomVibrate)
                         && !(audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT)) {
@@ -2201,6 +2200,18 @@ public class NotificationManagerService extends INotificationManager.Stub
         idOut[0] = id;
     }
 
+    private boolean shouldConvertSoundToVibration() {
+        return Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.NOTIFICATION_CONVERT_SOUND_TO_VIBRATION,
+                1, UserHandle.USER_CURRENT_OR_SELF) != 0;
+    }
+
+    private boolean canVibrateDuringAlertsDisabled() {
+        return Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.NOTIFICATION_VIBRATE_DURING_ALERTS_DISABLED,
+                0, UserHandle.USER_CURRENT_OR_SELF) != 0;
+    }
+
     private boolean notificationIsAnnoying(String pkg) {
         if (mAnnoyingNotificationThreshold <= 0)
             return false;
@@ -2218,18 +2229,6 @@ public class NotificationManagerService extends INotificationManager.Stub
             mAnnoyingNotifications.put(pkg, currentTime);
             return false;
         }
-    }
-
-    private boolean shouldConvertSoundToVibration() {
-        return Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.NOTIFICATION_CONVERT_SOUND_TO_VIBRATION,
-                1, UserHandle.USER_CURRENT_OR_SELF) != 0;
-    }
-
-    private boolean canVibrateDuringAlertsDisabled() {
-        return Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.NOTIFICATION_VIBRATE_DURING_ALERTS_DISABLED,
-                0, UserHandle.USER_CURRENT_OR_SELF) != 0;
     }
 
     private boolean inQuietHours() {
@@ -2510,15 +2509,13 @@ public class NotificationManagerService extends INotificationManager.Stub
             // use most recent light with highest score
             for (int i = mLights.size(); i > 0; i--) {
                 NotificationRecord r = mLights.get(i - 1);
-                if (mLedNotification == null
-                        || r.sbn.getScore() > mLedNotification.sbn.getScore()) {
+                if (mLedNotification == null || r.sbn.getScore() > mLedNotification.sbn.getScore()) {
                     mLedNotification = r;
                 }
             }
         }
 
-        // Don't flash while we are in a call, screen is on or we are
-        // in quiet hours with light dimmed
+        // Don't flash while we are in a call, screen is on or we are in quiet hours with light dimmed
         if (mLedNotification == null || mInCall
                 || (mScreenOn && !mDreaming) || (inQuietHours() && mQuietHoursDim)) {
             mNotificationLight.turnOff();
@@ -2542,7 +2539,6 @@ public class NotificationManagerService extends INotificationManager.Stub
                 ledOnMS = ledno.ledOnMS;
                 ledOffMS = ledno.ledOffMS;
             }
-
             // pulse repeatedly
             mNotificationLight.setFlashing(ledARGB, LightsService.LIGHT_FLASH_TIMED,
                     ledOnMS, ledOffMS);
@@ -2563,8 +2559,7 @@ public class NotificationManagerService extends INotificationManager.Stub
             String packageName = packageValues[0];
             String[] values = packageValues[1].split(";");
             if (values.length != 3) {
-                Log.e(TAG, "Error parsing custom led values '"
-                        + packageValues[1] + "' for " + packageName);
+                Log.e(TAG, "Error parsing custom led values '" + packageValues[1] + "' for " + packageName);
                 continue;
             }
             NotificationLedValues ledValues = new NotificationLedValues();
@@ -2573,8 +2568,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                 ledValues.onMS = Integer.parseInt(values[1]);
                 ledValues.offMS = Integer.parseInt(values[2]);
             } catch (Exception e) {
-                Log.e(TAG, "Error parsing custom led values '"
-                        + packageValues[1] + "' for " + packageName);
+                Log.e(TAG, "Error parsing custom led values '" + packageValues[1] + "' for " + packageName);
                 continue;
             }
             mNotificationPulseCustomLedValues.put(packageName, ledValues);
@@ -2698,7 +2692,6 @@ public class NotificationManagerService extends INotificationManager.Stub
                     break;
                 }
             }
-
         }
     }
 }
