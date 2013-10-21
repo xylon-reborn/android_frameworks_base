@@ -16,7 +16,6 @@
 
 package com.android.server.power;
 
-import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
