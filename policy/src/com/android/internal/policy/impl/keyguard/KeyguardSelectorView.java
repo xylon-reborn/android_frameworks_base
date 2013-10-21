@@ -315,7 +315,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         mSecurityMessageDisplay = new KeyguardMessageArea.Helper(this);
         View bouncerFrameView = findViewById(R.id.keyguard_selector_view_frame);
         mBouncerFrame = bouncerFrameView.getBackground();
-
         mUnlockBroadcasted = false;
         filter = new IntentFilter();
         filter.addAction(UnlockReceiver.ACTION_UNLOCK_RECEIVER);
@@ -403,8 +402,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 || secureCameraDisabled;
         final KeyguardUpdateMonitor monitor = KeyguardUpdateMonitor.getInstance(getContext());
         boolean disabledBySimState = monitor.isSimLocked();
-        boolean cameraPresent =
-                mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
+        boolean cameraPresent = mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
         boolean searchTargetPresent =
                 isTargetPresent(com.android.internal.R.drawable.ic_action_assist_generic);
         mLongPress = false;
@@ -485,7 +483,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             for (int i = 0; i < mTargetOffset; i++) {
                 storedDrawables.add(new TargetDrawable(res, null));
             }
-
             // Add unlock target
             storedDrawables.add(new TargetDrawable(res,
                     res.getDrawable(R.drawable.ic_lockscreen_unlock)));
@@ -552,6 +549,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                     storedDrawables.add(new TargetDrawable(res, 0));
                 }
             }
+
             mGlowPadView.setTargetResources(storedDrawables);
         }
     }
