@@ -25,12 +25,11 @@ import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
-import android.content.ContentResolver; 
+import android.content.ContentResolver;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.Settings;
 import android.text.format.DateFormat;
-import android.provider.Settings; 
 import android.util.AttributeSet;
 import android.util.Slog;
 import android.view.Gravity;
@@ -58,9 +57,10 @@ public class KeyguardWidgetPager extends PagedView implements PagedView.PageSwit
     private static final boolean PERFORM_OVERSCROLL_ROTATION = true;
 
     private static final String[] CLOCK_WIDGET_PACKAGES = new String[] {
-        "net.nurik.roman.dashclock",
         "com.cyanogenmod.lockclock",
-        "com.android.deskclock"
+        "com.android.deskclock",
+        "com.google.android.apps.dashclock",
+        "net.nurik.roman.dashclock"
     };
 
     private static final int FLAG_HAS_LOCAL_HOUR = 0x1;
@@ -615,7 +615,7 @@ public class KeyguardWidgetPager extends PagedView implements PagedView.PageSwit
         animateOutlinesAndSidePages(false);
     }
 
-    public void showInitialPageHints() { 
+    public void showInitialPageHints() {
         int count = getChildCount();
         for (int i = 0; i < count; i++) {
             KeyguardWidgetFrame child = getWidgetPageAt(i);
@@ -624,7 +624,7 @@ public class KeyguardWidgetPager extends PagedView implements PagedView.PageSwit
                         Settings.System.LOCKSCREEN_HIDE_INITIAL_PAGE_HINTS, 1) == 0) {
                     child.fadeFrame(this, true, KeyguardWidgetFrame.OUTLINE_ALPHA_MULTIPLIER,
                             CHILDREN_OUTLINE_FADE_IN_DURATION);
-                } 
+                }
                 child.setContentAlpha(0f);
             } else {
                 child.setBackgroundAlpha(0f);
