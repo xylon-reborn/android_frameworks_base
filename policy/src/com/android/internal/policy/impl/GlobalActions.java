@@ -23,23 +23,18 @@ import com.android.internal.telephony.TelephonyIntents;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.R;
 
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.KeyguardManager;
 import android.app.Profile;
 import android.app.ProfileManager;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
-import android.content.ServiceConnection;
 import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -47,7 +42,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
@@ -56,19 +50,14 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.Vibrator;
 import android.provider.Settings;
-import android.provider.Settings.SettingNotFoundException;
 import android.service.dreams.DreamService;
 import android.service.dreams.IDreamManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.util.Log;
-import android.util.Slog;
 import android.util.TypedValue;
 import android.view.InputDevice;
-import android.view.IWindowManager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -84,7 +73,6 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.collect.Lists;
 import com.android.internal.app.ThemeUtils;
 
 import java.util.ArrayList;
@@ -464,13 +452,14 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
 
         // next: silent mode
+        // only shown if enabled, enabled by default
         if ((Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_MENU_SOUND_ENABLED, 1) == 1) &&
                 (mShowSilentToggle)) {
             mItems.add(mSilentModeAction);
         }
 
-        // next: torch
+        // next: torch mode
         // only shown if enabled, disabled by default
         if (Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_MENU_TORCH_ENABLED, 0) == 1) {
@@ -494,7 +483,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // last: users
+        // last: user switch
         // only shown if enabled, disabled by default
         if (Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_MENU_USER_ENABLED, 0) == 1) {
@@ -521,9 +510,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                         return mAdapter.getItem(position).onLongPress();
                     }
         });
-
         dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-
         dialog.setOnDismissListener(this);
 
         return dialog;
@@ -656,13 +643,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                         msg.replyTo = new Messenger(h);
                         msg.arg1 = msg.arg2 = 0;
 
-                        /*  remove for the time being
-                        if (mStatusBar != null && mStatusBar.isVisibleLw())
-                            msg.arg1 = 1;
-                        if (mNavigationBar != null && mNavigationBar.isVisibleLw())
-                            msg.arg2 = 1;
-                         */
-
                         /* wait for the dialog box to close */
                         try {
                             Thread.sleep(1000);
@@ -691,9 +671,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mAirplaneModeOn.updateState(mAirplaneState);
         mAdapter.notifyDataSetChanged();
         mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-
         mDialog.setTitle(R.string.global_actions);
-
         if (mShowSilentToggle) {
             IntentFilter filter = new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION);
             mContext.registerReceiver(mRingerModeReceiver, filter);
