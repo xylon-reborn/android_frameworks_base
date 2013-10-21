@@ -54,7 +54,7 @@
     <color name="pie_long_pressed_color">#ff8ad5f0</color>
     <color name="pie_outline_color">#ff0099cc</color>
 
-    <!-- Halo colors -->
-    <color name="halo_ping_color">#ff33b5e5</color>
-    <color name="halo_text_color">#ffffffff</color>
+   <!-- Halo Colors -->
+   <color name="halo_ping_color">#ff33b5e5</color>
+   <color name="halo_text_color">#ffffffff</color>
 </resources>

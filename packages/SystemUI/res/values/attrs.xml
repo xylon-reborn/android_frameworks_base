@@ -42,7 +42,6 @@
         <attr name="decayTime" format="integer" />
         <attr name="orientation" />
     </declare-styleable>
-
     <attr name="orientation">
         <enum name="horizontal" value="0" />
         <enum name="vertical" value="1" />
