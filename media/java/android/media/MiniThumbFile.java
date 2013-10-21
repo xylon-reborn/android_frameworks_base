@@ -185,8 +185,6 @@ public class MiniThumbFile {
         return mMiniThumbFile;
     }
 
-
-
     public MiniThumbFile(Uri uri) {
         mUri = uri;
         mBuffer = ByteBuffer.allocateDirect(BYTES_PER_MINTHUMB);
@@ -342,7 +340,6 @@ public class MiniThumbFile {
             throws IOException {
         RandomAccessFile r = miniThumbDataFile();
         if (r == null) return;
-
 
         long pos = getIndex(id, true);
         if(pos < 0) return;

@@ -161,7 +161,7 @@ public class MediaActionSound {
     public synchronized void play(int soundName) {
         if (SystemProperties.getBoolean(PROP_CAMERA_SOUND, true)) {
             if (soundName < 0 || soundName >= SOUND_FILES.length) {
-             throw new RuntimeException("Unknown sound requested: " + soundName);
+                throw new RuntimeException("Unknown sound requested: " + soundName);
             }
             if (mSoundIds[soundName] == SOUND_NOT_LOADED) {
                 mSoundIdToPlay =
