@@ -406,6 +406,8 @@ public final class PowerManagerService extends IPowerManager.Stub
     private static native void nativeCpuBoost(int duration);
     private boolean mKeyboardVisible = false;
 
+    private int mTouchKeyTimeout;
+
     public PowerManagerService() {
         synchronized (mLock) {
             mWakeLockSuspendBlocker = createSuspendBlockerLocked("PowerManagerService.WakeLocks");
@@ -1424,6 +1426,10 @@ public final class PowerManagerService extends IPowerManager.Stub
      * This function must have no other side-effects.
      */
     private void updateUserActivitySummaryLocked(long now, int dirty) {
+
+        int mTouchKeyTimeout = (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.TOUCHKEY_LIGHT_DUR, BUTTON_ON_DURATION));
+
         // Update the status of the user activity timeout timer.
         if ((dirty & (DIRTY_USER_ACTIVITY | DIRTY_WAKEFULNESS | DIRTY_SETTINGS)) != 0) {
             mHandler.removeMessages(MSG_USER_ACTIVITY_TIMEOUT);
@@ -1439,22 +1445,30 @@ public final class PowerManagerService extends IPowerManager.Stub
                             + screenOffTimeout - screenDimDuration;
                     if (now < nextTimeout) {
                         int brightness = mButtonBrightnessOverrideFromWindowManager >= 0
-                           ? mButtonBrightnessOverrideFromWindowManager
-                           : mDisplayPowerRequest.screenBrightness;
-                        mKeyboardLight.setBrightness(mKeyboardVisible ? brightness : 0);
-                        if (now > mLastUserActivityTime + BUTTON_ON_DURATION) {
-                            mButtonsLight.setBrightness(0);
-                        } else {
+                                ? mButtonBrightnessOverrideFromWindowManager
+                                : mDisplayPowerRequest.screenBrightness;
+                        if (mTouchKeyTimeout == 5) {
                             mButtonsLight.setBrightness(brightness);
-                            if (brightness != 0) {
-                                nextTimeout = now + BUTTON_ON_DURATION;
+                            mKeyboardLight.setBrightness(mKeyboardVisible ? brightness : 0);
+                        } else if (mTouchKeyTimeout == 6) {
+                            mButtonsLight.setBrightness(0);
+                            mKeyboardLight.setBrightness(0);
+                        } else {
+                            if (now > mLastUserActivityTime + mTouchKeyTimeout) {
+                                mButtonsLight.setBrightness(0);
+                                mKeyboardLight.setBrightness(0);
+                            } else {
+                                mButtonsLight.setBrightness(brightness);
+                                mKeyboardLight.setBrightness(mKeyboardVisible ? brightness : 0);
+                                if (brightness != 0) {
+                                    nextTimeout = now + mTouchKeyTimeout;
+                                }
                             }
                         }
                         mUserActivitySummary |= USER_ACTIVITY_SCREEN_BRIGHT;
                     } else {
                         nextTimeout = mLastUserActivityTime + screenOffTimeout;
                         if (now < nextTimeout) {
-                            mKeyboardLight.setBrightness(0);
                             mUserActivitySummary |= USER_ACTIVITY_SCREEN_DIM;
                         }
                     }
@@ -1509,11 +1523,13 @@ public final class PowerManagerService extends IPowerManager.Stub
 
     private int getScreenOffTimeoutLocked() {
         int timeout = mScreenOffTimeoutSetting;
-        if (isMaximumScreenOffTimeoutFromDeviceAdminEnforcedLocked()) {
-            timeout = Math.min(timeout, mMaximumScreenOffTimeoutFromDeviceAdmin);
-        }
-        if (mUserActivityTimeoutOverrideFromWindowManager >= 0) {
-            timeout = (int)Math.min(timeout, mUserActivityTimeoutOverrideFromWindowManager);
+        if (timeout != mMaximumScreenOffTimeoutFromDeviceAdmin) {
+            if (isMaximumScreenOffTimeoutFromDeviceAdminEnforcedLocked()) {
+                timeout = Math.min(timeout, mMaximumScreenOffTimeoutFromDeviceAdmin);
+            }
+            if (mUserActivityTimeoutOverrideFromWindowManager >= 0) {
+                timeout = (int)Math.min(timeout, mUserActivityTimeoutOverrideFromWindowManager);
+            }
         }
         return Math.max(timeout, MINIMUM_SCREEN_OFF_TIMEOUT);
     }
