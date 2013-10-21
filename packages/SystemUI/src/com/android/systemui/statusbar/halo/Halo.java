@@ -60,6 +60,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Matrix;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.Vibrator;
 import android.os.ServiceManager;
@@ -134,6 +135,8 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
     private HaloPolicy mHaloPolicy;
     private Context mContext;
     private PackageManager mPm;
+    private final PowerManager mBOOST;
+
     private Handler mHandler;
     private BaseStatusBar mBar;
     private WindowManager mWindowManager;
@@ -283,6 +286,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         mContext = context;
         mPm = mContext.getPackageManager();
         mHaloPolicy = new HaloPolicy(mContext);
+        mBOOST = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
         mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mVibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
@@ -502,8 +506,8 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
     void launchTask(NotificationClicker intent) {
         // Do not launch tasks in hidden state or protected lock screen
         if (mState == State.HIDDEN || mState == State.SILENT
-                || (mKeyguardManager.isKeyguardLocked() && mKeyguardManager.isKeyguardSecure())) return;
-
+            || (mKeyguardManager.isKeyguardLocked() && mKeyguardManager.isKeyguardSecure())) return;
+        mBOOST.cpuBoost(1500000);
         try {
             ActivityManagerNative.getDefault().resumeAppSwitches();
             ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
@@ -547,6 +551,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                 mBar.setHaloTaskerActive(true, true);
             } else {
                 // Move
+                mBOOST.cpuBoost(1500000);
                 mState = State.DRAG;
                 mEffect.intro();
             }
@@ -757,6 +762,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                     if (mState != State.DRAG) {
                         if (initialDistance > mIconSize * 0.7f) {
                             if (mInteractionReversed) {
+                                mBOOST.cpuBoost(1500000);
                                 mState = State.GESTURES;
                                 mEffect.wake();
                                 mBar.setHaloTaskerActive(true, true);
