@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemProperties;
-import android.util.Log;
 import android.telephony.Rlog;
 
 /**
