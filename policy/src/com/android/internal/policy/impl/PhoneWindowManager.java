@@ -1,5 +1,6 @@
 /*
- * File modifications copyright (C) 2012 The CyanogenMod Project
+ * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2012-2013 The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -304,7 +305,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mSystemBooted;
     boolean mHdmiPlugged;
     boolean mWifiDisplayConnected;
-
     int mUiMode;
     int mDockMode = Intent.EXTRA_DOCK_STATE_UNDOCKED;
     int mLidOpenRotation;
@@ -340,10 +340,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mHasAssistKey;
     boolean mHasAppSwitchKey;
     boolean mHasCameraKey;
+    boolean mHasMenuKeyEnabled;
 
     int mCurrentUser = 0;
-
-    boolean mHasMenuKeyEnabled;
 
     // The last window we were told about in focusChanged.
     WindowState mFocusedWindow;
@@ -3359,7 +3358,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // For purposes of putting out fake window up to steal focus, we will
             // drive nav being hidden only by whether it is requested.
             boolean navVisible = (mLastSystemUiFlags&View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0;
-	    int navWidth = mNavigationBarWidthForRotation[displayRotation];
+	        int navWidth = mNavigationBarWidthForRotation[displayRotation];
 
             // When the navigation bar isn't visible, we put up a fake
             // input window to catch all touch events.  This way we can
@@ -3479,7 +3478,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     // Status bar may go away, so the screen area it occupies
                     // is available to apps but just covering them when the
                     // status bar is visible.
-                    mDockTop = mUnrestrictedScreenTop+mStatusBarHeight;
+                    mDockTop = mUnrestrictedScreenTop + mStatusBarHeight;
 
                     mContentTop = mCurTop = mDockTop;
                     mContentBottom = mCurBottom = mDockBottom;
@@ -3742,7 +3741,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     } else {
                         // Full screen windows are always given a layout that is as if the
                         // status bar and other transient decors are gone.  This is to avoid
-                        // bad states when moving from a window that is not hding the
+                        // bad states when moving from a window that is not hiding the
                         // status bar to one that is.
                         cf.left = mRestrictedScreenLeft;
                         cf.top = mRestrictedScreenTop;
@@ -5822,9 +5821,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return diff;
     }
 
-    // Used for menu button behaviour etc which we let stay for hardware key
-    // devices like it should without navbar. See for more details
-    // PhoneWindowManager.java @Line 1115
+    // Use this instead of checking config_showNavigationBar so that it can be consistently
+    // overridden by qemu.hw.mainkeys in the emulator.
     public boolean hasNavigationBar() {
         return mHasNavigationBar;
     }
