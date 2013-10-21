@@ -116,5 +116,4 @@ public class DeviceSupportUtils {
         public String[] entries;
         public String[] values;
     }
-
 }
