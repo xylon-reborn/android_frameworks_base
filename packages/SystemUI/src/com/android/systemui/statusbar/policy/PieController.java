@@ -789,7 +789,6 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
     @Override
     public void onClick(PieItem item) {
         String type = (String) item.tag;
-
         if (!LiquidActions.isActionKeyEvent(type)) {
             mPieContainer.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         }

@@ -96,7 +96,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     private boolean mAnimateIconOfFirstTask;
     private boolean mWaitingForWindowAnimation;
     private long mWindowAnimationStartTime;
-
     private boolean mCallUiHiddenBeforeNextReload;
 
     private RecentTasksLoader mRecentTasksLoader;
@@ -519,7 +518,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         mRecentsScrim = findViewById(R.id.recents_bg_protect);
         mRecentsNoApps = findViewById(R.id.recents_no_apps);
 
-
         mClearRecentsBR = (ImageView) findViewById(R.id.recents_clear_BR);
         mClearRecentsBR.setOnClickListener(new OnClickListener() {
             @Override
@@ -541,7 +539,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 } catch (Exception e) {
                     Log.d(TAG, "Flush caches failed!");
                 }
-
                 return true;
             }
         });
@@ -566,7 +563,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 } catch (Exception e) {
                     Log.d(TAG, "Flush caches failed!");
                 }
-
                 return true;
             }
         });
@@ -857,21 +853,24 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                         holder.thumbnailViewImage, bm, 0, 0, null).toBundle();
 
         show(false);
-        if (ad.taskId >= 0) {
+        Intent intent = ad.intent;
+        boolean floating = (intent.getFlags() & Intent.FLAG_FLOATING_WINDOW) == Intent.FLAG_FLOATING_WINDOW;
+        if (ad.taskId >= 0 && !floating) {
             // This is an active task; it should just go to the foreground.
             am.moveTaskToFront(ad.taskId, ActivityManager.MOVE_TASK_WITH_HOME,
                     opts);
         } else {
-            Intent intent = ad.intent;
-            intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
-                    | Intent.FLAG_ACTIVITY_TASK_ON_HOME
-                    | Intent.FLAG_ACTIVITY_NEW_TASK);
+            boolean backPressed = mRecentsActivity != null && mRecentsActivity.mBackPressed;
+            if (!floating || !backPressed) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
+                        | Intent.FLAG_ACTIVITY_TASK_ON_HOME
+                        | Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
             if (DEBUG) Log.v(TAG, "Starting activity " + intent);
-            try {
-                context.startActivityAsUser(intent, opts,
-                        new UserHandle(UserHandle.USER_CURRENT));
-            } catch (SecurityException e) {
-                Log.e(TAG, "Recents does not have the permission to launch " + intent, e);
+            context.startActivityAsUser(intent, opts,
+                    new UserHandle(UserHandle.USER_CURRENT));
+            if (floating && mRecentsActivity != null) {
+                mRecentsActivity.finish();
             }
         }
         if (usingDrawingCache) {
@@ -952,6 +951,17 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                         show(false);
                     } else {
                         throw new IllegalStateException("Oops, no tag on view " + selectedView);
+                    }
+                } else if (item.getItemId() == R.id.recent_launch_floating) {
+                    ViewHolder viewHolder = (ViewHolder) selectedView.getTag();
+                    if (viewHolder != null) {
+                        final TaskDescription ad = viewHolder.taskDescription;
+                        dismissAndGoBack();
+                        Intent intent = ad.intent;
+                        intent.addFlags(Intent.FLAG_FLOATING_WINDOW
+                                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.setFlags(intent.getFlags() & ~Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
+                        getContext().startActivity(intent);
                     }
                 } else {
                     return false;
@@ -1044,7 +1054,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                     Intent intent = new Intent();
                     intent.setComponent(new ComponentName(
                             "com.android.settings",
-                            "com.android.settings.Settings$ASSRamBarActivity"));
+                            "com.android.settings.Settings$RamBarActivity"));
 
                     try {
                         // Dismiss the lock screen when Settings starts.
@@ -1059,7 +1069,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                     return true;
                 }
             });
-
         } else if (mRamUsageBar != null) {
             mRamUsageBar.setVisibility(View.GONE);
         }
@@ -1110,7 +1119,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             }
         } catch (IOException e) {}
         mCachedMemory = result;
-
     }
 
     private static String readLine(String filename, int line) throws IOException {

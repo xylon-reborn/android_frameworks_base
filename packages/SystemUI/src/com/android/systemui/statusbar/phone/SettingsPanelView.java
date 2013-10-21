@@ -22,10 +22,8 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.EventLog;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.android.systemui.EventLogTags;
@@ -62,7 +60,6 @@ public class SettingsPanelView extends PanelView {
         mHandleView = findViewById(R.id.handle);
 
         setContentDescription(resources.getString(R.string.accessibility_desc_quick_settings));
-
     }
 
     public void setQuickSettings(QuickSettingsController qs) {

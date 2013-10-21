@@ -928,7 +928,6 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
 
         // construct the navigationbar
         makeBar();
-
     }
 
     private void postCheckForInvalidLayout(final String how) {
@@ -940,5 +939,4 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
             ButtonsHelper.getNavRingConfig(mContext);
         return buttonsConfig.size() > 0;
     }
-
 }

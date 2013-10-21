@@ -57,7 +57,6 @@ public class SignalClusterView
     private boolean mEtherVisible = false;
     private int mEtherIconId = 0;
     private String mWifiDescription, mMobileDescription, mMobileTypeDescription, mEtherDescription;
-
     private boolean customColor;
     private int color = 0;
 
@@ -66,7 +65,6 @@ public class SignalClusterView
     View mSpacer;
 
     Handler mHandler;
-
     private SettingsObserver mSettingsObserver;
 
     class SettingsObserver extends ContentObserver {
@@ -211,7 +209,6 @@ public class SignalClusterView
         if (mWifiActivity != null) {
             mWifiActivity.setImageDrawable(null);
         }
-
         if (mMobile != null) {
             mMobile.setImageDrawable(null);
         }
@@ -221,11 +218,9 @@ public class SignalClusterView
         if (mMobileType != null) {
             mMobileType.setImageDrawable(null);
         }
-
-        if(mAirplane != null) {
+        if (mAirplane != null) {
             mAirplane.setImageDrawable(null);
         }
-
         apply();
     }
 
@@ -266,7 +261,6 @@ public class SignalClusterView
                 }
                 mMobile.setImageDrawable(mobileBitmap);
             }
-
             mMobile.setImageResource(mMobileStrengthId);
             mMobileActivity.setImageResource(mMobileActivityId);
             mMobileType.setImageResource(mMobileTypeId);
@@ -288,7 +282,6 @@ public class SignalClusterView
                 }
                 mAirplane.setImageDrawable(AirplaneBitmap);
             }
-
             mAirplane.setImageResource(mAirplaneIconId);
             mAirplane.setVisibility(View.VISIBLE);
         } else {
@@ -306,7 +299,6 @@ public class SignalClusterView
                 }
                 mEther.setImageDrawable(etherBitmap);
             }
-
             mEther.setImageResource(mEtherIconId);
             mEther.setContentDescription(mEtherDescription);
         } else {
@@ -326,7 +318,6 @@ public class SignalClusterView
 
         mMobileType.setVisibility(
                 !mWifiVisible ? View.VISIBLE : View.GONE);
-
         updateSettings();
     }
 

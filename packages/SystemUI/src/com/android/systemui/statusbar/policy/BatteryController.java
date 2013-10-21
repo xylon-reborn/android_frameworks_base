@@ -83,7 +83,6 @@ public class BatteryController extends BroadcastReceiver {
     private int mBatteryStyle;
     private int mTextColor = -2;
     private int mTextChargingColor = -2;
-
     private int mBatteryIcon = BATTERY_ICON_STYLE_NORMAL;
 
     Handler mHandler;
@@ -220,7 +219,6 @@ public class BatteryController extends BroadcastReceiver {
             for (BatteryStateChangeCallback cb : mChangeCallbacks) {
                 cb.onBatteryLevelChanged(mLevel, mBatteryPlugged);
             }
-
             updateBattery();
         }
     }

@@ -59,7 +59,7 @@ public class ImageWallpaper extends WallpaperService {
     private static final String PROPERTY_KERNEL_QEMU = "ro.kernel.qemu";
 
     static final boolean FIXED_SIZED_SURFACE = true;
-    static final boolean USE_OPENGL = "false".equals(SystemProperties.get("ro.nohardwaregfx", "false"));
+    static final boolean USE_OPENGL = true;
 
     WallpaperManager mWallpaperManager;
 
@@ -626,7 +626,6 @@ public class ImageWallpaper extends WallpaperService {
             }
             
             mEglContext = createContext(mEgl, mEglDisplay, mEglConfig);
-
             if (mEglContext == EGL_NO_CONTEXT) {
                 throw new RuntimeException("createContext failed " +
                         GLUtils.getEGLErrorString(mEgl.eglGetError()));

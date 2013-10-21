@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
- * This code has been modified. Portions copyright (C) 2012, ParanoidAndroid Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,9 +233,10 @@ public class TabletStatusBar extends BaseStatusBar implements
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
                 PixelFormat.TRANSLUCENT);
 
-        if (ActivityManager.isHighEndGfx()) {
-            lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
-        }
+        // We explicitly leave FLAG_HARDWARE_ACCELERATED out of the flags.  The status bar occupies
+        // very little screen real-estate and is updated fairly frequently.  By using CPU rendering
+        // for the status bar, we prevent the GPU from having to wake up just to do these small
+        // updates, which should help keep power consumption down.
 
         lp.gravity = getStatusBarGravity();
         lp.setTitle("SystemBar");
@@ -261,7 +261,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         mNotificationPanel.setOnTouchListener(
                 new TouchOutsideListener(MSG_CLOSE_NOTIFICATION_PANEL, mNotificationPanel));
 
-        // the battery icon
+	    // the battery icon
         mBatteryController.addIconView((ImageView)mNotificationPanel.findViewById(R.id.battery));
         mBatteryController.addLabelView(
                 (TextView)mNotificationPanel.findViewById(R.id.battery_text));
@@ -291,13 +291,6 @@ public class TabletStatusBar extends BaseStatusBar implements
                 (TextView)mNotificationPanel.findViewById(R.id.mobile_text));
         mNetworkController.addCombinedLabelView(
                 (TextView)mBarContents.findViewById(R.id.network_text));
-
-        mHaloButton = (ImageView) mNotificationPanel.findViewById(R.id.halo_button);
-        if (mHaloButton != null) {
-            mHaloButton.setOnClickListener(mHaloButtonListener);
-            mHaloButtonVisible = true;
-            updateHaloButton();
-        }
 
         mStatusBarView.setIgnoreChildren(0, mNotificationTrigger, mNotificationPanel);
 
@@ -381,16 +374,6 @@ public class TabletStatusBar extends BaseStatusBar implements
         scroller.setFillViewport(true);
     }
 
-    private View.OnClickListener mHaloButtonListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            // Activate HALO
-            Settings.System.putInt(mContext.getContentResolver(),
-                    Settings.System.HALO_ACTIVE, 1);
-            // Collapse
-            animateCollapsePanels();
-        }
-    };
-
     @Override
     protected int getExpandedViewMaxHeight() {
         return getNotificationPanelHeight();
@@ -443,14 +426,12 @@ public class TabletStatusBar extends BaseStatusBar implements
         }
 
         setAreThereNotifications();
-
         mRecreating = false;
     }
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
         // detect theme change.
         CustomTheme newTheme = mContext.getResources().getConfiguration().customTheme;
         if (newTheme != null &&
@@ -1098,7 +1079,6 @@ public class TabletStatusBar extends BaseStatusBar implements
 
     // called by TabletTicker when it's done with all queued ticks
     public void doneTicking() {
-        if (mHaloActive) return;
         mFeedbackIconArea.setVisibility(View.VISIBLE);
     }
 
@@ -1524,7 +1504,7 @@ public class TabletStatusBar extends BaseStatusBar implements
             if (i >= N) break;
             Entry ent = mNotificationData.get(N-i-1);
             if ((provisioned && ent.notification.getScore() >= HIDE_ICONS_BELOW_SCORE)
-                    || showNotificationEvenIfUnprovisioned(ent.notification) || mHaloTaskerActive) {
+                    || showNotificationEvenIfUnprovisioned(ent.notification)) {
                 toShow.add(ent.icon);
             }
         }
@@ -1559,8 +1539,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         // If the device hasn't been through Setup, we only show system notifications
         for (int i=0; i<N; i++) {
             Entry ent = mNotificationData.get(N-i-1);
-            if (provisioned || showNotificationEvenIfUnprovisioned(ent.notification)
-                && !notificationIsForCurrentUser(ent.notification)) {
+            if (provisioned || showNotificationEvenIfUnprovisioned(ent.notification)) {
                 toShow.add(ent.row);
             }
         }

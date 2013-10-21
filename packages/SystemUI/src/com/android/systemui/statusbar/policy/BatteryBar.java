@@ -195,8 +195,7 @@ public class BatteryBar extends RelativeLayout implements Animatable {
         ContentResolver resolver = getContext().getContentResolver();
 
         int color = Settings.System.getInt(resolver,
-                        Settings.System.STATUSBAR_BATTERY_BAR_COLOR,
-                        -2);
+                        Settings.System.STATUSBAR_BATTERY_BAR_COLOR, -2);
         if (color == -2) {
             color = getResources().getColor(R.color.holo_blue_light);
         }

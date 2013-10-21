@@ -24,7 +24,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Canvas;
 import android.net.Uri;
 import android.provider.CalendarContract;
 import android.text.format.DateFormat;

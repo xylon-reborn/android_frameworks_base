@@ -306,7 +306,7 @@ public class Clock extends TextView {
                                           Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
                     }
                 }
-         }
+            }
         }
         return formatted;
     }
@@ -371,4 +371,3 @@ public class Clock extends TextView {
             setVisibility(View.GONE);
     }
 }
-

@@ -245,7 +245,6 @@ public class ActiveDisplayView extends FrameLayout {
         public void onFinishFinalAnimation() {
 
         }
-
     };
 
     /**
@@ -526,7 +525,7 @@ public class ActiveDisplayView extends FrameLayout {
             if (mNotification != null && mNotification.isClearable()) {
                 storedDraw.add(new TargetDrawable(res, res.getDrawable(R.drawable.ic_ad_dismiss_notification)));
             } else {
-                storedDraw.add(new TargetDrawable(res, null));
+                storedDraw.add(new TargetDrawable(res, res.getDrawable(R.drawable.ic_qs_power)));
             }
         }
         storedDraw.add(new TargetDrawable(res, null));
@@ -610,7 +609,7 @@ public class ActiveDisplayView extends FrameLayout {
         }
         setVisibility(View.GONE);
         restoreBrightness();
-        mBar.disable(0);
+        //mBar.disable(0);
         cancelTimeoutTimer();
         unregisterSensorListener(mLightSensor);
     }

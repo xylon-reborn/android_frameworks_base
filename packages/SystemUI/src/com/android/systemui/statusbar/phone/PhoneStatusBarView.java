@@ -62,7 +62,6 @@ public class PhoneStatusBarView extends PanelBar {
     private boolean mColorMode;
 
     boolean mFullWidthNotifications;
-    boolean mHighEndGfx;
     PanelView mFadingPanel = null;
     PanelView mLastFullyOpenedPanel = null;
     PanelView mNotificationPanel, mSettingsPanel;

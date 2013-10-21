@@ -70,8 +70,8 @@ public class CircleBattery extends ImageView {
     private boolean mIsDocked = false;      // whether or not dock battery is connected
 
     private int     mCircleSize;    // draw size of circle. read rather complicated from
-                                     // another status bar icon, so it fits the icon size
-                                     // no matter the dps and resolution
+                                    // another status bar icon, so it fits the icon size
+                                    // no matter the dps and resolution
     private RectF   mRectLeft;      // contains the precalculated rect used in drawArc(), derived from mCircleSize
     private RectF   mRectRight;     // contains the precalculated rect used in drawArc() for dock battery
     private Float   mTextLeftX;     // precalculated x position for drawText() to appear centered
@@ -259,7 +259,6 @@ public class CircleBattery extends ImageView {
 
     private void drawCircle(Canvas canvas, int level, int animOffset, float textX, RectF drawRect) {
         Paint usePaint = mPaintSystem;
-
         // turn red at 14% - same level android battery warning appears
         if (level <= 14) {
             usePaint = mPaintRed;
@@ -301,7 +300,6 @@ public class CircleBattery extends ImageView {
             }
             canvas.drawText(Integer.toString(level), textX, mTextY, mPaintFont);
         }
-
     }
 
     @Override
@@ -420,6 +418,7 @@ public class CircleBattery extends ImageView {
         }
         // could not find the darker definition anywhere in resources
         // do not want to use static 0x404040 color value. would break theming.
+        mPaintGray.setColor(res.getColor(R.color.darker_gray));
         mPaintRed.setColor(res.getColor(R.color.holo_red_light));
 
         // font needs some extra settings

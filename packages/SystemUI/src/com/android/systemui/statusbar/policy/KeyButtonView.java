@@ -179,7 +179,6 @@ public class KeyButtonView extends ImageView {
             }
             mGlowBG.setColorFilter(null);
             mGlowBG.setColorFilter(mGlowBGColor, PorterDuff.Mode.SRC_ATOP);
-
         }
     }
 

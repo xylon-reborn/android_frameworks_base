@@ -80,7 +80,6 @@ public class BrightnessDialog extends Dialog implements
         setCanceledOnTouchOutside(true);
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -110,5 +109,4 @@ public class BrightnessDialog extends Dialog implements
     private void removeAllBrightnessDialogCallbacks() {
         mHandler.removeCallbacks(mDismissDialogRunnable);
     }
-
 }

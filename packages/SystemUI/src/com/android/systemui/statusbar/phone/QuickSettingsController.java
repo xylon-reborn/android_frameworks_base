@@ -79,6 +79,7 @@ public class QuickSettingsController {
     public static final String TILE_MUSIC = "toggleMusic";
     public static final String TILE_MOBILEDATA = "toggleMobileData";
     public static final String TILE_MOBILENETWORK = "toggleMobileNetwork";
+    public static final String TILE_NETWORKADB = "toggleNetworkAdb";
     public static final String TILE_NETWORKMODE = "toggleNetworkMode";
     public static final String TILE_NFC = "toggleNfc";
     public static final String TILE_PROFILE = "toggleProfile";
@@ -119,6 +120,7 @@ public class QuickSettingsController {
         TILES_CLASSES.put(TILE_MUSIC, "com.android.systemui.quicksettings.MusicTile");
         TILES_CLASSES.put(TILE_MOBILEDATA, "com.android.systemui.quicksettings.MobileDataTile");
         TILES_CLASSES.put(TILE_MOBILENETWORK, "com.android.systemui.quicksettings.MobileNetworkTile");
+        TILES_CLASSES.put(TILE_NETWORKADB, "com.android.systemui.quicksettings.NetworkAdbTile");
         TILES_CLASSES.put(TILE_NETWORKMODE, "com.android.systemui.quicksettings.MobileNetworkTypeTile");
         TILES_CLASSES.put(TILE_NFC, "com.android.systemui.quicksettings.NfcTile");
         TILES_CLASSES.put(TILE_PROFILE, "com.android.systemui.quicksettings.ProfileTile");
