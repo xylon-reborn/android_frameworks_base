@@ -383,16 +383,17 @@ public final class ServerOperation implements Operation, BaseStream {
             }
         }
 
-            if ((finalBitSet) && (type == ResponseCodes.OBEX_HTTP_OK) && (orginalBodyLength <= 0)) {
-                if (mEndofBody) {
-                    out.write(0x49);
-                    orginalBodyLength = 3;
-                    out.write((byte)(orginalBodyLength >> 8));
-                    out.write((byte)orginalBodyLength);
-                }
+        if ((finalBitSet) && (type == ResponseCodes.OBEX_HTTP_OK) && (orginalBodyLength <= 0)) {
+            if (mEndofBody) {
+                out.write(0x49);
+                orginalBodyLength = 3;
+                out.write((byte)(orginalBodyLength >> 8));
+                out.write((byte)orginalBodyLength);
             }
-            mResponseSize = 3;
-            mParent.sendResponse(type, out.toByteArray());
+        }
+
+        mResponseSize = 3;
+        mParent.sendResponse(type, out.toByteArray());
 
         if (type == ResponseCodes.OBEX_HTTP_CONTINUE) {
             int headerID = mInput.read();
