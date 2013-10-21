@@ -415,7 +415,6 @@ void NativeInputManager::getReaderConfiguration(InputReaderConfiguration* outCon
 
         outConfig->setDisplayInfo(false /*external*/, mLocked.internalViewport);
         outConfig->setDisplayInfo(true /*external*/, mLocked.externalViewport);
-
     } // release lock
 }
 

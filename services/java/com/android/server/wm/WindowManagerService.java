@@ -297,7 +297,6 @@ public class WindowManagerService extends IWindowManager.Stub
 
     private static final float THUMBNAIL_ANIMATION_DECELERATE_FACTOR = 1.5f;
 
-
     private BroadcastReceiver mThemeChangeReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             mUiContext = null;
@@ -1829,7 +1828,6 @@ public class WindowManagerService extends IWindowManager.Stub
             while (curWallpaperIndex > 0) {
                 curWallpaperIndex--;
                 WindowState wallpaper = token.windows.get(curWallpaperIndex);
-
                 if (visible) {
                     updateWallpaperOffsetLocked(wallpaper, dw, dh, false);
                 }
@@ -6488,7 +6486,6 @@ public class WindowManagerService extends IWindowManager.Stub
             mDisplayManagerService.setDisplayInfoOverrideFromWindowManager(
                     displayContent.getDisplayId(), displayInfo);
         }
-
         if (false) {
             Slog.i(TAG, "Set app display size: " + m.appWidth + " x " + m.appHeight);
         }

@@ -790,7 +790,7 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
                 case MESSAGE_UNREGISTER_STATE_CHANGE_CALLBACK:
                 {
                     IBluetoothStateChangeCallback callback = (IBluetoothStateChangeCallback) msg.obj;
-                    if(callback != null)
+                    if (callback != null)
                         mStateChangeCallbacks.unregister(callback);
                     break;
                 }

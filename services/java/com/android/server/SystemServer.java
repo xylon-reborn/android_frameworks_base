@@ -1089,7 +1089,6 @@ class ServerThread extends Thread {
     }
 
     static final void startSystemUi(Context context) {
-
         // restore fast charge state before starting systemui
         boolean enabled = Settings.System.getInt(context.getContentResolver(), Settings.System.FCHARGE_ENABLED, 0) == 1;
             try {
@@ -1107,7 +1106,6 @@ class ServerThread extends Thread {
                     Settings.System.putInt(context.getContentResolver(),
                          Settings.System.FCHARGE_ENABLED, 0);
                 }
-
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.android.systemui",
                     "com.android.systemui.SystemUIService"));

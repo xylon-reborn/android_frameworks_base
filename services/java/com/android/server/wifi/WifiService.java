@@ -606,7 +606,6 @@ public final class WifiService extends IWifiManager.Stub {
         }
     }
 
-
     /**
      * Get the operational country code
      */

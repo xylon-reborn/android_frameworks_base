@@ -49,7 +49,6 @@ class ScreenRotationAnimation {
     BlackFrame mExitingBlackFrame;
     BlackFrame mEnteringBlackFrame;
     int mWidth, mHeight;
-    int mExitAnimId, mEnterAnimId;
     int mSnapshotRotation;
 
     int mOriginalRotation;

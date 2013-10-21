@@ -732,7 +732,6 @@ public class LocationManagerService extends ILocationManager.Stub {
         mProvidersByName.remove(provider.getName());
     }
 
-
     /**
      * Returns "true" if access to the specified location provider is allowed by the current
      * user's settings. Access to all location providers is forbidden to non-location-provider
@@ -1565,7 +1564,6 @@ public class LocationManagerService extends ILocationManager.Stub {
         } finally {
             Binder.restoreCallingIdentity(ident);
         }
-
         try {
             mGpsStatusProvider.addGpsStatusListener(listener);
         } catch (RemoteException e) {

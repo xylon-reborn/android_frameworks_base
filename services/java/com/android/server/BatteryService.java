@@ -126,7 +126,6 @@ public final class BatteryService extends Binder {
     private int mLastBatteryVoltage;
     private int mLastBatteryTemperature;
     private boolean mLastBatteryLevelCritical;
-
     private int mInvalidCharger;
     private int mLastInvalidCharger;
 
@@ -865,5 +864,4 @@ public final class BatteryService extends Binder {
         }
         return false;
     }
-
 }

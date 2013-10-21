@@ -310,7 +310,6 @@ public class LockSettingsService extends ILockSettings.Stub {
     @Override
     public boolean haveGesture(int userId) throws RemoteException {
         // Do we need a permissions check here?
-
         return new File(getLockGestureFilename(userId)).length() > 0;
     }
 
