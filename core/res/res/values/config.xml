@@ -1140,7 +1140,7 @@
 
     <!-- Vibrator pattern to be used as for notifications while alerts
          are disabled (e.g. during phone calls) if enabled by the user.
-         -->
+     -->
     <integer-array name="config_notificationNoAlertsVibePattern">
         <item>0</item>
         <item>50</item>
@@ -1160,7 +1160,7 @@
 
     <!-- Timeout in MS for how long you have to long-press the back key to
          kill the foreground app. -->
-    <integer name="config_backKillTimeout">1250</integer>
+    <integer name="config_backKillTimeout">1300</integer>
 
     <!-- Device has a h/w rotation lock switch -->
     <bool name="config_hasRotationLockSwitch">false</bool>
@@ -1267,7 +1267,19 @@
     <string-array name="config_disabledComponents" translatable="false">
     </string-array>
 
+    <!-- Control whether a desk dock event should override the default bluetooth
+         audio routing, FORCE_BT_DESK_DOCK, with an analog dock, FORCE_ANALOG_DOCK. -->
+    <bool name="config_forceAnalogDeskDock">false</bool>
+
+    <!-- Control whether a car dock event should override the default bluetooth
+         audio routing, FORCE_BT_CAR_DOCK, with an analog dock, FORCE_ANALOG_DOCK. -->
+    <bool name="config_forceAnalogCarDock">false</bool>
+
+    <!-- If a dock provides a lid switch, that lid can be removed. This
+         setting is used to determine, whether lidOpenRotation has to be
+         applied. -->
+    <bool name="config_hasRemovableLid">false</bool>
+
     <!-- Boolean to enable Stylus gestures -->
     <bool name="config_stylusGestures">false</bool>
-
 </resources>
