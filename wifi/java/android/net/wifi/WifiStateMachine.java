@@ -818,6 +818,7 @@ public class WifiStateMachine extends StateMachine {
             WifiNative.setMode(0);
             sendMessage(CMD_START_SUPPLICANT);
         } else {
+            mWifiConfigStore.setStateFromAutoConnectAllNetworks();
             sendMessage(CMD_STOP_SUPPLICANT);
         }
     }
@@ -1501,7 +1502,6 @@ public class WifiStateMachine extends StateMachine {
 
     /**
      * Format:
-     *
      * id=1
      * bssid=68:7f:76:d7:1a:6e
      * freq=2412
@@ -1542,12 +1542,12 @@ public class WifiStateMachine extends StateMachine {
                 if (lines[i].startsWith(END_STR)) {
                     break;
                 } else if (lines[i].startsWith(ID_STR)) {
-                    try {
-                        sid = Integer.parseInt(lines[i].substring(ID_STR.length())) + 1;
-                    } catch (NumberFormatException e) {
-                        // Nothing to do
-                    }
-                    break;
+                   try {
+                       sid = Integer.parseInt(lines[i].substring(ID_STR.length())) + 1;
+                   } catch (NumberFormatException e) {
+                       // Nothing to do
+                   }
+                   break;
                 }
             }
             if (sid == -1) break;
@@ -1557,7 +1557,6 @@ public class WifiStateMachine extends StateMachine {
         if (TextUtils.isEmpty(scanResults)) {
            return;
         }
-
         synchronized(mScanResultCache) {
             mScanResults = new ArrayList<ScanResult>();
             String[] lines = scanResults.split("\n");
@@ -3946,7 +3945,6 @@ public class WifiStateMachine extends StateMachine {
         msg.arg2 = srcMsg.arg2;
         return msg;
     }
-
 
     private void restartSoftApIfOn() {
         Log.e(TAG, "Disabling wifi ap");

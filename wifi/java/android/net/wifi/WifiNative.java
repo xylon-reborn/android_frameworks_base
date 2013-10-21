@@ -802,7 +802,6 @@ public class WifiNative {
                     return true;
             }
         }
-
         return false;
     }
 
