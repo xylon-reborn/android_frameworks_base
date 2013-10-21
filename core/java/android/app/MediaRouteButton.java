@@ -216,9 +216,7 @@ public class MediaRouteButton extends View {
 
     void updateRemoteIndicator() {
         final RouteInfo selected = mRouter.getSelectedRoute(mRouteTypes);
-
         final boolean isRemote = selected != mRouter.getDefaultRoute();
-
         final boolean isConnecting = selected != null &&
                 selected.getStatusCode() == RouteInfo.STATUS_CONNECTING;
 

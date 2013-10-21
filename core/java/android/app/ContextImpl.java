@@ -546,22 +546,22 @@ class ContextImpl extends Context {
             }});
 
         registerService(PROFILE_SERVICE, new ServiceFetcher() {
-                public Object createService(ContextImpl ctx) {
-                    final Context outerContext = ctx.getOuterContext();
-                    return new ProfileManager (outerContext, ctx.mMainThread.getHandler());
-                }});
+            public Object createService(ContextImpl ctx) {
+                final Context outerContext = ctx.getOuterContext();
+                return new ProfileManager (outerContext, ctx.mMainThread.getHandler());
+            }});
 
         registerService(WimaxManagerConstants.WIMAX_SERVICE, new ServiceFetcher() {
-                public Object createService(ContextImpl ctx) {
-                    return WimaxHelper.createWimaxService(ctx, ctx.mMainThread.getHandler());
-                }});
+            public Object createService(ContextImpl ctx) {
+                return WimaxHelper.createWimaxService(ctx, ctx.mMainThread.getHandler());
+            }});
 
         registerService(IRDA_SERVICE, new StaticServiceFetcher() {
-                public Object createStaticService() {
-                    IBinder b = ServiceManager.getService(IRDA_SERVICE);
-                    IIrdaManager service = IIrdaManager.Stub.asInterface(b);
-                    return new IrdaManager(service);
-                }});
+            public Object createStaticService() {
+                IBinder b = ServiceManager.getService(IRDA_SERVICE);
+                IIrdaManager service = IIrdaManager.Stub.asInterface(b);
+                return new IrdaManager(service);
+            }});
     }
 
     static ContextImpl getImpl(Context context) {

@@ -1791,7 +1791,7 @@ public final class ActivityThread {
                 r.getAssets().close();
                 return existing;
             }
-            
+
             // XXX need to remove entries when weak references go away
             mActiveResources.put(key, new WeakReference<Resources>(r));
             return r;
@@ -2084,7 +2084,7 @@ public final class ActivityThread {
             dalvik.system.VMRuntime.getRuntime().startJitCompilation();
         }
     }
-    
+
     void scheduleGcIdler() {
         if (!mGcIdlerScheduled) {
             mGcIdlerScheduled = true;
@@ -3096,7 +3096,7 @@ public final class ActivityThread {
                 if (cv == null) {
                     mThumbnailCanvas = cv = new Canvas();
                 }
-    
+
                 cv.setBitmap(thumbnail);
                 if (!r.activity.onCreateThumbnail(thumbnail, cv)) {
                     mAvailThumbnailBitmap = thumbnail;
@@ -3400,7 +3400,7 @@ public final class ActivityThread {
 
     private void handleWindowVisibility(IBinder token, boolean show) {
         ActivityClientRecord r = mActivities.get(token);
-        
+
         if (r == null) {
             Log.w(TAG, "handleWindowVisibility: no activity for token " + token);
             return;
@@ -3815,10 +3815,10 @@ public final class ActivityThread {
                 }
             }
         }
-        
+
         if (DEBUG_CONFIGURATION) Slog.v(TAG, "Relaunching activity "
                 + tmp.token + ": changedConfig=" + changedConfig);
-        
+
         // If there was a pending configuration change, execute it first.
         if (changedConfig != null) {
             mCurDefaultDisplayDpi = changedConfig.densityDpi;
@@ -4082,7 +4082,7 @@ public final class ActivityThread {
                 it.remove();
             }
         }
-        
+
         return changes;
     }
 
@@ -4140,12 +4140,12 @@ public final class ActivityThread {
             if (config == null) {
                 return;
             }
-            
+
             if (DEBUG_CONFIGURATION) Slog.v(TAG, "Handle configuration changed: "
                     + config);
-        
+
             diff = applyConfigurationToResourcesLocked(config, compat);
-            
+
             if (mConfiguration == null) {
                 mConfiguration = new Configuration();
             }
@@ -4204,7 +4204,7 @@ public final class ActivityThread {
 
         if (DEBUG_CONFIGURATION) Slog.v(TAG, "Handle activity config changed: "
                 + r.activityInfo.name);
-        
+
         performConfigurationChanged(r.activity, mCompatConfiguration);
 
         freeTextLayoutCachesIfNeeded(r.activity.mCurrentConfig.diff(mCompatConfiguration));
@@ -4214,7 +4214,7 @@ public final class ActivityThread {
         if (start) {
             try {
                 switch (profileType) {
-                    default:                        
+                    default:
                         mProfiler.setProfiler(pcd.path, pcd.fd);
                         mProfiler.autoStopProfiler = false;
                         mProfiler.startProfiling();
@@ -4282,7 +4282,7 @@ public final class ActivityThread {
         ApplicationPackageManager.handlePackageBroadcast(cmd, packages,
                 hasPkgInfo);
     }
-        
+
     final void handleLowMemory() {
         ArrayList<ComponentCallbacks2> callbacks = collectComponentCallbacks(true, null);
 
@@ -4332,7 +4332,7 @@ public final class ActivityThread {
             String[] packages = getPackageManager().getPackagesForUid(uid);
 
             // If there are several packages in this application we won't
-            // initialize the graphics disk caches 
+            // initialize the graphics disk caches
             if (packages != null && packages.length == 1) {
                 HardwareRenderer.setupDiskCache(cacheDir);
                 RenderScript.setupDiskCache(cacheDir);
@@ -4460,7 +4460,7 @@ public final class ActivityThread {
             if (cacheDir != null) {
                 // Provide a usable directory for temporary files
                 System.setProperty("java.io.tmpdir", cacheDir.getAbsolutePath());
-    
+
                 setupGraphicsSupport(data.info, cacheDir);
             } else {
                 Log.e(TAG, "Unable to setupGraphicsSupport due to missing cache directory");
@@ -5195,7 +5195,7 @@ public final class ActivityThread {
                         if (mPendingConfiguration == null ||
                                 mPendingConfiguration.isOtherSeqNewer(newConfig)) {
                             mPendingConfiguration = newConfig;
-                            
+
                             queueOrSendMessage(H.CONFIGURATION_CHANGED, newConfig);
                         }
                     }

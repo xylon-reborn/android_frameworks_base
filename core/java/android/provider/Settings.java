@@ -174,7 +174,6 @@ public final class Settings {
 
     /**
      * Activity Action: Show settings to allow configuration of Wi-Fi.
-
      * <p>
      * In some cases, a matching Activity may not exist, so ensure you
      * safeguard against this.
@@ -182,7 +181,6 @@ public final class Settings {
      * Input: Nothing.
      * <p>
      * Output: Nothing.
-
      */
     @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
     public static final String ACTION_WIFI_SETTINGS =
@@ -2876,13 +2874,6 @@ public final class Settings {
         public static final String QUICK_SETTINGS_TILE_CONTENT = "quick_settings_tile_content";
 
         /**
-         * Animate-flip Quick Settings Panel Tiles on click
-         *
-         * @hide
-         */
-        public static final String QUICK_SETTINGS_TILES_FLIP = "quick_settings_tiles_flip";
-
-        /**
          * Quick Settings Panel Dynamic Tiles
          *
          * @hide
@@ -3389,7 +3380,7 @@ public final class Settings {
          * Whether Status bar should be hiidden when there are no notifications
          * @hide
          */
-        public static final String AUTO_HIDE_STATUSBAR = "status_bar_auto_hide";
+        public static final String AUTO_HIDE_STATUSBAR = "auto_hide_statusbar";
 
         /**
          * Whether Status Bar is currently hidden or not
@@ -3409,7 +3400,7 @@ public final class Settings {
          * Peek at stausbar when it is hidden by swiping down from top
          * @hide
          */
-        public static final String STATUSBAR_PEEK = "status_bar_quick_peek";
+        public static final String STATUSBAR_PEEK = "statusbar_peek";
 
          /**
          * Whether Expanded desktop is currently running or not
@@ -3659,7 +3650,7 @@ public final class Settings {
          */
         public static final String LOCKSCREEN_LONG_CAMERA_ACTION = "lockscreen_long_camera_action";
 
-         /**
+        /**
          * Lockscreen battery status visibility mode
          * 0 = show if charging
          * 1 = always show
@@ -4147,7 +4138,6 @@ public final class Settings {
          */
         public static final String LOCK_VOLUME_KEYS = "lock_volume_keys";
 
-
         /**
          * Hide carrier information on notification drawer
          * @hide
@@ -4311,17 +4301,6 @@ public final class Settings {
         public static final String ANIMATION_CONTROLS_DURATION = "animation_controls_duration";
         public static final String ANIMATION_CONTROLS_NO_OVERRIDE = "animation_controls_no_override";
 
-        /**
-         * Whether FastPowerOn is enabled
-         * @hide
-         */
-        public static final String ENABLE_FAST_POWERON = "enable_fast_poweron";
-
-        /**
-         * @hide
-         */
-        public static final String LARGE_RECENT_THUMBS = "large_recent_thumbs";
-
 	    /**
          * Whether to display notifications on screen when screen is off
          * @hide
@@ -4359,12 +4338,6 @@ public final class Settings {
         public static final String ACTIVE_DISPLAY_ALL_NOTIFICATIONS = "active_display_all_notifications";
 
         /**
-         * Whether to hide low priority notifications like those from google now
-         * @hide
-         */
-        public static final String ACTIVE_DISPLAY_HIDE_LOW_PRIORITY_NOTIFICATIONS = "active_display_hide_low_priority_notifications";
-
-        /**
          * Whether to display AM/PM after time when in 12h format
          * @hide
          */
@@ -4375,6 +4348,13 @@ public final class Settings {
          * @hide
          */
         public static final String ACTIVE_DISPLAY_SHOW_DATE = "active_display_show_date";
+
+	    /**
+         * Whether to hide low priority notifications like those from google now
+         * @hide
+         */
+        public static final String ACTIVE_DISPLAY_HIDE_LOW_PRIORITY_NOTIFICATIONS =
+                "active_display_hide_low_priority_notifications";
 
         /**
          * Whether to invert the colors when in bright light
@@ -4394,7 +4374,7 @@ public final class Settings {
          */
         public static final String VIBRATION_MULTIPLIER = "vibration_multiplier";
 
-		/**
+        /**
          * Network speed indicator
          * @hide
          */
@@ -4412,7 +4392,7 @@ public final class Settings {
          *
          * @hide
          */
-        public static final String ICON_COLOR_BEHAVIOR = "status_icon_color_behavior";
+        public static final String ICON_COLOR_BEHAVIOR = "icon_color_behavior";
 
         /**
          * Show the pending notification counts as overlays on the status bar
@@ -4439,7 +4419,7 @@ public final class Settings {
          */
         public static final String MMS_BREATH = "mms_breath";
 
-        /**  
+        /**
          * Give MMS Notifications a breathing effect
          * @hide
          */
@@ -4539,8 +4519,7 @@ public final class Settings {
             PHONE_BLACKLIST_NOTIFY_ENABLED,
             PHONE_BLACKLIST_PRIVATE_NUMBER_MODE,
             PHONE_BLACKLIST_UNKNOWN_NUMBER_MODE,
-            PHONE_BLACKLIST_REGEX_ENABLED,
-            ENABLE_FAST_POWERON
+            PHONE_BLACKLIST_REGEX_ENABLED
         };
 
         // Settings moved to Settings.Secure
@@ -6378,18 +6357,6 @@ public final class Settings {
          * @hide
          */
         public static final String DIALPAD_AUTOCOMPLETE = "dialpad_autocomplete";
-
-        /**
-         * Whether to allow killing of the foreground app by long-pressing the Back button
-         * @hide
-         */
-        public static final String KILL_APP_LONGPRESS_BACK = "kill_app_longpress_back";
-
-        /**
-         * Whether to include options in power menu for rebooting into recovery or bootloader
-         * @hide
-         */
-        public static final String ADVANCED_REBOOT = "advanced_reboot";
 
         /**
          * Whether newly installed apps should run with privacy guard by default

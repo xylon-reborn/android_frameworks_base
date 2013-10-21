@@ -1186,9 +1186,6 @@ public abstract class WebSettings {
     }
 
     /**
-     * Sets whether Geolocation is enabled. The default is true. See also
-     * {@link #setGeolocationDatabasePath} for how to correctly set up
-     * Geolocation.
      * Sets whether Geolocation is enabled. The default is true.
      * <p>
      * Please note that in order for the Geolocation API to be usable

@@ -218,7 +218,7 @@ public class PackageInfo implements Parcelable {
      * @hide
      */
     public int installLocation = INSTALL_LOCATION_INTERNAL_ONLY;
-    
+
     // Is Theme Apk
     /**
      * {@hide}

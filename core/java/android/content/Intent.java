@@ -3316,7 +3316,6 @@ public class Intent implements Parcelable, Cloneable {
      * places where the framework may automatically set the exclude flag).
      */
     public static final int FLAG_INCLUDE_STOPPED_PACKAGES = 0x00000020;
-
     /**
      * If set, the new activity is not kept in the history stack.  As soon as
      * the user navigates away from it, the activity is finished.  This may also

@@ -467,41 +467,6 @@ public class RelativeLayout extends ViewGroup {
         View[] views = mSortedHorizontalChildren;
         int count = views.length;
 
-        // We need to know our size for doing the correct computation of positioning in RTL mode
-        if (isLayoutRtl() && (myWidth == -1 || isWrapContentWidth)) {
-            int w = getPaddingStart() + getPaddingEnd();
-            final int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-            for (int i = 0; i < count; i++) {
-                View child = views[i];
-                if (child.getVisibility() != GONE) {
-                    LayoutParams params = (LayoutParams) child.getLayoutParams();
-                    // Would be similar to a call to measureChildHorizontal(child, params, -1, myHeight)
-                    // but we cannot change for now the behavior of measureChildHorizontal() for
-                    // taking care or a "-1" for "mywidth" so use here our own version of that code.
-                    int childHeightMeasureSpec;
-                    if (params.width == LayoutParams.MATCH_PARENT) {
-                        childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(myHeight, MeasureSpec.EXACTLY);
-                    } else {
-                        childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(myHeight, MeasureSpec.AT_MOST);
-                    }
-                    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-
-                    w += child.getMeasuredWidth();
-                    w += params.leftMargin + params.rightMargin;
-                }
-            }
-            if (myWidth == -1) {
-                // Easy case: "myWidth" was undefined before so use the width we have just computed
-                myWidth = w;
-            } else {
-                // "myWidth" was defined before, so take the min of it and the computed width if it
-                // is a non null one
-                if (w > 0) {
-                    myWidth = Math.min(myWidth, w);
-                }
-            }
-        }
-
         for (int i = 0; i < count; i++) {
             View child = views[i];
             if (child.getVisibility() != GONE) {

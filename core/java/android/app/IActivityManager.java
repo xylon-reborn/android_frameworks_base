@@ -191,7 +191,7 @@ public interface IActivityManager extends IInterface {
     
     public void setProcessForeground(IBinder token, int pid,
             boolean isForeground) throws RemoteException;
-    
+
     public int checkPermission(String permission, int pid, int uid)
             throws RemoteException;
 

@@ -501,8 +501,9 @@ class BrowserFrame extends Handler {
                         WebAddress uri = new WebAddress(item.getUrl());
                         String schemePlusHost = uri.getScheme() + SCHEME_HOST_DELIMITER +
                                 uri.getHost();
-                        String[] up = mDatabase.getUsernamePassword(
-                                schemePlusHost);
+                        String[] up =
+                                WebViewDatabaseClassic.getInstance(mContext)
+                                        .getUsernamePassword(schemePlusHost);
                         if (up == null) { // no row found, try again using the legacy method
                             schemePlusHost = uri.getScheme() + uri.getHost();
                             up = mDatabase.getUsernamePassword(schemePlusHost);

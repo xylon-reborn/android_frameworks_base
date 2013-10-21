@@ -2540,10 +2540,10 @@ public final class WebViewCore {
         // adjust the default scale to match the densityDpi
         float adjust = 1.0f;
         if (mViewportDensityDpi == -1) {
-            if( mWebViewClassic != null && mWebViewClassic.getDefaultZoomScale() *
+            if (mWebViewClassic != null && mWebViewClassic.getDefaultZoomScale() *
                 mSettings.getDefaultZoom().value != mContext.getResources().getDisplayMetrics().density * 100)
-        mWebViewClassic.adjustDefaultZoomDensity( mSettings.getDefaultZoom().value);
-                if( mWebViewClassic != null && (int)( mWebViewClassic.getDefaultZoomScale() * 100) != 100) {
+                mWebViewClassic.adjustDefaultZoomDensity( mSettings.getDefaultZoom().value);
+                if (mWebViewClassic != null && (int)( mWebViewClassic.getDefaultZoomScale() * 100) != 100) {
                     adjust = mWebViewClassic.getDefaultZoomScale();
                 }
             } else if (mViewportDensityDpi > 0) {

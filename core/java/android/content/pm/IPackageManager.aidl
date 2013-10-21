@@ -225,7 +225,7 @@ interface IPackageManager {
 
     int getPreferredActivities(out List<IntentFilter> outFilters,
             out List<ComponentName> outActivities, String packageName);
-    
+
     /**
      * As per {@link android.content.pm.PackageManager#setComponentEnabledSetting}.
      */

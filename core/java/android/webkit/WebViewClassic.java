@@ -5745,7 +5745,6 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
     @Override
     public void onScrollChanged(int l, int t, int oldl, int oldt) {
         mSendScroll.send(false);
-
         if (!mInOverScrollMode) {
             // update WebKit if visible title bar height changed. The logic is same
             // as getVisibleTitleHeightImpl.
