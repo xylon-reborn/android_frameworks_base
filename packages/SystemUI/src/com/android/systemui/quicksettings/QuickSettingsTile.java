@@ -25,6 +25,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -67,6 +68,8 @@ public class QuickSettingsTile implements OnClickListener {
 
     protected PhoneStatusBar mStatusbarService;
     protected QuickSettingsController mQsc;
+
+    private Handler mHandler = new Handler();
 
     public QuickSettingsTile(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, QuickSettingsController qsc) {

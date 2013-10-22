@@ -1554,7 +1554,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         mLongPressOnHomeBehavior = getDefString(resolver,
                                 Settings.System.KEY_HOME_LONG_PRESS_ACTION, KEY_ACTION_APP_SWITCH);
                     }
-                    mHasMenuKeyEnabled = (mLongPressOnHomeBehavior == KEY_ACTION_MENU);
+                    mHasMenuKeyEnabled = true;
                 }
                 if (mHasBackKey) {
                     mPressOnBackBehavior = getDefString(resolver,
@@ -1572,24 +1572,21 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         mLongPressOnMenuBehavior = getDefString(resolver,
                                 Settings.System.KEY_MENU_LONG_PRESS_ACTION, KEY_ACTION_SEARCH);
                     }
-                    mHasMenuKeyEnabled |= (mPressOnMenuBehavior == KEY_ACTION_MENU) ||
-                        (mLongPressOnMenuBehavior == KEY_ACTION_MENU);
+                    mHasMenuKeyEnabled = true;
                 }
                 if (mHasAssistKey) {
                     mPressOnAssistBehavior = getDefString(resolver,
                             Settings.System.KEY_ASSIST_ACTION, KEY_ACTION_SEARCH);
                     mLongPressOnAssistBehavior = getDefString(resolver,
                             Settings.System.KEY_ASSIST_LONG_PRESS_ACTION, KEY_ACTION_VOICE_SEARCH);
-                    mHasMenuKeyEnabled |= (mPressOnAssistBehavior == KEY_ACTION_MENU) ||
-                        (mLongPressOnAssistBehavior == KEY_ACTION_MENU);
+                    mHasMenuKeyEnabled = true;
                 }
                 if (mHasAppSwitchKey) {
                     mPressOnAppSwitchBehavior = getDefString(resolver,
                             Settings.System.KEY_APP_SWITCH_ACTION, KEY_ACTION_APP_SWITCH);
                     mLongPressOnAppSwitchBehavior = getDefString(resolver,
                             Settings.System.KEY_APP_SWITCH_LONG_PRESS_ACTION, KEY_ACTION_NOTHING);
-                    mHasMenuKeyEnabled |= (mPressOnAppSwitchBehavior == KEY_ACTION_MENU) ||
-                        (mLongPressOnAppSwitchBehavior == KEY_ACTION_MENU);
+                    mHasMenuKeyEnabled = true;
                 }
                 if (mHasCameraKey) {
                     mPressOnCameraBehavior = getDefString(resolver,
