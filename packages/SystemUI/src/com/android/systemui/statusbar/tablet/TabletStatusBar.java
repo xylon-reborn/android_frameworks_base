@@ -574,11 +574,6 @@ public class TabletStatusBar extends BaseStatusBar implements
         mBluetoothController = new BluetoothController(mContext);
         mBluetoothController.addIconView((ImageView)sb.findViewById(R.id.bluetooth));
 
-        mNetworkController = new NetworkController(mContext);
-        final SignalClusterView signalCluster =
-                (SignalClusterView)sb.findViewById(R.id.signal_cluster);
-        mNetworkController.addSignalCluster(signalCluster);
-
         if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
             final MSimSignalClusterView mSimSignalCluster =
                     (MSimSignalClusterView)sb.findViewById(R.id.msim_signal_cluster);
@@ -588,7 +583,8 @@ public class TabletStatusBar extends BaseStatusBar implements
                 mMSimNetworkController.addSignalCluster(mSimSignalCluster, i);
             }
         } else {
-            mSignalCluster = (SignalClusterView)sb.findViewById(R.id.signal_cluster);
+            final SignalClusterView signalCluster =
+                    (SignalClusterView)sb.findViewById(R.id.signal_cluster);
 
             mNetworkController = new NetworkController(mContext);
             mNetworkController.addSignalCluster(signalCluster);
@@ -662,7 +658,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         final int LIGHTS_GOING_OUT_SHADOW_DELAY    = 0;
 
         final int LIGHTS_COMING_UP_SYSBAR_DURATION = 200;
-//        final int LIGHTS_COMING_UP_SYSBAR_DELAY    = 50;
+        // final int LIGHTS_COMING_UP_SYSBAR_DELAY    = 50;
         final int LIGHTS_COMING_UP_SHADOW_DURATION = 0;
 
         LayoutTransition xition = new LayoutTransition();
