@@ -6465,7 +6465,6 @@ public final class Settings {
             UI_INVERTED_MODE,
             LOCK_SCREEN_OWNER_INFO,
             LOCK_SCREEN_OWNER_INFO_ENABLED,
-            ADVANCED_REBOOT,
             DIALPAD_AUTOCOMPLETE,
             PRIVACY_GUARD_DEFAULT,
             PRIVACY_GUARD_NOTIFICATION
