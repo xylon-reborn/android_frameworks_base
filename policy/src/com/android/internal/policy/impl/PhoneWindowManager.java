@@ -1554,7 +1554,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         mLongPressOnHomeBehavior = getDefString(resolver,
                                 Settings.System.KEY_HOME_LONG_PRESS_ACTION, KEY_ACTION_APP_SWITCH);
                     }
-                    mHasMenuKeyEnabled = true;
                 }
                 if (mHasBackKey) {
                     mPressOnBackBehavior = getDefString(resolver,
@@ -1678,7 +1677,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             MSG_ENABLE_POINTER_LOCATION : MSG_DISABLE_POINTER_LOCATION);
                 }
             }
-            // use screen off timeout setting as the timeout for the lockscreen
+
+            // Use screen off timeout setting as the timeout for the lockscreen
             mLockScreenTimeout = Settings.System.getIntForUser(resolver,
                     Settings.System.SCREEN_OFF_TIMEOUT, 0, UserHandle.USER_CURRENT);
             String imId = Settings.Secure.getStringForUser(resolver,
@@ -1689,6 +1689,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 updateRotation = true;
             }
         }
+
         if (updateRotation) {
             updateRotation(true);
         } else if (updateDisplayMetrics) {
@@ -3609,9 +3610,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         final boolean hasNavBar = (isDefaultDisplay && mNavigationBar != null
                 && mNavigationBar.isVisibleLw());
-
         final int adjust = sim & SOFT_INPUT_MASK_ADJUST;
-
         if (!isDefaultDisplay) {
             if (attached != null) {
                 // If this window is attached to another, our display

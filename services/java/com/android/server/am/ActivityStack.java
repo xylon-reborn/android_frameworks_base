@@ -4407,7 +4407,7 @@ final class ActivityStack {
         if (top < 0 || (mHistory.get(top)).task.taskId == task) {
             // nothing to do!
             if (reason != null &&
-                    ((reason.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0 || reason.floatingWindow)) {
+                    (reason.intent.getFlags()&Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0) {
                 ActivityOptions.abort(options);
             } else {
                 updateTransitLocked(AppTransition.TRANSIT_TASK_TO_FRONT, options);

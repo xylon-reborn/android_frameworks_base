@@ -444,7 +444,6 @@ public class KeyguardHostView extends KeyguardViewBase {
         }
         checkAppWidgetConsistency();
         mSwitchPageRunnable.run();
-
         // This needs to be called after the pages are all added.
         mViewStateManager.showUsabilityHints();
 
@@ -1377,7 +1376,7 @@ public class KeyguardHostView extends KeyguardViewBase {
         // inflate system-provided camera?
         if (!mSafeModeEnabled && !cameraDisabledByDpm() && mUserSetupCompleted
                 && Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_CAMERA_WIDGET, 0) == 1) {
+                Settings.System.LOCKSCREEN_CAMERA_WIDGET, 1) == 1) {
             View cameraWidget =
                     CameraWidgetFrame.create(mContext, mCameraWidgetCallbacks, mActivityLauncher);
             if (cameraWidget != null) {

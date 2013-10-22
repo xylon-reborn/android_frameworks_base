@@ -8895,7 +8895,6 @@ public class PackageManagerService extends IPackageManager.Stub {
                 }
             }
         }
- 
 
         // for the uninstall-updates case and restricted profiles, remember the per-
         // userhandle installed state

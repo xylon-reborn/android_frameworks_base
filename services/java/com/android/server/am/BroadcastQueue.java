@@ -414,7 +414,6 @@ public class BroadcastQueue {
                 skip = true;
             }
         }
-
         if (r.appOp != AppOpsManager.OP_NONE) {
             int mode = mService.mAppOpsService.checkOperation(r.appOp,
                     filter.receiverList.uid, filter.packageName);

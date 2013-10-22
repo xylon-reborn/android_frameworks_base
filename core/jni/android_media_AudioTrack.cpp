@@ -63,9 +63,6 @@ struct fields_t {
     int       STREAM_NOTIFICATION;   //...  stream type constants
     int       STREAM_BLUETOOTH_SCO;  //...  stream type constants
     int       STREAM_DTMF;           //...  stream type constants
-    int       MODE_STREAM;           //...  memory mode
-    int       MODE_STATIC;           //...  memory mode
-
     jfieldID  nativeTrackInJavaObj;  // stores in Java the native AudioTrack object
     jfieldID  jniData;      // stores in Java additional resources used by the native AudioTrack
 };
