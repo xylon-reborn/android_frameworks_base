@@ -338,7 +338,6 @@ public class SearchPanelView extends FrameLayout implements
             intentList.add(mEmpty);
             longList.add(mEmpty);
         }
-
         // Add User Targets
         for (int i = middleStart - 1; i >= 0; i--) {
             buttonConfig = mButtonsConfig.get(i);

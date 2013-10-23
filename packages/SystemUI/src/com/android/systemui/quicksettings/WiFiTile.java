@@ -47,7 +47,6 @@ public class WiFiTile extends QuickSettingsTile implements NetworkSignalChangedC
         mController = controller;
 
         mOnClick = new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 WifiManager wfm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
@@ -58,7 +57,6 @@ public class WiFiTile extends QuickSettingsTile implements NetworkSignalChangedC
             }
         };
         mOnLongClick = new OnLongClickListener() {
-
             @Override
             public boolean onLongClick(View v) {
                 startSettingsActivity(android.provider.Settings.ACTION_WIFI_SETTINGS);

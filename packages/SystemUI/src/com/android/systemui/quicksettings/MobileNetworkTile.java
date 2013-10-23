@@ -63,7 +63,6 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
             }
         };
         mOnLongClick = new OnLongClickListener() {
-
             @Override
             public boolean onLongClick(View v) {
                 Intent intent = new Intent();

@@ -103,7 +103,6 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
                             batteryLevel)
                     : mContext.getString(R.string.status_bar_settings_battery_meter_format,
                             batteryLevel);
-
         }
         updateQuickSettings();
     }
@@ -119,7 +118,6 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
                 tv.setTextColor(mTileTextColor);
             }
         }
-
         ImageView iv = (ImageView) mTile.findViewById(R.id.image);
         if (iv != null) {
             iv.setImageDrawable(batteryIcon);

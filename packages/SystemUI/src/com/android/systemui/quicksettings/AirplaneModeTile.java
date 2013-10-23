@@ -50,13 +50,11 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
         mLabel = mContext.getString(R.string.quick_settings_airplane_mode_label);
 
         mOnClick = new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
              // Change the system setting
                 Settings.Global.putInt(mContext.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON,
                                         !enabled ? 1 : 0);
-
                 // Post the intent
                 Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
                 intent.putExtra("state", !enabled);
@@ -67,7 +65,6 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
             }
         };
         mOnLongClick = new OnLongClickListener() {
-
             @Override
             public boolean onLongClick(View v) {
                 startSettingsActivity(android.provider.Settings.ACTION_WIRELESS_SETTINGS);

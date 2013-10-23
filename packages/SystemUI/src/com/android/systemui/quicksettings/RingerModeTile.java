@@ -35,7 +35,6 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 
 public class RingerModeTile extends QuickSettingsTile {
-
     private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
     private final boolean DBG = false;
 
