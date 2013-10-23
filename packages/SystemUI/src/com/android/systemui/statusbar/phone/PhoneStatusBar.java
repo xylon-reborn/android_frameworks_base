@@ -853,7 +853,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             }
 
             mNotificationHideCarrier = Settings.System.getIntForUser(mContext.getContentResolver(),
-                        Settings.System.NOTIFICATION_SHORTCUTS_HIDE_CARRIER, 0, UserHandle.USER_CURRENT) != 0;
+                        Settings.System.NOTIFICATION_HIDE_CARRIER, 0, UserHandle.USER_CURRENT) != 0;
 
             mCarrierAndWifiView = mStatusBarWindow.findViewById(R.id.carrier_wifi);
             mWifiView = mStatusBarWindow.findViewById(R.id.wifi_view);
@@ -864,8 +864,8 @@ public class PhoneStatusBar extends BaseStatusBar {
             if (DEBUG) Slog.v(TAG, "carrierlabel=" + mCarrierLabel + " show=" + mShowCarrierInPanel);
             if (mShowCarrierInPanel) {
                 lpCarrierLabel = (FrameLayout.LayoutParams) mCarrierAndWifiView.getLayoutParams();
-                mCarrierLabel.setVisibility((mCarrierAndWifiViewVisible && !mNotificationShortcutsHideCarrier) ? View.VISIBLE : View.INVISIBLE);
-                if (mNotificationShortcutsHideCarrier)
+                mCarrierLabel.setVisibility((mCarrierAndWifiViewVisible && !mNotificationHideCarrier) ? View.VISIBLE : View.INVISIBLE);
+                if (mNotificationHideCarrier)
                     mShowCarrierInPanel = false;
                     // for mobile devices, we always show mobile connection info here (SPN/PLMN)
                     // for other devices, we show whatever network is connected
