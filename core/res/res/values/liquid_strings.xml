@@ -87,10 +87,6 @@
     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
     <string name="permdesc_preventpower">Allows an application to override the power key</string>
 
-    <!-- Superuser application permission, allows applications to call the superuser binary (su) -->
-    <string name="permlab_accessSuperuser">full permissions to all device features and storage</string>
-    <string name="permdesc_accessSuperuser">Superuser grants full access to all device features and storage, including the secure and sensitive hardware elements of your device. This permission is potentially dangerous.</string>
-
     <!-- Title of policy access to start enforcing SELinux policy [CHAR LIMIT=30]-->
     <string name="policylab_enforceSelinux">Enforce SELinux</string>
     <!-- Description of policy access to start enforcing SELinux policy [CHAR LIMIT=110]-->
