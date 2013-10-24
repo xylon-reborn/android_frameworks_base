@@ -451,14 +451,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // next: silent mode
-        // only shown if enabled, enabled by default
-        if ((Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_SOUND_ENABLED, 1) == 1) &&
-                (mShowSilentToggle)) {
-            mItems.add(mSilentModeAction);
-        }
-
         // next: torch mode
         // only shown if enabled, disabled by default
         if (Settings.System.getInt(mContext.getContentResolver(),
@@ -483,11 +475,19 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // last: user switch
+        // next: user switch
         // only shown if enabled, disabled by default
         if (Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_MENU_USER_ENABLED, 0) == 1) {
             addUsersToMenu(mItems);
+        }
+
+        // last: silent mode
+        // only shown if enabled, enabled by default
+        if ((Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_SOUND_ENABLED, 1) == 1) &&
+                (mShowSilentToggle)) {
+            mItems.add(mSilentModeAction);
         }
 
         mAdapter = new MyAdapter();
