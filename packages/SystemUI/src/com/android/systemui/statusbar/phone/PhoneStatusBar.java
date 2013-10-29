@@ -216,7 +216,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     // left-hand icons
     LinearLayout mStatusIcons;
-    LinearLayout mCenterClockLayout;
+    private LinearLayout mCenterClockLayout;
     // the icons themselves
     IconMerger mNotificationIcons;
     // [+>
@@ -536,7 +536,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         lpScrollView.bottomMargin = mNotificationShortcutsIsActive ? mShortcutsDrawerMargin : 0;
         mScrollView.setLayoutParams(lpScrollView);
 
-        if (!mShowCarrierInPanel) return;
+        if (!mShowCarrierInPanel || mCarrierAndWifiView == null) return;
         if (forceHide) {
             lpCarrierLabel.bottomMargin = mNotificationShortcutsIsActive ? mShortcutsSpacingHeight : 0;
         } else {
@@ -548,7 +548,7 @@ public class PhoneStatusBar extends BaseStatusBar {
     private void toggleCarrierAndWifiLabelVisibility() {
         mShowCarrierInPanel = !mNotificationHideCarrier;
         updateCarrierMargin(mNotificationHideCarrier);
-        mCarrierAndWifiView.setVisibility(mShowCarrierInPanel ? View.VISIBLE : View.INVISIBLE);
+        mCarrierAndWifiView.setVisibility(mShowCarrierInPanel ? View.VISIBLE : View.GONE);
     }
 
     // ================================================================================
@@ -810,7 +810,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             if (DEBUG) Slog.v(TAG, "carrierlabel=" + mCarrierLabel + " show=" + mShowCarrierInPanel);
             if (mShowCarrierInPanel) {
                 lpCarrierLabel = (FrameLayout.LayoutParams) mCarrierAndWifiView.getLayoutParams();
-                mCarrierLabel.setVisibility((mCarrierAndWifiViewVisible && !mNotificationHideCarrier) ? View.VISIBLE : View.INVISIBLE);
+                mCarrierLabel.setVisibility((mCarrierAndWifiViewVisible && !mNotificationHideCarrier) ? View.VISIBLE : View.GONE);
                 if (mNotificationHideCarrier)
                     mShowCarrierInPanel = false;
                     // for mobile devices, we always show mobile connection info here (SPN/PLMN)
@@ -1676,7 +1676,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         if (force || mCarrierAndWifiViewVisible != makeVisible) {
             mCarrierAndWifiViewVisible = makeVisible;
             if (DEBUG) {
-                Slog.d(TAG, "making carrier label " + (makeVisible?"visible":"invisible"));
+                Slog.d(TAG, "making carrier label " + (makeVisible?"visible":"gone"));
             }
             mCarrierAndWifiView.animate().cancel();
             if (makeVisible) {
@@ -1689,8 +1689,8 @@ public class PhoneStatusBar extends BaseStatusBar {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         if (!mCarrierAndWifiViewVisible) { // race
-                            mCarrierAndWifiView.setVisibility(View.INVISIBLE);
                             mCarrierAndWifiView.setAlpha(0f);
+                            mCarrierAndWifiView.setVisibility(View.GONE);
                         }
                     }
                 })
