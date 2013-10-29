@@ -43,9 +43,9 @@ public class PanelBar extends FrameLayout {
     public static final int STATE_OPENING = 1;
     public static final int STATE_OPEN = 2;
 
-    PanelHolder mPanelHolder;
+    private PanelHolder mPanelHolder;
     ArrayList<PanelView> mPanels = new ArrayList<PanelView>();
-    PanelView mTouchingPanel;
+    private PanelView mTouchingPanel;
     private int mState = STATE_CLOSED;
     private boolean mTracking;
     PanelView mFullyOpenedPanel;

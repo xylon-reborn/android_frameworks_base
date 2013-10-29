@@ -39,7 +39,7 @@ public class PanelView extends FrameLayout {
     public static final boolean DEBUG = PanelBar.DEBUG;
     public static final String TAG = PanelView.class.getSimpleName();
 
-    public static final boolean DEBUG_NAN = true; // http://b/7686690
+    public static final boolean DEBUG_NAN = false; // http://b/7686690
 
     public final void LOG(String fmt, Object... args) {
         if (!DEBUG) return;
