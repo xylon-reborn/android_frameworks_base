@@ -25,8 +25,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.LocationManager;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
+import android.os.Binder;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.os.storage.StorageManager;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
@@ -36,10 +42,13 @@ import android.telephony.MSimTelephonyManager;
 import android.telephony.TelephonyManager;
 import android.util.Slog;
 
+import com.android.internal.telephony.IccCard;
 import com.android.internal.telephony.IccCardConstants;
 import com.android.internal.telephony.MSimConstants;
 import com.android.internal.telephony.TelephonyIntents;
+import com.android.internal.telephony.cdma.EriInfo;
 import com.android.internal.telephony.cdma.TtyIntent;
+import com.android.server.am.BatteryStatsService;
 import com.android.systemui.R;
 
 /**

@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.EventLog;
+import android.util.Slog;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
@@ -230,6 +231,7 @@ public class NotificationPanelView extends PanelView {
             } else if (swipeFlipJustFinished) {
                 mStatusBar.completePartialFlip();
             }
+
             if (swipeFlipJustStarted || swipeFlipJustFinished) {
                 // Made up event: finger at the middle bottom of the view.
                 MotionEvent original = event;

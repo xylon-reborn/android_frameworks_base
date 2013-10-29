@@ -28,6 +28,10 @@ import android.widget.TextView;
 
 import com.android.internal.telephony.TelephonyIntents;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
+
 import com.android.internal.R;
 
 /**

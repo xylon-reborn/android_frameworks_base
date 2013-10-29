@@ -27,9 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.android.internal.statusbar.IStatusBarService;
-import com.android.systemui.statusbar.BaseStatusBar;
-
 public class PanelBar extends FrameLayout {
     public Hashtable<String, PanelBarCollapseListener> panelCollapseListeners = new Hashtable<String, PanelBarCollapseListener>();
     public static final boolean DEBUG = false;
@@ -207,19 +204,10 @@ public class PanelBar extends FrameLayout {
         }
         if (DEBUG) LOG("collapseAllPanels: animate=%s waiting=%s", animate, waiting);
         if (!waiting && mState != STATE_CLOSED) {
-            // it's possible that nothing animated, so we replicate the termination
+            // it's possible that nothing animated, so we replicate the termination 
             // conditions of panelExpansionChanged here
             go(STATE_CLOSED);
             onAllPanelsCollapsed();
-        }
-    }
-
-    protected void collapse() {
-        try {
-            IStatusBarService sb = IStatusBarService.Stub.asInterface(ServiceManager
-                    .getService(Context.STATUS_BAR_SERVICE));
-            sb.collapsePanels();
-        } catch (RemoteException e) {
         }
     }
 
