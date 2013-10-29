@@ -103,6 +103,8 @@ public class ActiveDisplayView extends FrameLayout {
 
     private static final long DISPLAY_TIMEOUT = 8000L;
 
+    private static final int POCKET_THRESHOLD = 5000;
+
     private static final int HIDE_NOTIFICATIONS_BELOW_SCORE = Notification.PRIORITY_LOW;
 
     // the different pocket mode options
@@ -144,11 +146,13 @@ public class ActiveDisplayView extends FrameLayout {
     private Sensor mProximitySensor;
     private boolean mProximityIsFar = true;
     private boolean mIsInBrightLight = false;
+    private boolean mWakedByPocketMode = false; 
     private LinearLayout mOverflowNotifications;
     private LayoutParams mRemoteViewLayoutParams;
     private int mIconSize;
     private int mIconMargin;
     private int mIconPadding;
+    private long mPocketTime = 0;
     private LinearLayout.LayoutParams mOverflowLayoutParams;
     private KeyguardManager mKeyguardManager;
     private KeyguardLock mKeyguardLock;
@@ -741,6 +745,7 @@ public class ActiveDisplayView extends FrameLayout {
         if (mPocketMode != POCKET_MODE_OFF && mDisplayNotifications) {
 	    Log.i(TAG, "ActiveDisplay: enable ProximitySensor"); 
             mProximityIsFar = true;
+            mPocketTime = 0;
             registerSensorListener(mProximitySensor);
         }
     }
