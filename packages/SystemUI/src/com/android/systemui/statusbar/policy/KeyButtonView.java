@@ -108,7 +108,7 @@ public class KeyButtonView extends ImageView {
 
             mGlowBG = a.getDrawable(R.styleable.KeyButtonView_glowBackground);
             if (mGlowBG != null) {
-                setDrawingAlpha(BUTTON_QUIESCENT_ALPHA);
+                setDrawingAlpha(mButtonAlpha);
                 mGlowWidth = mGlowBG.getIntrinsicWidth();
                 mGlowHeight = mGlowBG.getIntrinsicHeight();
             }
