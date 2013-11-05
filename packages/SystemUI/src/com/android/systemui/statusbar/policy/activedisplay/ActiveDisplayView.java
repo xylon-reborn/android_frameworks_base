@@ -272,6 +272,10 @@ public class ActiveDisplayView extends FrameLayout {
         public void onFinishFinalAnimation() {
 
         }
+
+        public void onTargetChange(View v, int whichHandle) {
+
+        }
     };
 
     /**
@@ -382,7 +386,7 @@ public class ActiveDisplayView extends FrameLayout {
                 case MSG_DISMISS_NOTIFICATION:
                     handleDismissNotification();
                     break;
-		case MSG_SHOW_TIME:
+		        case MSG_SHOW_TIME:
                     handleShowTime();
                     break;
                 default:
@@ -482,8 +486,6 @@ public class ActiveDisplayView extends FrameLayout {
         mRemoteViewLayout = (FrameLayout) contents.findViewById(R.id.remote_content_parent);
         mClock = contents.findViewById(R.id.clock_view);
         mCurrentNotificationIcon = (ImageView) contents.findViewById(R.id.current_notification_icon);
-
-	mCurrentNotificationIcon = (ImageView) contents.findViewById(R.id.current_notification_icon);
 
         mOverflowNotifications = (LinearLayout) contents.findViewById(R.id.keyguard_other_notifications);
         mOverflowNotifications.setOnTouchListener(mOverflowTouchListener);
@@ -1055,7 +1057,7 @@ public class ActiveDisplayView extends FrameLayout {
 	post(new Runnable() {
             @Override
             public void run() {
-		mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
+		        mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
                 setHandleText(sbn);
                 mNotification = sbn;
                 updateResources();
@@ -1124,12 +1126,12 @@ public class ActiveDisplayView extends FrameLayout {
             float value = event.values[0];
             if (event.sensor.equals(mProximitySensor)) {
                 boolean isFar = value >= mProximitySensor.getMaximumRange();
-                if (isFar) { 
+                if (isFar) {
                     mProximityIsFar = true;
                     if (!isScreenOn() && mPocketMode != POCKET_MODE_OFF && !isOnCall() && !inQuietHours()) {
                         if (System.currentTimeMillis() >= (mPocketTime + POCKET_THRESHOLD) && mPocketTime != 0) {
                             mWakedByPocketMode = true;
-			    Log.i(TAG, "ActiveDisplay: waked by Pocketmode");
+			                Log.i(TAG, "ActiveDisplay: waked by Pocketmode");
 
                             if (mNotification == null) {
                                 mNotification = getNextAvailableNotification();
@@ -1144,10 +1146,9 @@ public class ActiveDisplayView extends FrameLayout {
                 } else {
                     if (mProximityIsFar) mPocketTime = System.currentTimeMillis();
                     mProximityIsFar = false;
-		    if (isScreenOn() && mPocketMode != POCKET_MODE_OFF && !isOnCall() && mWakedByPocketMode) {
+		            if (isScreenOn() && mPocketMode != POCKET_MODE_OFF && !isOnCall() && mWakedByPocketMode) {
                         mWakedByPocketMode = false;
-			Log.i(TAG, "ActiveDisplay: sent to sleep by Pocketmode"); 
-
+			            Log.i(TAG, "ActiveDisplay: sent to sleep by Pocketmode");
                         restoreBrightness();
                         cancelTimeoutTimer();
                         turnScreenOff();

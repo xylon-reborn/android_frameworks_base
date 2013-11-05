@@ -38,6 +38,7 @@ import android.widget.TextView;
 import com.android.internal.R;
 import com.android.internal.util.liquid.ButtonsHelper;
 import com.android.internal.util.liquid.ButtonConfig;
+import com.android.internal.util.liquid.LockscreenTargetUtils;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -61,7 +62,6 @@ public class KeyguardShortcuts extends LinearLayout {
 
         mContext = context;
         mPackageManager = mContext.getPackageManager();
-
         createShortcuts();
     }
 
@@ -76,7 +76,8 @@ public class KeyguardShortcuts extends LinearLayout {
 
     private void createShortcuts() {
         ArrayList<ButtonConfig> buttonsConfig = ButtonsHelper.getLockscreenShortcutConfig(mContext);
-        if(buttonsConfig.size() == 0 || isScreenLarge() || isEightTargets()) {
+        if(buttonsConfig.size() == 0 || LockscreenTargetUtils.isScreenLarge() ||
+                LockscreenTargetUtils.isEightTargets()) {
             return;
         }
 
@@ -134,34 +135,4 @@ public class KeyguardShortcuts extends LinearLayout {
         v.setLayoutParams(vp);
         addView(v);
     }
-
-    private Drawable getDrawable(Resources res, String drawableName){
-        int resourceId = res.getIdentifier(drawableName, "drawable", "android");
-        if(resourceId == 0) {
-            Drawable d = Drawable.createFromPath(drawableName);
-            return d;
-        } else {
-            return res.getDrawable(resourceId);
-        }
-    }
-
-    private boolean isEightTargets() {
-        final int storedVal = Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_EIGHT_TARGETS, 0, UserHandle.USER_CURRENT);
-        if (storedVal == 0) return false;
-        return true;
-    }
-
-    public boolean isScreenLarge() {
-        final int screenSize = Resources.getSystem().getConfiguration().screenLayout &
-                Configuration.SCREENLAYOUT_SIZE_MASK;
-        boolean isScreenLarge = screenSize == Configuration.SCREENLAYOUT_SIZE_LARGE ||
-                screenSize == Configuration.SCREENLAYOUT_SIZE_XLARGE;
-        return isScreenLarge;
-    }
-
-    public void setLauncher(KeyguardActivityLauncher launcher) {
-        mActivityLauncher = launcher;
-    }
-
 }

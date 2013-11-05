@@ -60,6 +60,20 @@ public final class LockscreenTargetUtils {
         return isScreenLarge;
     }
 
+    private static boolean isShortcuts() {
+        final String apps = Settings.System.getStringForUser(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_SHORTCUTS_CONFIG, UserHandle.USER_CURRENT);
+        if (apps == null || apps.isEmpty()) return false;
+        return true;
+    }
+
+    private static boolean isEightTargets() {
+        final int storedVal = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_EIGHT_TARGETS, 0, UserHandle.USER_CURRENT);
+        if (storedVal == 0) return false;
+        return true;
+    }
+
     public static int getMaxTargets(Context context) {
         if (isScreenLarge(context)) {
             return GlowPadView.MAX_TABLET_TARGETS;

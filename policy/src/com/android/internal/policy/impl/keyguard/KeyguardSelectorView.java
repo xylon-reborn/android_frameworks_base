@@ -118,6 +118,9 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 mContext.unregisterReceiver(mUnlockReceiver);
                 mReceiverRegistered = false;
             }
+            if (!mLongPress) {
+                    mHandler.removeCallbacks(SetLongPress);
+            }
             if (mStoredTargets == null) {
                 final int resId = mGlowPadView.getResourceIdForTarget(target);
                 switch (resId) {
@@ -273,7 +276,8 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         LinearLayout glowPadContainer = (LinearLayout) findViewById(R.id.keyguard_glow_pad_container);
         glowPadContainer.bringToFront();
         final boolean isLandscape = res.getSystem().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        if (glowPadContainer != null && isShortcuts() && isLandscape && !isEightTargets()) {
+        if (glowPadContainer != null && LockscreenTargetUtils.isShortcuts() &&
+        isLandscape && !LockscreenTargetUtils.isScreenLarge() && !LockscreenTargetUtils.isEightTargets()) {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -287,7 +291,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             glowPadContainer.setLayoutParams(params);
         }
 
-        if (glowPadContainer != null && isEightTargets()) {
+        if (glowPadContainer != null && LockscreenTargetUtils.isEightTargets()) {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -339,20 +343,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
 
     public void setCarrierArea(View carrierArea) {
         mFadeView = carrierArea;
-    }
-
-    private boolean isShortcuts() {
-        final String apps = Settings.System.getStringForUser(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_SHORTCUTS_CONFIG, UserHandle.USER_CURRENT);
-        if (apps == null || apps.isEmpty()) return false;
-        return true;
-    }
-
-    private boolean isEightTargets() {
-        final int storedVal = Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_EIGHT_TARGETS, 0, UserHandle.USER_CURRENT);
-        if (storedVal == 0) return false;
-        return true;
     }
 
     public boolean isTargetPresent(int resId) {
@@ -647,6 +637,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             mGlowPadView.setArc(0, 0);
         }
     }
+
     public class UnlockReceiver extends BroadcastReceiver {
         public static final String ACTION_UNLOCK_RECEIVER = "com.android.lockscreen.ACTION_UNLOCK_RECEIVER";
         @Override
