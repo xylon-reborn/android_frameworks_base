@@ -17,6 +17,7 @@
 package com.android.internal.util.liquid;
 
 import android.content.Context;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -37,6 +38,8 @@ import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -60,15 +63,15 @@ public final class LockscreenTargetUtils {
         return isScreenLarge;
     }
 
-    private static boolean isShortcuts() {
-        final String apps = Settings.System.getStringForUser(mContext.getContentResolver(),
+    public static boolean isShortcuts(Context context) {
+        final String apps = Settings.System.getStringForUser(context.getContentResolver(),
                 Settings.System.LOCKSCREEN_SHORTCUTS_CONFIG, UserHandle.USER_CURRENT);
         if (apps == null || apps.isEmpty()) return false;
         return true;
     }
 
-    private static boolean isEightTargets() {
-        final int storedVal = Settings.System.getIntForUser(mContext.getContentResolver(),
+    public static boolean isEightTargets(Context context) {
+        final int storedVal = Settings.System.getIntForUser(context.getContentResolver(),
                 Settings.System.LOCKSCREEN_EIGHT_TARGETS, 0, UserHandle.USER_CURRENT);
         if (storedVal == 0) return false;
         return true;

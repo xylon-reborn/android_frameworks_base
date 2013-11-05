@@ -383,7 +383,7 @@ public class ActiveDisplayView extends FrameLayout {
                 case MSG_DISMISS_NOTIFICATION:
                     handleDismissNotification();
                     break;
-		        case MSG_SHOW_TIME:
+		case MSG_SHOW_TIME:
                     handleShowTime();
                     break;
                 default:
@@ -687,7 +687,6 @@ public class ActiveDisplayView extends FrameLayout {
     }
 
     private void handleShowTime() {
-        mCurrentNotificationIcon.setImageResource(R.drawable.ic_ad_unlock);
         mGlowPadView.setHandleText("");
         mNotificationDrawable = null;
         mRemoteView = null;
@@ -1059,9 +1058,6 @@ public class ActiveDisplayView extends FrameLayout {
         mGlowPadView.post(new Runnable() {
             @Override
             public void run() {
-		mCurrentNotificationIcon.setImageDrawable(mNotificationDrawable);
-                setHandleText(sbn);
-                mNotification = sbn;
                 updateResources();
                 mGlowPadView.invalidate();
                 if (updateOthers) updateOtherNotifications();

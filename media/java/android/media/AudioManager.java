@@ -46,7 +46,7 @@ import android.view.VolumePanel;
 
 import java.util.HashMap;
 
-import com.android.internal.util.cm.QuietHoursUtils;
+import com.android.internal.util.liquid.QuietHoursUtils;
 
 /**
  * AudioManager provides access to volume and ringer mode control.

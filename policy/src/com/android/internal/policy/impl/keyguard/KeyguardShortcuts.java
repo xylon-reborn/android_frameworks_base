@@ -76,8 +76,8 @@ public class KeyguardShortcuts extends LinearLayout {
 
     private void createShortcuts() {
         ArrayList<ButtonConfig> buttonsConfig = ButtonsHelper.getLockscreenShortcutConfig(mContext);
-        if(buttonsConfig.size() == 0 || LockscreenTargetUtils.isScreenLarge() ||
-                LockscreenTargetUtils.isEightTargets()) {
+        if(buttonsConfig.size() == 0 || LockscreenTargetUtils.isScreenLarge(mContext) ||
+                LockscreenTargetUtils.isEightTargets(mContext)) {
             return;
         }
 
@@ -134,5 +134,9 @@ public class KeyguardShortcuts extends LinearLayout {
                 new LinearLayout.LayoutParams(INNER_PADDING, 0);
         v.setLayoutParams(vp);
         addView(v);
+    }
+
+    public void setLauncher(KeyguardActivityLauncher launcher) {
+        mActivityLauncher = launcher;
     }
 }

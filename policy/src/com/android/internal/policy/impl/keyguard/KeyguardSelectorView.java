@@ -276,8 +276,9 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         LinearLayout glowPadContainer = (LinearLayout) findViewById(R.id.keyguard_glow_pad_container);
         glowPadContainer.bringToFront();
         final boolean isLandscape = res.getSystem().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        if (glowPadContainer != null && LockscreenTargetUtils.isShortcuts() &&
-        isLandscape && !LockscreenTargetUtils.isScreenLarge() && !LockscreenTargetUtils.isEightTargets()) {
+        if (glowPadContainer != null && LockscreenTargetUtils.isShortcuts(mContext) &&
+                isLandscape && !LockscreenTargetUtils.isScreenLarge(mContext) &&
+                !LockscreenTargetUtils.isEightTargets(mContext)) {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -291,7 +292,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             glowPadContainer.setLayoutParams(params);
         }
 
-        if (glowPadContainer != null && LockscreenTargetUtils.isEightTargets()) {
+        if (glowPadContainer != null && LockscreenTargetUtils.isEightTargets(mContext)) {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT,
