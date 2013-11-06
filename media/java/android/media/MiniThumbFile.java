@@ -393,7 +393,6 @@ public class MiniThumbFile {
 
         long pos = getIndex(id, false);
         if(pos < 0) return null;
-
         pos *= BYTES_PER_MINTHUMB;
 
         FileLock lock = null;

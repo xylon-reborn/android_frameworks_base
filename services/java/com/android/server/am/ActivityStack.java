@@ -3392,7 +3392,6 @@ final class ActivityStack {
                     if (floating) {
                         intent.addFlags(Intent.FLAG_FLOATING_WINDOW);
                     }
-
                     Bundle theseOptions;
                     if (options != null && i == intents.length-1) {
                         theseOptions = options;

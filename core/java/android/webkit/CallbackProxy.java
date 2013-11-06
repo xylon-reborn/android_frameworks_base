@@ -302,7 +302,6 @@ class CallbackProxy extends Handler {
             }
             return;
         }
-
         switch (msg.what) {
             case PAGE_STARTED:
                 String startedUrl = msg.getData().getString("url");

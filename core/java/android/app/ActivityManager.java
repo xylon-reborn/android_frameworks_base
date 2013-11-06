@@ -384,9 +384,7 @@ public class ActivityManager {
      * (which tends to consume a lot more RAM).
      * @hide
      */
-
     static public boolean isHighEndGfx() {
-
         if (totalSize == 0) {
             MemInfoReader reader = new MemInfoReader();
 			reader.readMemInfo();
@@ -421,14 +419,12 @@ public class ActivityManager {
      * @hide
      */
     static public boolean isLargeRAM() {
-
         if (memSize == 0) {
             MemInfoReader reader = new MemInfoReader();
             reader.readMemInfo();
             memSize = reader.getTotalSize();
             reader = null;
 		}
-
 
         if (memSize >= (640*1024*1024)) {
             // Currently 640MB RAM available to the kernel is the point at

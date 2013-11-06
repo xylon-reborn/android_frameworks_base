@@ -1858,7 +1858,6 @@ public class AudioManager {
         }
     }
 
-
     /**
      * Settings has an in memory cache, so this is fast.
      */

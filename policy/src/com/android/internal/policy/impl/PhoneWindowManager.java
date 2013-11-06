@@ -305,6 +305,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mSystemBooted;
     boolean mHdmiPlugged;
     boolean mWifiDisplayConnected;
+
     int mUiMode;
     int mDockMode = Intent.EXTRA_DOCK_STATE_UNDOCKED;
     int mLidOpenRotation;
@@ -340,8 +341,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mHasAssistKey;
     boolean mHasAppSwitchKey;
     boolean mHasCameraKey;
-
-    int mCurrentUser = 0;
 
     // The last window we were told about in focusChanged.
     WindowState mFocusedWindow;
@@ -1670,8 +1669,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             MSG_ENABLE_POINTER_LOCATION : MSG_DISABLE_POINTER_LOCATION);
                 }
             }
-
-            // Use screen off timeout setting as the timeout for the lockscreen
+            // use screen off timeout setting as the timeout for the lockscreen
             mLockScreenTimeout = Settings.System.getIntForUser(resolver,
                     Settings.System.SCREEN_OFF_TIMEOUT, 0, UserHandle.USER_CURRENT);
             String imId = Settings.Secure.getStringForUser(resolver,
@@ -1682,7 +1680,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 updateRotation = true;
             }
         }
-
         if (updateRotation) {
             updateRotation(true);
         } else if (updateDisplayMetrics) {
@@ -5597,7 +5594,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         ResolveInfo info = mContext.getPackageManager().resolveActivityAsUser(
                 intent,
                 PackageManager.MATCH_DEFAULT_ONLY | PackageManager.GET_META_DATA,
-                mCurrentUser);
+                UserHandle.USER_CURRENT);
         if (info != null) {
             ai = info.activityInfo;
         }
@@ -5840,7 +5837,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
         }
         setLastInputMethodWindowLw(null, null);
-        mCurrentUser = newUserId;
     }
 
     @Override

@@ -70,7 +70,6 @@ import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.RemoteViews.OnClickHandler;
 
-
 import com.android.internal.R;
 import com.android.internal.app.ThemeUtils;
 import com.android.internal.policy.impl.keyguard.KeyguardSecurityModel.SecurityMode;

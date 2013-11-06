@@ -49,7 +49,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-
 /**
  * <p>BatteryService monitors the charging status, and charge level of the device
  * battery.  When these values change this service broadcasts the new values

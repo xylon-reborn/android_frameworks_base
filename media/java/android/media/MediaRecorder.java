@@ -697,8 +697,9 @@ public class MediaRecorder
      */
     public native void start() throws IllegalStateException;
 
-/** @hide
-*/
+    /**
+     * @hide
+     */
     public native void pause() throws IllegalStateException;
 
     /**

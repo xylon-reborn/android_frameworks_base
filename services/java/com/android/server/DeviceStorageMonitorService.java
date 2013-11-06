@@ -95,7 +95,6 @@ public class DeviceStorageMonitorService extends Binder {
     private StatFs mDataFileStats;
     private StatFs mSystemFileStats;
     private StatFs mCacheFileStats;
-
     private static final File DATA_PATH = Environment.getDataDirectory();
     private static final File SYSTEM_PATH = Environment.getRootDirectory();
     private static final File CACHE_PATH = Environment.getDownloadCacheDirectory();
