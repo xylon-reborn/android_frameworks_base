@@ -4127,12 +4127,6 @@ public final class Settings {
         public static final String VOLUME_KEYS_CONTROL_RING_STREAM = "volume_keys_control_ring_stream";
 
         /**
-         * Wheter phone lockscreen uses 5 or 8 targets
-         * @hide
-         */
-        public static final String LOCKSCREEN_EIGHT_TARGETS = "lockscreen_eight_targets";
-
-        /**
          * Defines the shortcuts to be shown on lockscreen
          * Usage is like this: target|icon|target|icon|target|icon
          * if icon is not set, default application icon will be used
