@@ -85,6 +85,7 @@ public class GlowPadView extends View {
      */
     public final static String ICON_FILE = "icon_file";
 
+    //Lockscreen targets
     /**
      * Number of customizable lockscreen targets for tablets
      * @hide
@@ -1031,7 +1032,6 @@ public class GlowPadView extends View {
             switchToState(STATE_TRACKING, x, y);
             updateGlowPosition(x, y);
         }
-
         if (mActiveTarget != activeTarget) {
             // Defocus the old target
             if (mActiveTarget != -1) {
