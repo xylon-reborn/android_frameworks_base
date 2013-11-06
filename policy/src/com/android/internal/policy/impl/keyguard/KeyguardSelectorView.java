@@ -265,41 +265,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        Resources res = getResources();
-
-        LinearLayout glowPadContainer = (LinearLayout) findViewById(R.id.keyguard_glow_pad_container);
-        glowPadContainer.bringToFront();
-        final boolean isLandscape = res.getSystem().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        if (glowPadContainer != null && LockscreenTargetUtils.isShortcuts(mContext) &&
-                isLandscape && !LockscreenTargetUtils.isScreenLarge(mContext) &&
-                !LockscreenTargetUtils.isEightTargets(mContext)) {
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL
-            );
-            int pxBottom = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                60,
-                res.getDisplayMetrics());
-            params.setMargins(0, 0, 0, -pxBottom);
-            glowPadContainer.setLayoutParams(params);
-        }
-
-        if (glowPadContainer != null && LockscreenTargetUtils.isEightTargets(mContext)) {
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    Gravity.CENTER
-            );
-            int pxBottom = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                10,
-                res.getDisplayMetrics());
-            params.setMargins(0, 0, 0, -pxBottom);
-            glowPadContainer.setLayoutParams(params);
-        }
-
         LinearLayout msgAndShortcutsContainer = (LinearLayout) findViewById(R.id.keyguard_message_and_shortcuts);
         msgAndShortcutsContainer.bringToFront();
 
@@ -387,7 +352,8 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 || secureCameraDisabled;
         final KeyguardUpdateMonitor monitor = KeyguardUpdateMonitor.getInstance(getContext());
         boolean disabledBySimState = monitor.isSimLocked();
-        boolean cameraPresent = mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
+        boolean cameraPresent =
+                mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
         boolean searchTargetPresent =
                 isTargetPresent(com.android.internal.R.drawable.ic_action_assist_generic);
         mLongPress = false;
@@ -468,6 +434,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
             for (int i = 0; i < mTargetOffset; i++) {
                 storedDrawables.add(new TargetDrawable(res, null));
             }
+
             // Add unlock target
             storedDrawables.add(new TargetDrawable(res,
                     res.getDrawable(R.drawable.ic_lockscreen_unlock)));

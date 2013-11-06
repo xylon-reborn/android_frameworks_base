@@ -70,13 +70,6 @@ public final class LockscreenTargetUtils {
         return true;
     }
 
-    public static boolean isEightTargets(Context context) {
-        final int storedVal = Settings.System.getIntForUser(context.getContentResolver(),
-                Settings.System.LOCKSCREEN_EIGHT_TARGETS, 0, UserHandle.USER_CURRENT);
-        if (storedVal == 0) return false;
-        return true;
-    }
-
     public static int getMaxTargets(Context context) {
         if (isScreenLarge(context)) {
             return GlowPadView.MAX_TABLET_TARGETS;

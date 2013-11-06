@@ -76,8 +76,7 @@ public class KeyguardShortcuts extends LinearLayout {
 
     private void createShortcuts() {
         ArrayList<ButtonConfig> buttonsConfig = ButtonsHelper.getLockscreenShortcutConfig(mContext);
-        if(buttonsConfig.size() == 0 || LockscreenTargetUtils.isScreenLarge(mContext) ||
-                LockscreenTargetUtils.isEightTargets(mContext)) {
+        if(buttonsConfig.size() == 0 || LockscreenTargetUtils.isScreenLarge(mContext)) {
             return;
         }
 
