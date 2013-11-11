@@ -48,7 +48,7 @@ LOCAL_MODULE:= libandroidfw
 
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_CFLAGS += -DSTATIC_ANDROIDFW_FOR_TOOLS
+LOCAL_CFLAGS += -DSTATIC_ANDROIDFW_FOR_TOOLS -fno-strict-aliasing
 
 LOCAL_C_INCLUDES := \
 	external/zlib
